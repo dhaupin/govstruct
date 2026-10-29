@@ -16,7 +16,7 @@
 > stale docs - vant already runs three of the five arms), §16.9 adds **vant
 > stamping through railyard** (the write path), and §12.1 names the family
 > **`/labs` convention**. §18 indexes the ecosystem gaps, **all twelve now
-> folded into the normative sections** (§4 fields, §5.1, §6.1-6.6, §7.1, §8,
+> folded into the normative sections** (§4 fields, §5.1, §6.1-6.6, §7.2, §8,
 > §10 S5/S6, §16.4) - not a wish list, a design.
 >
 > **v0.3.1 note.** Corrects the composer's name to **railyard** (v0.3 wrote
@@ -431,25 +431,6 @@ four verify it, and it verifies them.**
   crosslinks resolve, all anchors present, no plaintext emails (the §2 lesson as
   law), hreflang/i18n basics intact. "Parity" stops being a claim.
 
-### 7.1 The verdict bus (G4)
-
-The self-proof above is a **pull**: the suite polls every member at a pinned rev,
-so the roll-up is only as fresh as the last cron, and a member that ships tells
-nobody. `family-status@1` is *per-member* proof; there is no aggregate signal. So
-the suite adds the other direction - a **push**:
-
-- a member's CI **emits a signed status receipt** on green (the ledger pattern,
-  one level up: the same append-only, tamper-refusing shape the arms already
-  use);
-- the receipt names the member, the rev, the verdicts, and the refusal codes
-  (§6.4) - it is portable because the vocabulary is shared;
-- the roll-up reads receipts when fresh and falls back to polling when not, so
-  "the suite is green right now" is a fact, not a cache age.
-
-No new protocol: the receipt is the status dialect the family already speaks,
-with a suite-level reader added. This is what turns five members' green CI into
-one suite signal.
-
 **These three are the natural arms of govstruct enforcement.** govstruct does not
 re-implement attack, capture, or baked-artifact audit - it **delegates** each to
 the arm that already owns it: crashtest attacks the loader, eyestruct watches the
@@ -482,6 +463,25 @@ govstruct must **compose with** it, not fork it:
   ledgers say.
 - One contract, two roles: `family-status@1` is *member-served proof*;
   govstruct is *suite-level governance*. They meet at the member roster.
+
+### 7.2 The verdict bus (G4)
+
+The self-proof above is a **pull**: the suite polls every member at a pinned rev,
+so the roll-up is only as fresh as the last cron, and a member that ships tells
+nobody. `family-status@1` is *per-member* proof; there is no aggregate signal. So
+the suite adds the other direction - a **push**:
+
+- a member's CI **emits a signed status receipt** on green (the ledger pattern,
+  one level up: the same append-only, tamper-refusing shape the arms already
+  use);
+- the receipt names the member, the rev, the verdicts, and the refusal codes
+  (§6.4) - it is portable because the vocabulary is shared;
+- the roll-up reads receipts when fresh and falls back to polling when not, so
+  "the suite is green right now" is a fact, not a cache age.
+
+No new protocol: the receipt is the status dialect the family already speaks,
+with a suite-level reader added. This is what turns five members' green CI into
+one suite signal.
 
 ---
 
@@ -1102,7 +1102,7 @@ in the family - how do vant and govstruct close the other half?*
 > the `eyestruct` visual memory. **The docs lag the code by a wide margin** - and
 > that lag is itself the drift govstruct is built to name.
 
-### The state today (verified 2026-10-29)
+### The state today: vant on axolotl (verified 2026-10-29)
 
 | surface | what vant actually ships | the gap |
 |---|---|---|
@@ -1206,7 +1206,7 @@ it is the **source** of the public/private/local idea govstruct's manifest and
 railyard's registry both use. That makes the handshake a *reunion*, not a
 negotiation: govstruct's `tier` field is vant's rig, named once.
 
-### The lesson for the OSS tool
+### The lesson: an Agent OS is governable
 
 A stranger running an agent OS hits this exact wall: N agents, N schemas, no
 refusal. The general shape - **read the pack contract the OS already adopted,
@@ -1379,7 +1379,7 @@ will look for it, not when it is listed here.
 | **G1** write-path concurrency | §6.5 | a stamp opens a PR; CI is the serializer |
 | **G2** naming authority | §6.2, §4 (`names.reserved`) | `govstruct names` checks npm + GitHub + roster |
 | **G3** dependency graph | §6.3, §4 (`needs[]`) | topo-sort; refuse a cycle |
-| **G4** verdict bus | §7.1 | members push a signed status receipt on green |
+| **G4** verdict bus | §7.2 | members push a signed status receipt on green |
 | **G5** credential delegation | §10 S6, §4 (`grants[]`) | a stamp runs under a scoped, single-use grant |
 | **G6** migration ritual | §8, §6 (`migrate`) | `migrations/` + `govstruct migrate --dry-run` |
 | **G7** revocation lifecycle | §6.6, §4 (`Tombstoned`) | a tombstone keeps aliases; never a 404 |
@@ -1420,7 +1420,7 @@ roll-up renders the graph. This is also how a bump propagates (§G6).
 
 Today the suite **polls** every member at a pinned rev. A member that ships does
 not notify anyone; the roll-up is only as fresh as the last cron. `family-status@1`
-(§7.1) is per-member proof, not an aggregate signal. **Lean:** the doctor's
+(§7.2) is per-member proof, not an aggregate signal. **Lean:** the doctor's
 roll-up is the aggregate, and a member's CI **pushes a signed status receipt** on
 green (the same ledger pattern, one level up). No new protocol - reuse the status
 dialect, add a suite-level reader.
