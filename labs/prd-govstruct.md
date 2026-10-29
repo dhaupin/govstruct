@@ -1366,7 +1366,7 @@ registry. The drift is not a worry; it is a table:
 | **CI shape** | 6 repos with **0** workflows, 18 with exactly **2**, 3 with 3, 3 with 4, 3 with 5, and **gistory with 22** | no enforced pattern; the range is 0 to 22 |
 | **lockfiles** | 28 with `package-lock.json`, **7 with none** | a repo without a lock is a repo that can drift on install |
 | **themes / rigs** | only 2 repos carry an `ssr.config.js`; the rest vary | the "fleet pattern" is aspirational, not measured |
-| **published truth** | repo versions say `poststruct` 0.9.0, `prestruct` 1.2.0, `freestruct` 1.2.0, `vant` 0.8.6; npm says **`poststruct` 404, `prestruct` 1.1.0, `freestruct` 1.1.0, `vant-os` 404** | the served truth and the repo truth **disagree** - exactly the class S4 governs |
+| **published truth** | **every one of the six published tools is ahead of npm**: `packstruct` repo 1.1.0 vs npm 1.0.0, `crashtest` 1.2.0 vs 1.1.0, `eyestruct` 1.1.0 vs 1.0.0, `prestruct` 1.2.0 vs 1.1.0, `freestruct` 1.2.0 vs 1.1.0; `poststruct` repo 0.9.0 vs **404 on npm** | the served truth and the repo truth **disagree, fleet-wide** - exactly the class S4 governs, and the owner's "a couple repos have not pushed" is really **all of them** |
 
 The 20-repo `creadev-*` component family is the sharpest example: all at `0.3.1`,
 none with an engines floor, all with the same 2 workflows - **consistent by hand,
