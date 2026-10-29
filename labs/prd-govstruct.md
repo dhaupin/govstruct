@@ -1,7 +1,7 @@
 # PRD: govstruct (the controller layer)
 
-**Status:** draft v0.7 - rename + factory-delegation + vant handshake + stamp loop + fleet meter + audit ledger designed; all fourteen ecosystem gaps folded into the normative sections · supersedes v0.3.1 (2026-10-29) · Owner: dhaupin
-**Author:** Buffy (v0.1-v0.2, 2026-10-28/29) · OpenHands agent (v0.3-v0.7 rewrite, 2026-10-29)
+**Status:** draft v0.8 - rename + factory-delegation + vant handshake + stamp loop + fleet meter + audit ledger + source consistency designed; all fifteen ecosystem gaps folded into the normative sections · supersedes v0.3.1 (2026-10-29) · Owner: dhaupin
+**Author:** Buffy (v0.1-v0.2, 2026-10-28/29) · OpenHands agent (v0.3-v0.8 rewrite, 2026-10-29)
 **Name lock:** npm `govstruct` verified free (registry 404, 2026-10-29); GitHub `dhaupin/govstruct` claimed 2026-10-29.
 **Companion PRDs:** `prd-factory` (monoforge), `prd-railyard` (the composer), `prd-creadev-mono`, `prd-gistory`, `prd-sync` live in the fleet repos / gistory `horcrux/prds/`.
 **Build home:** gistory (the ferry factory - staging tree + CI battery per the gistory doctrine); the composer is `dhaupin/railyard`.
@@ -17,7 +17,7 @@
 > stamping through railyard** (the write path), and §12.1 names the family
 > **`/labs` convention**. §18 indexes the ecosystem gaps, **all fourteen now
 > folded into the normative sections** (§4 fields, §5.1, §6.1-6.6, §7.2, §8,
-> §10 S5/S6, §16.4, §16.10, §19) - not a wish list, a design.
+> §10 S5/S6/S7, §16.4, §16.10, §16.11, §19) - not a wish list, a design.
 >
 > **v0.3.1 note.** Corrects the composer's name to **railyard** (v0.3 wrote
 > "railway" from a stale note) and grounds it in the now-readable private repo:
@@ -537,8 +537,10 @@ one suite signal.
 v0.2's Part II, kept - it is the strongest part of the draft. Each surface is a
 manifest block, a doctor rule, and a pack. All six are **receipt-backed**: the
 drift they name was measured in the suite, not assumed. S1-S4 are the original
-contract; S5 (a11y/i18n, G8) and S6 (credential delegation, G5) are the additions
-the ecosystem gaps forced (§18).
+contract; S5 (a11y/i18n, G8), S6 (credential delegation, G5), and S7
+(source-level consistency, G15) are the additions the ecosystem gaps forced
+(§18). S7 is the first surface with more than one pack - it is a **family** of
+five checks, because "source consistency" is not one rule but five (§16.11).
 
 ### S1 - Runtime floors (`engines`)
 
@@ -647,7 +649,17 @@ packs/public/
   env-shapes/pack.json       # S2: declared keys vs source inventory
   pin-shapes/pack.json       # S3: pin ledger vs the surfaces that enforce it
   version-shapes/pack.json   # S4: root version vs every living claim
+  a11y-shapes/pack.json      # S5: landmark, anchor, focus, contrast
+  test-shapes/pack.json      # S7: a test exists for every living module
+  hygiene-shapes/pack.json   # S7: no debugger, no stray log, no committed secret
+  naming-shapes/pack.json    # S7: file names match ids, no cross-namespace imports
+  style-shapes/pack.json     # S7: the family's style, as data
+  comment-shapes/pack.json   # S7: public exports are documented (presence only)
 ```
+
+The last five are the **source-level consistency** packs (§16.11) - the answer to
+"many hands, one codebase." They are `check` packs, not a fifth app: the mechanism
+is section 11's, the rules are data.
 
 Consequences, all free:
 
@@ -762,7 +774,10 @@ ships.
 - **No runtime menu service, no CDN-injected widget, no fetch-on-mount.** The
   served HTML is the contract.
 - **No governance of card prose, images, or marketing copy.** Only mechanical
-  truth (mesh + compliance).
+  truth (mesh + compliance). **The source-level split follows the same line:**
+  structure (a test exists, a name matches, a comment is present) is govstruct's
+  (§16.11, S7); **voice** (tone, register, wording) is poststruct's - govstruct
+  never judges a sentence, it invokes the sibling that owns that leg.
 - **No auto-runbook rewrite of any adopter repo by the robot.** PRs only,
   reviewed merges only.
 - **No new "gov" coverage beyond the contract.** The manifest, the render
@@ -816,6 +831,10 @@ Part II actually honored.
   every governance action from the first one, chained and verifiable offline. The
   ledger ships **with** the meter, not after - a meter whose findings leave no
   record is half a tool.
+- **M1.5c - the source packs (G15).** The five S7 check packs land and run at
+  both tiers (stamp gate + fleet meter). Each pack ships with a fixture that
+  breaks it, and the comment pack checks **presence only** - tone is poststruct's
+  leg. This is where "many hands, one codebase" stops being a complaint.
 - **M1.6 - the gate rules (G10, G3, then G1+G5).** The three gating gaps land in
   order: the shared refusal-code registry (§6.4), the dependency graph + topo-sort
   (§6.3), and the write path + grants pair (§6.5, §10 S6). Each ships with a
@@ -1347,7 +1366,7 @@ registry. The drift is not a worry; it is a table:
 | **CI shape** | 6 repos with **0** workflows, 18 with exactly **2**, 3 with 3, 3 with 4, 3 with 5, and **gistory with 22** | no enforced pattern; the range is 0 to 22 |
 | **lockfiles** | 28 with `package-lock.json`, **7 with none** | a repo without a lock is a repo that can drift on install |
 | **themes / rigs** | only 2 repos carry an `ssr.config.js`; the rest vary | the "fleet pattern" is aspirational, not measured |
-| **published truth** | repo versions say `poststruct` 0.9.0, `prestruct` 1.2.0, `freestruct` 1.2.0, `vant` 0.8.6; npm says **`poststruct` 404, `prestruct` 1.1.0, `freestruct` 1.1.0, `vant-os` 404** | the served truth and the repo truth **disagree** - exactly the class S4 governs |
+| **published truth** | **every one of the six published tools is ahead of npm**: `packstruct` repo 1.1.0 vs npm 1.0.0, `crashtest` 1.2.0 vs 1.1.0, `eyestruct` 1.1.0 vs 1.0.0, `prestruct` 1.2.0 vs 1.1.0, `freestruct` 1.2.0 vs 1.1.0; `poststruct` repo 0.9.0 vs **404 on npm** | the served truth and the repo truth **disagree, fleet-wide** - exactly the class S4 governs, and the owner's "a couple repos have not pushed" is really **all of them** |
 
 The 20-repo `creadev-*` component family is the sharpest example: all at `0.3.1`,
 none with an engines floor, all with the same 2 workflows - **consistent by hand,
@@ -1393,6 +1412,89 @@ governance job (a fleet that stays tamed) proves the tool is *worth running*. Th
 first four cases answer "can it?"; this one answers "why keep it?" - and the
 answer is the measured table above, which is what happens to any fleet that has
 only prevention and no meter.
+
+---
+
+## 16.11 Case study: many hands, one codebase (source-level consistency)
+
+**The case the owner named: a variety of agents and platforms have built on
+Creadev repos, so there is no consistency in testing, hygiene, style, naming,
+namespaces, comments, or tone.** Every contributor (human or agent) brought their
+own habits, and nothing at the source level enforces the family's. Coreforge
+stamps a *new* repo with the pattern; it does not police the lines inside the 35
+that exist.
+
+### The ruling: this is section 11, not a fifth app
+
+The honest worry is that source-level enforcement is a **fifth packs-based struct
+app** - and the owner would rather it were not. The ruling is that **it is not an
+app, because it invents no grammar.** Section 11 already settles the architecture:
+a compliance rule *is* a packstruct SPEC v1 `check`-profile pack - a declarative,
+pure-reading verifier over files on disk, armed by being enumerated in the host
+config. That is exactly what a style check is.
+
+So the whole substance of a hypothetical fifth app would be **a set of check
+packs.** govstruct is already a `check`-profile host (§11, tier table). Shipping
+those packs inside govstruct therefore adds a **pack**, not an **app**. A separate
+`stylelint`-struct would duplicate the host - the manifest, the doctor, the
+roll-up, the ledger - only to carry the same packs. That is the anti-pattern the
+family already named: a second dialect for a first-class job.
+
+The one-sentence test: **if the new thing needs its own manifest, its own doctor,
+or its own roll-up, it is an app; if it only needs a new check, it is a pack.**
+Source consistency needs a new check. It is a pack.
+
+### What is mechanical, and what is not
+
+Source consistency has two halves, and they have different owners. Getting this
+split right is what keeps govstruct from claiming a voice it should not own:
+
+| dimension | mechanical? | who checks it |
+|---|---|---|
+| testing (a test file exists, runs, covers the changed path) | yes | a `check` pack + crashtest for the adversarial shapes |
+| hygiene (no debugger, no stray `console.log`, no committed secrets, no TODO debt above a threshold) | yes | a `check` pack |
+| naming / namespaces (file names match ids, export names match the manifest, no cross-namespace imports) | yes | a `check` pack; reuses the id-equals-filename rule the loader already enforces |
+| code style (tabs vs spaces, line length, import order, trailing whitespace) | yes | a `check` pack; the family's own prose laws are already machine-checked |
+| comment **presence** (public exports are documented) | yes | a `check` pack |
+| comment **tone** / voice / marketing copy | **no** | **poststruct** - its language pack owns voice (the interop law: govstruct never judges prose, it invokes poststruct's CLI) |
+
+The last row is the boundary. govstruct enforces **structure** - is there a test,
+is the name right, is the comment there. poststruct judges **voice** - is the
+comment in the family's register. govstruct never reads a sentence for tone; it
+calls the sibling that owns that leg. This is the same split as S5 (govstruct
+checks the a11y *fact*, poststruct checks the *rendered* half).
+
+### The two-tier model (the pattern the whole family already uses)
+
+Source consistency is not a new mechanism; it is the suite's existing
+author-time-vs-run-time split, aimed at source:
+
+1. **Stamp time (prevention).** Coreforge stamps a new repo with the pattern, and
+   the `check` packs run as part of the stamp gate. A repo is **born consistent.**
+2. **Meter time (detection).** `govstruct doctor --suite --fleet` (G13) runs the
+   same packs over the whole fleet and reports every repo that has **left** the
+   pattern. A repo **stays consistent** only if something watches it.
+
+The packs are the same at both tiers (§11's tier table). Prevention without
+detection is a hope; detection without prevention is a nag. The family needs
+both, and it already has both - the packs just need to exist.
+
+### Why this is the golden case's other half
+
+Section 16.10 metered the *manifest* surfaces (engines, pins, versions). This case
+meters the *source* surfaces (tests, hygiene, style, naming). They are the same
+job - **detect drift, refuse it nameably, migrate the fix, record the receipt** -
+over two layers of the same fleet. A fleet can be manifest-consistent and
+source-inconsistent at once, which is exactly the state the owner described.
+
+### The anti-feature: govstruct does not own a style
+
+The ruling has a hard edge. govstruct ships the **mechanism** to enforce a style
+and the **family's** style as the reference packs. It does not declare its own
+taste law. A fork points the packs at its own rules; the family's rules are data,
+not doctrine. If govstruct ever hardcoded "tabs" or "no semicolons" into `src/`,
+it would have become the fifth app it refused to be. **The packs are data; the
+host is general.**
 
 ---
 
@@ -1468,6 +1570,7 @@ will look for it, not when it is listed here.
 | **G12** roll-up address + cache | §5.1 | versioned path + `ETag` + checksum |
 | **G13** fleet drift meter | §16.10, §6 (`doctor --suite`) | meter the fleet, not just the manifest |
 | **G14** audit ledger | §19 | one append-only, chained ledger of every action |
+| **G15** source-level consistency | §16.11, §11 (S7 packs) | five check packs: tests, hygiene, naming, style, comment presence |
 
 The rest of this section keeps each gap's original rationale, so the *why* is not
 lost when the *where* moves.
@@ -1596,6 +1699,19 @@ and `govstruct audit verify` walks the chain offline. It is the concrete form of
 "evidence, not certification" (§16.8) and the completion of "refusal instant and
 nameable" (§19.6).
 
+### G15. Many hands, one codebase, no source consistency
+
+§16.11 is the receipt: a variety of agents and platforms have built on the repos,
+so testing, hygiene, style, naming, namespaces, comments, and tone have no
+enforced consistency. The owner's worry was that this is a fifth packs-based app.
+**The ruling: it is a pack, not an app.** A compliance rule *is* a `check`-profile
+pack (§11); source consistency needs five new checks, not a new host. **Lean:** an
+S7 surface - five `check` packs (test-shapes, hygiene-shapes, naming-shapes,
+style-shapes, comment-shapes) - run at stamp time (coreforge prevention) and at
+meter time (`doctor --suite --fleet`, G13 detection). Tone is the one exception:
+it is **poststruct's** (voice), never govstruct's (the interop law). The packs are
+data; the host stays general.
+
 ### What the gaps say together
 
 Three of them (G1, G5, G10) are the **agent-minted world** asking for governance:
@@ -1603,7 +1719,7 @@ concurrency, credentials, and a shared refusal language. Two (G2, G7) are the
 **identity lifecycle**: claiming a name and retiring one. The rest are the
 **furniture** of a real suite: a graph, a bus, migrations, a11y, onboarding, a
 network split, a cache contract. None is speculative - each is a question the
-case studies raised. **All fourteen are now folded into the design** (the index
+case studies raised. **All fifteen are now folded into the design** (the index
 above); what remains is to build them and prove each with a fixture.
 
 ### The build order the gaps imply
