@@ -1,7 +1,7 @@
 # PRD: govstruct (the controller layer)
 
-**Status:** draft v0.6 - rename + factory-delegation + vant handshake + stamp loop designed; all twelve ecosystem gaps folded into the normative sections · supersedes v0.3.1 (2026-10-29) · Owner: dhaupin
-**Author:** Buffy (v0.1-v0.2, 2026-10-28/29) · OpenHands agent (v0.3-v0.6 rewrite, 2026-10-29)
+**Status:** draft v0.7 - rename + factory-delegation + vant handshake + stamp loop + fleet meter + audit ledger designed; all fourteen ecosystem gaps folded into the normative sections · supersedes v0.3.1 (2026-10-29) · Owner: dhaupin
+**Author:** Buffy (v0.1-v0.2, 2026-10-28/29) · OpenHands agent (v0.3-v0.7 rewrite, 2026-10-29)
 **Name lock:** npm `govstruct` verified free (registry 404, 2026-10-29); GitHub `dhaupin/govstruct` claimed 2026-10-29.
 **Companion PRDs:** `prd-factory` (monoforge), `prd-railyard` (the composer), `prd-creadev-mono`, `prd-gistory`, `prd-sync` live in the fleet repos / gistory `horcrux/prds/`.
 **Build home:** gistory (the ferry factory - staging tree + CI battery per the gistory doctrine); the composer is `dhaupin/railyard`.
@@ -15,9 +15,9 @@
 > §16.8 adds the **vant case study** (verified against axolotl *code*, not the
 > stale docs - vant already runs three of the five arms), §16.9 adds **vant
 > stamping through railyard** (the write path), and §12.1 names the family
-> **`/labs` convention**. §18 indexes the ecosystem gaps, **all twelve now
+> **`/labs` convention**. §18 indexes the ecosystem gaps, **all fourteen now
 > folded into the normative sections** (§4 fields, §5.1, §6.1-6.6, §7.2, §8,
-> §10 S5/S6, §16.4) - not a wish list, a design.
+> §10 S5/S6, §16.4, §16.10, §19) - not a wish list, a design.
 >
 > **v0.3.1 note.** Corrects the composer's name to **railyard** (v0.3 wrote
 > "railway" from a stale note) and grounds it in the now-readable private repo:
@@ -810,6 +810,12 @@ Part II actually honored.
   floor table §10 S1 is the first receipt); the shape packs lint clean under
   packstruct. The `clause` field (§4) is carried from the start; the full ISO
   9001/27001 mapping ships later as a profile pack, not in the core.
+- **M1.5b - the fleet meter + the audit ledger (G13, G14).** The golden case made
+  real: `doctor --suite --fleet` reads the live fleet and reports every drift on
+  one page (§16.10's table is the first receipt); the audit ledger (§19) records
+  every governance action from the first one, chained and verifiable offline. The
+  ledger ships **with** the meter, not after - a meter whose findings leave no
+  record is half a tool.
 - **M1.6 - the gate rules (G10, G3, then G1+G5).** The three gating gaps land in
   order: the shared refusal-code registry (§6.4), the dependency graph + topo-sort
   (§6.3), and the write path + grants pair (§6.5, §10 S6). Each ships with a
@@ -1318,6 +1324,78 @@ first; this case study is what makes the registry a *target* rather than a list.
 
 ---
 
+## 16.10 Case study: sanity running a fleet (the drift meter)
+
+**The golden case - the one that is not a one-time event but an ongoing job.**
+The four proving cases above are *events* (a rename, a move, a handshake, a
+stamp). This one is the *steady state*: a living fleet that drifts unless
+something holds it. The owner's words: the family uses a variety of themes, npm
+versions, and a hodgepodge of CI everywhere; no patterns are enforced except by
+hand. Coreforge (the rig) helps going forward, but it cannot fix the repos that
+already exist, and it cannot stop them from drifting apart again. govstruct can.
+
+### The fleet, measured (2026-10-29, live receipts)
+
+Sampled every non-archived repo under `dhaupin` via the GitHub API plus the npm
+registry. The drift is not a worry; it is a table:
+
+| surface | what the fleet actually shows | the drift |
+|---|---|---|
+| **engines floors** | **23 of 35 repos declare no `engines.node` at all**; the 12 that do split across `>=20` (5), `>=18` (4), `>=18.0.0` (2), `>=18.17` (1) | four floors plus a null; the `>=18.17` patch floor is unexplained from outside (S1) |
+| **arm adoption** | `packstruct` in 7 repos, `crashtest` in 7, `eyestruct` in 4, `poststruct` in **0** | four of five arms, unevenly; `poststruct` exists but no repo declares it |
+| **pin style** | exact (`1.0.0`, `1.1.0`) in the tool repos, ranges (`^1.0.0`, `^1.1.0`) in creadev/eyestruct/vant | **two philosophies for the same pin**, in the same fleet |
+| **CI shape** | 6 repos with **0** workflows, 18 with exactly **2**, 3 with 3, 3 with 4, 3 with 5, and **gistory with 22** | no enforced pattern; the range is 0 to 22 |
+| **lockfiles** | 28 with `package-lock.json`, **7 with none** | a repo without a lock is a repo that can drift on install |
+| **themes / rigs** | only 2 repos carry an `ssr.config.js`; the rest vary | the "fleet pattern" is aspirational, not measured |
+| **published truth** | repo versions say `poststruct` 0.9.0, `prestruct` 1.2.0, `freestruct` 1.2.0, `vant` 0.8.6; npm says **`poststruct` 404, `prestruct` 1.1.0, `freestruct` 1.1.0, `vant-os` 404** | the served truth and the repo truth **disagree** - exactly the class S4 governs |
+
+The 20-repo `creadev-*` component family is the sharpest example: all at `0.3.1`,
+none with an engines floor, all with the same 2 workflows - **consistent by hand,
+not by contract.** One hand-typed slip and the family diverges.
+
+### Why coreforge cannot be the whole answer
+
+Coreforge is the **rig**: it stamps a *new* repo with the pattern. That is
+prevention, and it is the right tool for prevention. But:
+
+- it does not reach the repos that already exist (35 of them);
+- it does not detect when a repo **leaves** the pattern after the stamp (a hand
+  edit, a dependency bump, a CI file deleted);
+- it does not tell you **which** repos have drifted, or **how**, in one view.
+
+Prevention and detection are different jobs. Coreforge prevents; **govstruct
+meters.** The fleet needs both, and today only the prevention half exists.
+
+### The sanity workflow (what the golden case looks like in practice)
+
+The ongoing job, in four verbs:
+
+1. **`govstruct doctor --suite`** over the fleet emits **one page**: every drift,
+   by member, by surface. Not 35 CI runs to read - one roll-up. This is §5's
+   registry surface, aimed at the operator.
+2. **each drift is a refusal with a clause and a fix** - "`vant` floor `>=18`
+   disagrees with its manifest row (S1); expected `>=20`." Nameable, not a
+   shrug (§6).
+3. **`govstruct migrate` (G6)** turns "35 repos need the floor bumped" into a
+   **named, resumable migration** with a per-repo row: applied, pending, refused.
+   The fleet-wide edit is a reviewed, resumable plan, not a scramble.
+4. **the audit ledger (§19) records every step**, so "we tamed the fleet" is
+   **provable**, not claimed. A stranger can verify the claim against the ledger.
+
+The loop is the product: **meter the fleet, refuse the drift, migrate the fix,
+record the receipt.** Coreforge births a repo correctly; govstruct keeps the
+fleet correct, forever.
+
+### The golden lesson
+
+A one-time governance event (a rename) proves the tool *works*. An **ongoing**
+governance job (a fleet that stays tamed) proves the tool is *worth running*. The
+first four cases answer "can it?"; this one answers "why keep it?" - and the
+answer is the measured table above, which is what happens to any fleet that has
+only prevention and no meter.
+
+---
+
 ## 17. Open questions
 
 1. **One manifest or two?** Mesh blocks (`members/`) and compliance blocks
@@ -1388,6 +1466,8 @@ will look for it, not when it is listed here.
 | **G10** shared refusal vocabulary | §6.4 | a namespaced refusal-code registry (data) |
 | **G11** network posture | §6.1 | offline by default; online on `--network` |
 | **G12** roll-up address + cache | §5.1 | versioned path + `ETag` + checksum |
+| **G13** fleet drift meter | §16.10, §6 (`doctor --suite`) | meter the fleet, not just the manifest |
+| **G14** audit ledger | §19 | one append-only, chained ledger of every action |
 
 The rest of this section keeps each gap's original rationale, so the *why* is not
 lost when the *where* moves.
@@ -1492,6 +1572,30 @@ railyard) need a **stable URL + cache policy**, or every consumer re-derives it.
 contract, and `apps.json` is the canonical source it renders from - one artifact,
 many readers, no divergent copies.
 
+### G13. The fleet drifts and nothing meters it (the golden case)
+
+§16.10 is the receipt: 23 of 35 repos declare no engines floor, four floors where
+they do, `poststruct` declared by **no** repo, pin styles split two ways, CI
+ranging from 0 to 22 workflows, 7 repos with no lockfile, and served versions that
+disagree with the repos. Coreforge stamps the pattern into a *new* repo; nothing
+watches the *existing* fleet or notices when a repo leaves the pattern. **Lean:**
+the doctor grows a fleet mode - `govstruct doctor --suite --fleet` reads each
+member's live surfaces (engines, pins, workflows, lockfile, published version) and
+reports every drift as a typed refusal on one page. The meter is the product;
+coreforge is prevention, govstruct is detection, and the fleet needs both.
+
+### G14. Governance actions leave no auditable record
+
+Every rule in this PRD - a refusal, a rename, a stamp, a grant spend, a migration
+- produces an action, and today none of them is recorded in a way a stranger can
+verify without trusting the operator. **Lean:** one append-only, content-addressed
+**audit ledger** (§19), chained by hash, pointing at receipts the suite already
+produces (locks, verdicts, stamp receipts, migration rows, grant spends). It
+answers the four audit questions - what, who, on what evidence, within the rules -
+and `govstruct audit verify` walks the chain offline. It is the concrete form of
+"evidence, not certification" (§16.8) and the completion of "refusal instant and
+nameable" (§19.6).
+
 ### What the gaps say together
 
 Three of them (G1, G5, G10) are the **agent-minted world** asking for governance:
@@ -1499,8 +1603,8 @@ concurrency, credentials, and a shared refusal language. Two (G2, G7) are the
 **identity lifecycle**: claiming a name and retiring one. The rest are the
 **furniture** of a real suite: a graph, a bus, migrations, a11y, onboarding, a
 network split, a cache contract. None is speculative - each is a question the
-four case studies raised. **All twelve are now folded into the design** (the
-index above); what remains is to build them and prove each with a fixture.
+case studies raised. **All fourteen are now folded into the design** (the index
+above); what remains is to build them and prove each with a fixture.
 
 ### The build order the gaps imply
 
@@ -1516,3 +1620,124 @@ The gaps are not equal. Three gate the rest:
 The rest (G2, G4, G6, G7, G8, G9, G11, G12) are independent and can land in any
 order once the three above hold. This ordering is the seed of the build plan
 (§15) - baselines first, then the three gates, then the furniture.
+
+---
+
+## 19. Auditability: the ledger of record
+
+**The question.** Every rule above - a refusal, a rename, a stamp, a grant spend,
+a migration, a floor bump - must be **auditable**: a third party must be able to
+verify *what happened, who authorized it, on what evidence, and whether it was
+within the rules*, **without trusting the operator.** A governance system that
+cannot be audited is just an opinion with good formatting.
+
+**The proposal: one append-only, content-addressed ledger.** Every governance
+action appends exactly one entry. Each entry is addressed by the sha256 of its
+own body and **chains** to the previous entry's hash, so the ledger is
+tamper-evident: you cannot rewrite or remove history without breaking the chain.
+This is not a new mechanism - it is **vant's traveler pattern** (§16.8: a
+content-derived address, an append-only ledger, a pin ledger, tamper-refuse,
+`auditReport`) lifted from one subsystem to the whole suite. The family already
+proved the shape and already maps ISO 9001 clause 8.5.2 onto it; govstruct makes
+it the suite's record.
+
+### 19.1 The entry shape
+
+One JSON object per line (`labs/audit-ledger.jsonl`), append-only:
+
+```
+{
+  "seq": 412,                         # monotonic; a gap is a refusal
+  "prev": "sha256:9f2c...",           # the prior entry's address (the chain)
+  "at": "2026-10-29T07:41:00Z",       # when
+  "verb": "stamp",                    # what (the govstruct verb family, §6)
+  "actor": { "kind": "agent",         # who: human | agent | ci
+             "id": "vant/buffy-357",
+             "grant": "grant:railyard_stamp/repo:govstruct-demo" },
+  "subject": { "member": "vant", "rev": "c71b0d24" },   # what it acted on
+  "evidence": [                        # the receipts it points at, never copies
+    "lock:sha256:3b1a...",
+    "verdict:doctor@suite/2026-10-29T07:40:58Z",
+    "refusal:null"
+  ],
+  "clause": { "9001-7.5.3": "control of documented information" },
+  "verdict": "PASS"                   # or a typed refusal code (§6.4)
+}
+```
+
+### 19.2 What it composes (it does not duplicate)
+
+The ledger is an **index with a chain**, not a second copy of anything. It points
+at receipts the suite already produces:
+
+| it records | the receipt it points at |
+|---|---|
+| a lock | `lock`'s sha256 archive receipt (§6) |
+| a green member | the verdict-bus status receipt (§7.2) |
+| a stamp | the railyard stamp receipt, including the spent grant (§16.9) |
+| a migration step | the per-repo migration row (G6) |
+| a grant spend | the escrow row (S6) |
+| a rename / factory move | the frozen history refs (§16.5, §16.6) |
+
+So there is **one** place to read "what has governance done," and the underlying
+surfaces stay the members' own. This is the same "index, do not replace" law as
+the pin ledger (S3).
+
+### 19.3 Verification by a stranger
+
+`govstruct audit verify` walks the chain from `seq: 1`:
+
+- recompute each entry's sha256; a mismatch is a **tamper refusal**, naming the
+  seq;
+- check `prev` links form an unbroken chain; a gap is a **history refusal**;
+- resolve every `evidence` reference; a dangling one is a **receipt refusal**;
+- re-check each `grant` against the member's `grants[]` (S6); an unlisted spend is
+  an **authority refusal**.
+
+No secret, no operator trust, no network. A stranger with the repo can verify the
+whole governance history offline - the same posture as the doctor (§6.1).
+
+### 19.4 The four audit questions
+
+The ledger answers, for any change, exactly the four questions an auditor asks:
+
+| question | the field that answers it |
+|---|---|
+| **What** changed? | `verb` + `subject` |
+| **Who** authorized it? | `actor` + `actor.grant` |
+| **On what evidence?** | `evidence[]` (resolvable receipts) |
+| **Within the rules?** | `verdict` (PASS or a typed refusal) + the `grant` check |
+
+### 19.5 ISO: this is the documented-information control
+
+The `clause` field makes the mapping explicit rather than implied:
+
+- **ISO 9001:2015 clause 7.5** (control of documented information) - the ledger is
+  the record: it is created, updated, controlled, retained, and its integrity is
+  verified by the chain. The traveler already maps **8.5.2** (identification and
+  traceability); the ledger generalizes it suite-wide.
+- **ISO 27001 A.12.4** (logging and monitoring) - the ledger is the event log:
+  who did what, when, under which authority, tamper-evident.
+
+govstruct does not claim certification; it emits the **evidence a certification
+audit would ask for**, and `audit verify` is how the auditor checks it. This is
+the concrete form of §16.8's "evidence, not certification."
+
+### 19.6 The ledger is the completion of the core law
+
+The core law is "**manifest frozen, refusal instant and nameable**." Frozen means
+there is a record of what the manifest was at every point (the chain). Nameable
+means every refusal has a code (§6.4) and a row here. So the ledger is not an
+add-on - it is the half of the law that makes the other half **provable**. A
+refusal that leaves no record is a refusal nobody can audit; a manifest that
+leaves no history is a manifest nobody can trust.
+
+### 19.7 Where it lives
+
+- `labs/audit-ledger.jsonl` - the chain, committed (git gives a first
+  tamper-evidence layer; the hash chain adds the second).
+- `horcrux/` - the periodic archive + checksum (monoforge's `lock` shape), so the
+  ledger's own history is locked like any artifact.
+- **per-repo, never global** - each repo carries its own ledger for the actions
+  it took; the suite roll-up (§5) reads them into one view. This keeps the
+  "`labs/` is per-repo, never governed" rule (§12.1) intact.
