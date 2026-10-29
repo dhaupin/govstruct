@@ -1,7 +1,7 @@
 # PRD: govstruct (the controller layer)
 
-**Status:** draft v0.4 - rename + factory-delegation designed; OSS hygiene stated · supersedes v0.3.1 (2026-10-29) · Owner: dhaupin
-**Author:** Buffy (v0.1-v0.2, 2026-10-28/29) · OpenHands agent (v0.3-v0.4 rewrite, 2026-10-29)
+**Status:** draft v0.4.1 - rename + factory-delegation + vant handshake designed; OSS hygiene + labs convention stated · supersedes v0.3.1 (2026-10-29) · Owner: dhaupin
+**Author:** Buffy (v0.1-v0.2, 2026-10-28/29) · OpenHands agent (v0.3-v0.4.1 rewrite, 2026-10-29)
 **Name lock:** npm `govstruct` verified free (registry 404, 2026-10-29); GitHub `dhaupin/govstruct` claimed 2026-10-29.
 **Companion PRDs:** `prd-factory` (monoforge), `prd-railyard` (the composer), `prd-creadev-mono`, `prd-gistory`, `prd-sync` live in the fleet repos / gistory `horcrux/prds/`.
 **Build home:** gistory (the ferry factory - staging tree + CI battery per the gistory doctrine); the composer is `dhaupin/railyard`.
@@ -10,9 +10,10 @@
 > is written up as a proving case: the member **flowforge is renamed coreforge**
 > (`coreforge.creadev.org`, §16.5), and the **factory delegation gistory →
 > railyard** is designed (§16.6). Both forced manifest fields (`aliases`, `home`)
-> and a doctor rule (home-drift). §16 also now states the **OSS repo hygiene**
-> law: the tool repo is clean of Creadev data; railyard runs the reference
-> deployment with the real roster (§16.7).
+> and a doctor rule (home-drift). §16.7 states the **OSS repo hygiene** law (the
+> tool repo is clean of Creadev data; railyard runs the reference deployment),
+> §16.8 adds the **vant case study** (governing an Agent OS that freeballs), and
+> §12.1 names the family **`/labs` convention**.
 >
 > **v0.3.1 note.** Corrects the composer's name to **railyard** (v0.3 wrote
 > "railway" from a stale note) and grounds it in the now-readable private repo:
@@ -526,6 +527,35 @@ Where each check runs (three tiers, same pack):
 
 ---
 
+## 12.1 The `/labs` convention (family-wide)
+
+The family's working artifacts live in a **`labs/`** directory at each repo's
+root, not scattered: eyestruct's committed visual memory (`labs/.eyes/`),
+crashtest's ledger (`labs/crashledger.json`) and `labs/hardening.md`, PRDs and
+TASKS logs, and vant's `labs/` (WIRING, canonicalization roadmap, the PRD set).
+
+govstruct adopts the convention and names it, because it is the natural home for
+**govstruct's own working state**:
+
+| artifact | home |
+|---|---|
+| the work log / TASKS | `labs/TASKS.md` |
+| the crash ledger | `labs/crashledger.json` + `labs/hardening.md` |
+| the eyes | `labs/.eyes/` |
+| the PRD set | `labs/prd-*.md` |
+
+Two laws fall out, both already true in the family:
+
+- **`labs/` is a receipt, not config.** The rename doctor (§16.5) must **skip
+  `labs/`** when scanning for living identity literals - a PRD or a TASK log that
+  says `flowforge` is history, and rewriting it would be a lie. The census gate
+  already skips it; govstruct's pack must too.
+- **`labs/` is per-repo, never governed.** govstruct's manifest names *members*,
+  not the files inside them. `labs/` is a member's private memory; the doctor
+  reads a member's declared surfaces, not its work log.
+
+---
+
 ## 13. The full build-out (repo shape, CI, web, docs, packs)
 
 ```
@@ -618,13 +648,15 @@ Part II actually honored.
 - **M3 - railyard integration.** Wire the composer: railyard's `mounts/state.json`
   and govstruct's `apps.json` meet at `repo` + `tier`/`role` (§3.3). Owner call on
   the interface (§17 Q4). The registry shape is verified; only the wiring is open.
-- **M3.5 - the two proving cases, executed.** (a) Rename **flowforge →
+- **M3.5 - the three proving cases, executed.** (a) Rename **flowforge →
   coreforge** (§16.5): one manifest edit, the suite-wide census pack refuses any
   living literal left behind, receipts stay frozen. (b) Delegate **monoforge's
   factory gistory → railyard** (§16.6): land the payload, flip `home`, the
-  home-drift rule refuses the double-claim until gistory's entry retires. These
-  are the concrete tests of the OSS claim - the tool survives a real rename and a
-  real factory move.
+  home-drift rule refuses the double-claim until gistory's entry retires.
+  (c) **vant handshake** (§16.8): conform vant's `pack.json` to packstruct SPEC
+  v1, ship the `vant` connector + adapter, and stand up the drift detector over a
+  vant install's declared shape. These are the concrete tests of the OSS claim -
+  the tool survives a real rename, a real factory move, and a real OS.
 - **M4 - OSS release.** The general tool publishes (README for strangers, config
   schema documented, a second family proves it - the rule of three applied to the
   tool itself).
@@ -852,6 +884,126 @@ is not theoretical. Marked as case studies, they read as receipts, not config.
 ---
 
 
+## 16.8 Case study: vant - governing an Agent OS that freeballs
+
+**The third proving case, and the one that proves govstruct is general.**
+[vant](https://github.com/dhaupin/vant) ("the Agent OS", v0.8.6) is a big,
+real system: persistent memory in `models/`, an agent crew, a consensus ledger,
+a governance module, a carrier system, a mesh, and twenty connectors. It has
+**no official governance system** - agents freeball their own schemas - and it
+**already uses `/packs`** (for crashtest) while **optimizing for crashtest**. So
+the question is exact: *how do vant and govstruct pull vant together?*
+
+### The state today (verified 2026-10-29)
+
+| surface | what vant actually ships | the gap |
+|---|---|---|
+| `/packs` | `packs/public/{vant-brain,vant-census,vant-crew,vant-mcp,vant-rest,vant-stones}` - **crashtest attack packs** (adversarial scenarios), not the packstruct contract | `pack.json` is a **hand-rolled shape** (`schemaVersion/name/description/version/entry`). vant has **zero references to packstruct** - it is close to SPEC v1 but not conformed to it |
+| governance | `lib/governance.js` - an **ethics** module (transparency / consent / benefit / non-harm) with a durable decision log | governance here means *deciding well*, not *conforming to a contract*. Nothing holds a schema in place |
+| consensus | `lib/consensus.js` - 51% agent voting, one vote per agent, audit trail | consensus says what agents **agree on**; nothing says what the system **is** |
+| drift | `labs/prd-canonicalization.md`: "Vant has many well-built systems that don't talk to each other." `labs/WIRING.md` grades every subsystem **WIRED / OPT-IN / ORPHAN / GAP** | the ledger is **hand-maintained prose**; nothing refuses an orphan |
+| ISO 9001 | clause **8.5.2** adopted in code (traveler: content-derived address, append-only ledger, pin ledger, tamper-refuse, `auditReport`) | adopted **inside one subsystem**, not as a suite property; ISO 27001 not framed at all |
+| carriers | `lib/carriers.js` lanes `nsc9\|stone\|svg\|json\|qr`; `lib/traveler.js` mint→advance→verify→persist + append-only ledger | a rich, real system with no roster of what carriers/plans exist |
+| adapters / connectors | `lib/adapters/{github-fragmenter,langchain,sidecar}`, `lib/connectors/` (20: github, gitlab, bitbucket, gitea, s3, pinecone, python, go, rust, node, julia, php, ruby, hermes, crewai, ...) | **the seam already exists** - this is where the two projects shake hands |
+
+The freeball is the drift: an agent writes a schema for its own brain, its own
+pack, its own connector, and nothing holds the shape. Vant's own WIRING ledger
+names the symptom (`ORPHAN`, `GAP`) - but a prose ledger cannot *refuse* one.
+
+### The two relationships (both are real, and they are different)
+
+1. **vant as a member.** vant is one row in the reference roster - the Agent OS
+   of the family. govstruct renders its card, its pin, its floor, like any
+   member. (Already true in §4.1.)
+2. **vant as a governed system.** This is the new one. A vant **install** is
+   itself a family of surfaces - brains, packs, carriers, connectors, adapters,
+   compliance - and *that* family can be governed by a manifest. govstruct does
+   not govern vant the product; it governs **a vant install's declared shape**.
+
+### The handshake: one contract, vant's own seam
+
+The integration is not a rewrite. Vant already has the two things needed - a
+`/packs` directory and an `adapters/` + `connectors/` seam - so the work is to
+**point them at the family contract**:
+
+- **`/packs` conforms to packstruct SPEC v1.** Vant's `pack.json` already
+  carries `schemaVersion/name/version/entry`; conforming it means the field names
+  and lifecycle match SPEC v1 exactly (the same move poststruct already made -
+  "the loader conforms to that spec, does not re-derive it"). Then **one pack
+  contract serves three consumers**: vant's own crashtest packs, govstruct's
+  compliance packs, and the family's attack packs. This is the single highest-
+  value change, and it is small.
+
+- **govstruct ships a `vant` connector** (in vant's own `connectors/` shape):
+  a vant install reads the family roster through govstruct, so a brain knows
+  which siblings exist without hand-typing them. Direction: *vant speaks
+  govstruct.*
+
+- **govstruct ships a `vant` adapter** (in govstruct's own reader shape): the
+  doctor reads a vant install's `models/`, `packs/`, and `state/` and verifies
+  the declared shape. Direction: *govstruct speaks vant.*
+
+Both directions use vant's existing `connectors/base.js` + `adapters/sidecar.js`
+conventions - **vant provides the transport, govstruct provides the contract.**
+That is what "fwens" means concretely: neither absorbs the other; they meet at
+an interface vant already built.
+
+### The drift answer: consensus is a vote, governance is a ledger
+
+Vant has a consensus engine and a WIRING ledger; what it lacks is a **drift
+detector** - something that compares what the system *says it is* against what it
+*actually is*, and refuses the gap. That is exactly `govstruct doctor`:
+
+| vant has | govstruct adds |
+|---|---|
+| `consensus.js` - agents vote on a decision | `doctor` - the system's declared state vs. its actual state |
+| `WIRING.md` - a hand-graded prose ledger | a **machine-checked** ledger: an `ORPHAN`/`GAP` becomes a **refused** finding, not a note |
+| `governance.js` - ethics for a decision | conformance for a **shape**: floors, env, pins, versions |
+| per-subsystem ISO 9001 (8.5.2) | a **suite-wide** ISO record: the manifest + verdicts + lock receipts are the documented-information control |
+
+So the "informational / consensual / drift" split resolves cleanly:
+**consensus is per-decision (a vote), governance is per-state (a ledger), and
+drift is the gap the doctor refuses.** Vant keeps its consensus; govstruct adds
+the ledger of record.
+
+### The ISO angle (9001 and 27001)
+
+Vant already maps ISO 9001:2015 clause 8.5.2 in code. govstruct generalizes it
+from *one subsystem* to *the whole install*:
+
+- **ISO 9001 (quality / traceability).** Every govstruct check can **name its
+  clause**, the way the traveler's `auditReport()` does. The manifest is the
+  identification of outputs; the doctor verdicts are the traceability of
+  processing; the `lock` receipt is the retention of documented information; a
+  refused drift is nonconforming-output control. govstruct's `check` emits the
+  clause-named record - so a suite becomes auditable, not just green.
+- **ISO 27001 (security).** Maps onto §10's env registry + pin ledger + secret
+  hygiene: the `EYESTRUCT_*`-style env contract, the pinned versions, and the
+  "no plaintext secret" law are the Annex-A-shaped evidence. govstruct does not
+  claim certification; it emits the **evidence a certification would need**.
+
+This is the deepest form of the §16.7 hygiene rule: govstruct stays general, and
+the compliance clauses it can evidence are a property of the tool, not of Creadev.
+
+### The carrier system and the tier rig
+
+Vant's carrier lanes (`nsc9|stone|svg|json|qr`) and its `models/{public,private,
+local}` tier rig are **the origin of the family's tier spec** (the mounts/ packs/
+models/ parity ask in gistory's mounts README). So vant is not just a member -
+it is the **source** of the public/private/local idea govstruct's manifest and
+railyard's registry both use. That makes the handshake a *reunion*, not a
+negotiation: govstruct's `tier` field is vant's rig, named once.
+
+### The lesson for the OSS tool
+
+A stranger running an agent OS hits this exact wall: N agents, N schemas, no
+refusal. The general shape - **conform the pack contract, meet at the adapter
+seam, add a drift detector, name the clause** - is why vant is a case study and
+not a chore. It is the third proof (after a rename and a factory move) that
+govstruct governs any family, including one that is itself an OS.
+
+---
+
 ## 17. Open questions
 
 1. **One manifest or two?** Mesh blocks (`members/`) and compliance blocks
@@ -889,3 +1041,11 @@ is not theoretical. Marked as case studies, they read as receipts, not config.
 12. **Migrare: rebrand or keep?** Deferred - work is parked there, so govstruct
     keeps `migrare` as-is and marks it `Backburner` in the roster until the owner
     revives it. A parked member is a `status`, not a removal.
+13. **vant: connector, adapter, or both?** §16.8 proposes both directions (vant
+    speaks govstruct via a connector; govstruct speaks vant via an adapter). Lean:
+    ship the **connector first** (a vant install reading the roster is immediately
+    useful) and the adapter with the drift detector.
+14. **Does govstruct ship ISO clause-naming in v1, or as a later pack?** The
+    traveler proves the clause-named record shape (§16.8). Lean: the `check`
+    record carries a `clause` field from the start (cheap), but the full ISO
+    9001/27001 mapping ships as a **profile pack**, not baked into the core.
