@@ -1,17 +1,23 @@
 # PRD: govstruct (the controller layer)
 
-**Status:** draft v0.3.1 - rewritten for the full suite roster and OSS release · supersedes v0.2 (2026-10-29) · Owner: dhaupin
-**Author:** Buffy (v0.1-v0.2, 2026-10-28/29) · OpenHands agent (v0.3/v0.3.1 rewrite, 2026-10-29)
+**Status:** draft v0.4 - rename + factory-delegation designed; OSS hygiene stated · supersedes v0.3.1 (2026-10-29) · Owner: dhaupin
+**Author:** Buffy (v0.1-v0.2, 2026-10-28/29) · OpenHands agent (v0.3-v0.4 rewrite, 2026-10-29)
 **Name lock:** npm `govstruct` verified free (registry 404, 2026-10-29); GitHub `dhaupin/govstruct` claimed 2026-10-29.
 **Companion PRDs:** `prd-factory` (monoforge), `prd-railyard` (the composer), `prd-creadev-mono`, `prd-gistory`, `prd-sync` live in the fleet repos / gistory `horcrux/prds/`.
 **Build home:** gistory (the ferry factory - staging tree + CI battery per the gistory doctrine); the composer is `dhaupin/railyard`.
 
+> **v0.4 note (read first).** Two governance events are now **decided**, and each
+> is written up as a proving case: the member **flowforge is renamed coreforge**
+> (`coreforge.creadev.org`, §16.5), and the **factory delegation gistory →
+> railyard** is designed (§16.6). Both forced manifest fields (`aliases`, `home`)
+> and a doctor rule (home-drift). §16 also now states the **OSS repo hygiene**
+> law: the tool repo is clean of Creadev data; railyard runs the reference
+> deployment with the real roster (§16.7).
+>
 > **v0.3.1 note.** Corrects the composer's name to **railyard** (v0.3 wrote
 > "railway" from a stale note) and grounds it in the now-readable private repo:
 > railyard is the parent product over the forges, and its `mounts/` registry is
-> the operational twin of govstruct's manifest (§3.3). Adds §16.5, the
-> **rename case study** (flowforge → coreforge/rigforge) as the tool's first
-> proving operation, and the `aliases` field it forced.
+> the operational twin of govstruct's manifest (§3.3).
 >
 > **v0.3 note (read first).** v0.2 governed a 10-member family and assumed every
 > member was an npm tool. Both assumptions were wrong: the suite is **23 members
@@ -74,7 +80,7 @@ governance over how members link, state, and pin themselves is the product.
   headers. govstruct makes it one manifest edit shipped with provenance.
 - **The roster is bigger than any hand-list.** The served truth (creadev
   `projects.js`, 2026-10-29) carries **20 entries**, not the 10 v0.2 assumed:
-  `weisync, vant, flowforge, monoforge, crashtest, eyestruct, poststruct,
+  `weisync, vant, coreforge, monoforge, crashtest, eyestruct, poststruct,
   prestruct, freestruct, gistory, stegoframe, audithole, migrare, threadforge,
   regarded, creadev-security, creadev-qos, packstruct, this, vibeflow` - plus
   **railyard** (private, the composer) and **govstruct** itself - **23 rows** in
@@ -100,7 +106,7 @@ reference deployment's (data).
 | role | means | examples (reference deployment) |
 |---|---|---|
 | `arm` | one of the five verification arms | govstruct, packstruct, crashtest, eyestruct, poststruct |
-| `forge` | stamps/rigs other members | monoforge (stamp), flowforge (site rig) |
+| `forge` | stamps/rigs other members | monoforge (stamp), coreforge (site rig) |
 | `factory` | holds staging trees, ferries proven blocks to standalone repos | gistory |
 | `composer` | declares the suite and enforces conformance across it | railyard |
 | `product` | a shipped tool or site governed by the suite | vant, migrare, stegoframe, audithole, regarded, threadforge, weisync, this, vibeflow, creadev |
@@ -130,20 +136,20 @@ it: **railyard is the composer.** It is the parent product over the forges -
 "the forges do the work; railyard routes it" (its own AGENTS core law). railyard
 declares the suite (which members exist, in what roles, at what pins) and
 dispatches work across it. It does **not** reimplement the forges; a fix belongs
-in flowforge or monoforge.
+in coreforge or monoforge.
 
 **Verified, not asserted.** railyard is private but readable from this session
 (2026-10-29). It ships:
 
 - `factory.json` - the product identity (`name`, `species` "the forge yard",
   `siteDomain`, `version` 0.9.0). railyard is a **service, not an npm package**:
-  the components (flowforge, monoforge, the engines) are the packages.
+  the components (coreforge, monoforge, the engines) are the packages.
 - `mounts/{public,private,local}` + `mounts/state.json` - the **mount registry**,
   a proto-spec with three tiers (public ships upstream, private is
   ecosystem-internal, local never pushes). It is the first real home of a spec
   that gistory (`mounts/`) testbeds; the parity ask rides to vant + packstruct so
   the models/mounts/packs rigs all speak `public/private/local` the same way.
-  Today it registers **flowforge + monoforge** as the first two public mounts.
+  Today it registers **coreforge + monoforge** as the first two public mounts.
 - `scripts/check-railyard.cjs` + its self-test - the battery, with teeth (the
   family law: a check that never fails proves nothing).
 
@@ -164,7 +170,7 @@ or a new member is one edit in govstruct that railyard's ferry then acts on.
 railyard may enforce govstruct in four interchangeable ways - **the same model
 for every member, not a special case:**
 
-1. **Through the forges' arms** - monoforge's doctor and flowforge's birth-gate
+1. **Through the forges' arms** - monoforge's doctor and coreforge's birth-gate
    gain a govstruct conformance input, so a newly stamped/rigged repo is born
    with its suite facts already checked.
 2. **Through govstruct itself** - railyard runs `govstruct doctor --suite` over
@@ -205,6 +211,7 @@ Each block file (the **general** field set):
 | `repo` | string\|null | GitHub `owner/name`; `null` = private or N/A (the doctor does not assume every member is public) |
 | `npm` | string\|null | published package name, or `null`. **May differ from `id`** (`vant` → `vant-os`, `gistory` → `gistory-sync`) |
 | `aliases` | string[] | former ids/names, for renames (§16.5). A consumer that still knows the old id reads "renamed," never a 404 |
+| `home` | string\|null | the **ferry authority** - which composer/factory owns this member's staging tree and bytes (`railyard`, `gistory`, ...). Distinct from `repo` (where source lives) and `role` (what it does). A member claimed by two homes is a drift (§16.6) |
 | `blurb` | string | one line, no marketing spin (docs-style gates lint prose voice) |
 | `icon` | string | token-referenced glyph id, renders everywhere; no bitmaps in v1 |
 | `order` | integer | position in the menu / README table; always explicit, never array-luck |
@@ -230,13 +237,13 @@ are the served ones; `npm` reflects the owner's rulings (`vant-os`,
 | eyestruct | arm | Live | eyestruct.creadev.org | `eyestruct` |
 | poststruct | arm | Live | poststruct.creadev.org | `poststruct` |
 | monoforge | forge | Live | monoforge.creadev.org | (repo only) |
-| flowforge | forge | Live | flowforge.creadev.org | (name taken) |
+| coreforge | forge | Live | coreforge.creadev.org | `coreforge` (free, renamed from flowforge) |
 | gistory | factory | Live | gistory.creadev.org | `gistory-sync` |
 | railyard | composer | In Development | railyard.creadev.org | - (service, not a package) |
 | prestruct | product | Live | prestruct.creadev.org | `prestruct` |
 | freestruct | product | Live | freestruct.creadev.org | `freestruct` |
 | vant | product | Live | vant.creadev.org | `vant-os` |
-| migrare | product | Live | migrare.creadev.org | `migrare` (contested) |
+| migrare | product | Backburner | migrare.creadev.org | `migrare` (contested; work parked, rebrand deferred) |
 | stegoframe | product | Live | stegoframe.creadev.org | (free) |
 | audithole | product | Live | audithole.creadev.org | (free) |
 | threadforge | product | Beta | threadforge.creadev.org | (private repo) |
@@ -260,7 +267,7 @@ HTML.** No runtime fetch, no CDN-injected widget, no hydrate-only menu. Every
 surface is *emitted at build/publish time* from the manifest, so a bot reads a
 plain anchor:
 
-1. **`apps.react.jsx`** - for React/flowforge `web/` consumers: renders the full
+1. **`apps.react.jsx`** - for React/coreforge `web/` consumers: renders the full
    pane server-side (initial HTML carries every `<a href>`); hydration only adds
    open/close, reusing the existing mobile-menu state machine (button
    `aria-expanded`, Escape closes, focus returns) as a **second burger, always,
@@ -321,6 +328,20 @@ four verify it, and it verifies them.**
   crosslinks resolve, all anchors present, no plaintext emails (the §2 lesson as
   law), hreflang/i18n basics intact. "Parity" stops being a claim.
 
+**These three are the natural arms of govstruct enforcement.** govstruct does not
+re-implement attack, capture, or baked-artifact audit - it **delegates** each to
+the arm that already owns it: crashtest attacks the loader, eyestruct watches the
+rendered pane, poststruct audits what shipped, and all three consume the
+`/packs` contract govstruct adopts from packstruct. Enforcement is a **composition
+of the suite's existing arms**, not a new mechanism (§11).
+
+**railyard adopts the same packages.** The composer runs the same arms - it does
+not carry a private copy of any check. So the tool members and the deployment
+share one enforcement surface: `packstruct` (the spec), `crashtest`,
+`eyestruct`, `poststruct` (the three arms), and `govstruct` (the governor). The
+rest of the family that does not yet carry these packages adopts them the same
+way - through the four enforcement paths in §3.3, not by hand.
+
 ### 7.1 The existing dialect it must not duplicate
 
 The suite **already ships** a crosslink contract: **`family-status@1`**
@@ -372,8 +393,8 @@ govstruct must **compose with** it, not fork it:
 - **The apps menu dogfoods its own product on day one:** govstruct's landing
   ships the pane rendered from its own manifest - the product is its first
   adopter, and its own doctor runs in its own CI.
-- **Older member sites will be refactored to the flowforge rig.** Several
-  member sites predate the flowforge shell and will be re-cut to its template
+- **Older member sites will be refactored to the coreforge rig.** Several
+  member sites predate the coreforge shell and will be re-cut to its template
   style so the suite looks like one family. govstruct's part: the roster already
   knows every member's `url`, so a refactor is a data change, not a hunt - and
   the render surfaces (§5) emit the same pane to every adopter regardless of
@@ -398,7 +419,7 @@ The suite's node floors have drifted, with no registry holding them:
 | poststruct | `>=20` | |
 | freestruct / prestruct | `>=20` | |
 | eyestruct | `>=18` | consumer floor |
-| flowforge | `>=18` | |
+| coreforge | `>=18` | |
 | gistory | `>=18` | |
 | vant | `>=18` | |
 | audithole / migrare | `>=18.0.0` | |
@@ -439,10 +460,10 @@ now?" is one address and a bump is a reviewable diff.
 
 ### S4 - Version truth
 
-flowforge's census leg already encodes the law: `package.json` is THE single
+coreforge's census leg already encodes the law: `package.json` is THE single
 version source, and `web/package.json` plus the README status line must match or
 the release commit fails. Generalize: any living surface that names the current
-version is checked against the root. The lawful exceptions flowforge already
+version is checked against the root. The lawful exceptions coreforge already
 classified (dated era rows, range pins `^1.0.0`, other packages' versions) carry
 over verbatim.
 
@@ -493,7 +514,7 @@ Where each check runs (three tiers, same pack):
   part of that slot set **verifiable**: floor, pins, and env are read from the
   manifest, so a stamp is born with its conformance facts already checked. The
   stamp becomes the *first* compliance gate.
-- **flowforge (rigs sites).** govstruct's render surfaces are flowforge
+- **coreforge (rigs sites).** govstruct's render surfaces are coreforge
   deliverables - they ship in the rig, and the rig's birth-gate gains the suite
   floor as a second input. A new site birthed from the rig inherits the pane and
   the floor check in one step.
@@ -517,8 +538,8 @@ govstruct/
   apps.json                   # composed manifest (members + compliance + meta)
   govstruct.config.json       # the tool's own config (member dir, gates)
   packs/public/*/             # the four shape packs (§11)
-  web/                        # flowforge landing shell (prestruct-prerendered)
-  docs/                       # flowforge Jekyll rig (Pagefind + freestruct)
+  web/                        # coreforge landing shell (prestruct-prerendered)
+  docs/                       # coreforge Jekyll rig (Pagefind + freestruct)
   scripts/                    # birth gate + docs gates, inherited
   .github/workflows/          # test.yml, crashtest.yml, docs.yml, publish.yml, compliance.yml
   labs/                       # work log, crashledger, .eyes
@@ -536,7 +557,7 @@ govstruct/
 | `docs.yml` | Jekyll + hardened pagefind + pinned freestruct layer + Pages |
 | `publish.yml` | OIDC trusted publishing, 0.x refused, tag == packaged version |
 
-`web/` and `docs/` are the flowforge rig verbatim (identity swapped), per the
+`web/` and `docs/` are the coreforge rig verbatim (identity swapped), per the
 house rule "adopt explicitly, start from a checkout." The **birth gate is
 inherited as-is** - a govstruct that fails the suite's own birth gate never
 ships.
@@ -586,7 +607,7 @@ Part II actually honored.
   floor table §10 S1 is the first receipt); the four shape packs lint clean under
   packstruct.
 - **M2 - move day + first adopters.** Standalone `dhaupin/govstruct`
-  (monoforge-stamped), OIDC-release ladder per flowforge's template; flowforge
+  (monoforge-stamped), OIDC-release ladder per coreforge's template; coreforge
   consumes the manifest (menu lands for `web/` and docs rig); first adopters:
   creadev.org site header + the suite READMEs pasted from the generated snippet;
   provenance-attested `1.0.0` once the first real consumer is pinned.
@@ -597,10 +618,13 @@ Part II actually honored.
 - **M3 - railyard integration.** Wire the composer: railyard's `mounts/state.json`
   and govstruct's `apps.json` meet at `repo` + `tier`/`role` (§3.3). Owner call on
   the interface (§17 Q4). The registry shape is verified; only the wiring is open.
-- **M3.5 - the rename case study, executed.** Rename flowforge (`coreforge` or
-  `rigforge`) as govstruct's first proving operation (§16.5): one manifest edit,
-  the suite-wide census pack refuses any living literal left behind, receipts
-  stay frozen. This is the concrete test of the OSS claim.
+- **M3.5 - the two proving cases, executed.** (a) Rename **flowforge →
+  coreforge** (§16.5): one manifest edit, the suite-wide census pack refuses any
+  living literal left behind, receipts stay frozen. (b) Delegate **monoforge's
+  factory gistory → railyard** (§16.6): land the payload, flip `home`, the
+  home-drift rule refuses the double-claim until gistory's entry retires. These
+  are the concrete tests of the OSS claim - the tool survives a real rename and a
+  real factory move.
 - **M4 - OSS release.** The general tool publishes (README for strangers, config
   schema documented, a second family proves it - the rule of three applied to the
   tool itself).
@@ -624,105 +648,209 @@ Because this is general, the repo must read as a tool, not a memoir:
 
 ---
 
-## 16.5 Case study: renaming a member (flowforge → coreforge or rigforge)
+## 16.5 Case study: renaming a member (flowforge -> coreforge)
 
-The owner plans to rename **flowforge** soon (candidates: `coreforge`,
-`rigforge`). This is not a cosmetic edit - it is the exact event govstruct exists
-to make survivable, so it is written here as the tool's first **proving case**.
-If govstruct cannot make this rename a one-edit, doctor-checked operation, it has
-not earned its seat.
+**Decided 2026-10-29.** The member formerly called `flowforge` is renamed
+**coreforge**, at `coreforge.creadev.org`. It is govstruct's first **proving
+case**: the exact event the tool exists to make survivable. If govstruct cannot
+make this a one-edit, doctor-checked operation, it has not earned its seat.
 
 ### The rename is also a fix
 
-`flowforge` on npm is **owned by an unrelated party** (`kenkaiiii`), and the
-repo's `package.json` declares `"name": "flowforge"` anyway - a name it cannot
-publish under. Both candidates are **free**: `coreforge` (npm 404, repo 404) and
-`rigforge` (npm 404, repo 404). So the rename resolves a latent collision, not
-just a preference. (This is why the manifest's `npm` field is separate from
-`id` - the published name and the member name are already allowed to differ.)
+`flowforge` on npm is **owned by an unrelated party** (`kenkaiiii`), while the
+repo's `package.json` declared `"name": "flowforge"` - a name it could not
+publish under. `coreforge` is **free** on both npm (404) and GitHub (404). So the
+rename resolved a latent collision, not just a preference. This is why the
+manifest's `npm` field is separate from `id`: the published name and the member
+name are already allowed to differ.
 
-### What actually has to change (measured, 2026-10-29)
+### What had to change (measured, 2026-10-29)
 
-`flowforge` appears in **255 places across 4 repos** - but the raw count is the
-wrong metric. The rename only matters where the string is a **living reference**;
-**frozen receipts** must NOT change (rewriting them would be a lie about history).
+`flowforge` appeared in **255 places across 4 repos** - but the raw count is the
+wrong metric. Only a **living reference** changes; a **frozen receipt** must not
+(rewriting history is a lie).
 
-| category | where | count | rename? |
-|---|---|---|---|
-| **Identity** (the one source + generated outputs) | `site.config.js`, `package.json`, `web/package.json`, `web/ssr.config.js`, `docs/_config.yml`, `docs/freestruct.config.yml`, `web/public/robots.txt`, `web/public/site.webmanifest` | 9 files | **yes** - `site.config.js` first, then `npm run sync` regenerates the rest |
-| **Living references** (structural surfaces that hardcode it) | `.github/workflows/*`, `lib/*`, `tests/*`, `web/scripts/*`, `AGENTS.md`, `README.md`, `DEPLOY.md`, `docs/index.md` | ~24 files | **yes** - tokenize or source from config |
-| **Cross-repo living** | monoforge `templates/` (stamped into new repos), railyard `mounts/state.json` + `factory.json`, govstruct roster | 3 repos | **yes** - but only the live ones |
-| **Frozen receipts** (history) | `CHANGELOG.md`, `MANIFEST.md`, `labs/TASKS.md`, `labs/prd-*.md`, code comments citing `flowforge#30` | many | **no** - never rewrite history |
-| **Lockfiles** | `package-lock.json`, `web/package-lock.json` | 2 | regenerate, do not hand-edit |
+| category | where | rename? |
+|---|---|---|
+| **Identity** (the one source + generated outputs) | `site.config.js`, `package.json`, `web/package.json`, `web/ssr.config.js`, `docs/_config.yml`, `docs/freestruct.config.yml`, `web/public/robots.txt`, `web/public/site.webmanifest` | **yes** - `site.config.js` first, then `npm run sync` regenerates the rest |
+| **Living references** (structural surfaces that hardcode it) | `.github/workflows/*`, `lib/*`, `tests/*`, `web/scripts/*`, `AGENTS.md`, `README.md`, `DEPLOY.md`, `docs/index.md` | **yes** - tokenize or source from config |
+| **Cross-repo living** | monoforge `templates/` (stamped into new repos), railyard `mounts/state.json` + `factory.json`, govstruct roster | **yes** - but only the live ones |
+| **Frozen receipts** (history) | `CHANGELOG.md`, `MANIFEST.md`, `labs/TASKS.md`, `labs/prd-*.md`, code comments citing `flowforge#30` | **no** - never rewrite history |
+| **Lockfiles** | `package-lock.json`, `web/package-lock.json` | regenerate, do not hand-edit |
 
-### Why the fleet is already half-ready (and where it is not)
+### Why the fleet was already half-ready (and where it was not)
 
-The mechanism exists: flowforge's **brand census gate**
+The mechanism exists: the **brand census gate**
 (`lib/gates/check-brand-census.mjs`) refuses an identity literal that lives
-anywhere but `site.config.js`, over 22 named structural surfaces - **content
-and filenames** (the filename leg exists because a brand name in a path is
-invisible to a content scan; it bit twice). `npm run sync` fans the non-JS
-surfaces out of the one config. So for flowforge's *own* repo, the rename is
-close to one file.
+anywhere but `site.config.js`, over 22 named structural surfaces - **content and
+filenames** (the filename leg exists because a brand name in a path is invisible
+to a content scan; it bit twice). `npm run sync` fans the non-JS surfaces out of
+the one config. So the repo's *own* rename was close to one file.
 
 Three gaps the census gate does **not** close, which is precisely govstruct's
 job:
 
-1. **Cross-repo literals.** The gate only scans flowforge's own `web/` + `docs/`.
-   It cannot see railyard's `mounts/state.json` (`"flowforge"`, `"tree":
-   "flowforge-staging/"`, `"repo": "dhaupin/flowforge"`), monoforge's
-   `templates/` (which get **stamped into brand-new repos** - a rename that
-   misses here ships the old name into every future member), or govstruct's own
-   roster. **No member can see the others' literals; only the composer can.**
+1. **Cross-repo literals.** The gate only scans the member's own `web/` + `docs/`.
+   It cannot see railyard's `mounts/state.json`, monoforge's `templates/` (which
+   get **stamped into brand-new repos** - a miss here ships the old name into
+   every future member), or govstruct's roster. **No member can see the others'
+   literals; only the composer can.**
 2. **The npm name.** The gate polices the *site* brand, not the published
-   package name. A rename that changes `site.config.js` but not `package.json`
-   leaves the collision.
-3. **The ferry tree name.** railyard's registry points at `flowforge-staging/`.
-   A rename moves the tree too, so the registry entry and the gitignored
-   `boot/` paths move with it.
+   package name.
+3. **The ferry tree name.** railyard's registry points at `flowforge-staging/`;
+   a rename moves the tree, so the registry entry moves with it.
 
 ### How govstruct makes it a governed operation
 
-This is the flow the tool must support (and the reason §3.3's mount↔manifest
-meeting point matters):
-
-1. **One edit.** Change the member block `members/flowforge.json` → the renamed
-   id, with `name`, `url`, `npm`, and `repo` updated. Everything downstream is
-   derived.
+1. **One edit.** The member block `members/coreforge.json` (id, `name`, `url`,
+   `npm`, `repo`, and `aliases: ["flowforge"]`). Everything downstream derives.
 2. **The doctor refuses the half-done rename.** `govstruct doctor --suite` fails
-   while *any* declared surface still carries the old literal - in flowforge, in
+   while *any* declared surface still carries the old literal - in the member, in
    monoforge's templates, in railyard's registry, in govstruct's roster. The
-   refusal names the file, exactly as the family's gates do. This is the check
-   that does not exist today.
+   refusal names the file, exactly as the family's gates do. This check did not
+   exist before; it is the tool's reason to exist.
 3. **Render surfaces re-emit.** The README table snippet, `registry.json`, and
-   the menu pane are regenerated from the new manifest - so the mesh updates
-   everywhere at once, not by hand.
-4. **The ferry acts.** railyard's registry is updated to the new tree/repo; the
-   next cut stamps the new name into new repos.
+   the menu pane regenerate from the new manifest - the mesh updates everywhere
+   at once, not by hand.
+4. **The ferry acts.** railyard's registry moves to the new tree/repo; the next
+   cut stamps the new name into new repos.
 5. **Receipts stay frozen.** CHANGELOGs, TASKS logs, and issue citations keep
-   saying `flowforge` - correctly, because that is what happened. The doctor
-   must know the difference between a living surface and a receipt, or it would
-   demand we falsify history. **This is the single hardest part of the design**
-   and the reason the census gate strips comments and skips `labs/`.
+   saying `flowforge` - correctly, because that is what happened. The doctor must
+   tell a living surface from a receipt, or it would demand we falsify history.
+   **This is the single hardest part of the design** and the reason the census
+   gate strips comments and skips `labs/`.
 
 ### The design consequences govstruct inherits
 
 - **A rename is a `status`-like state transition, not a delete+add.** The old id
-  needs a tombstone (the `family-status@1` "not serving the dialect" honesty
-  rule applied to identity): a consumer that still knows `flowforge` should read
-  "renamed to X," never a 404.
-- **`aliases` field.** The manifest needs `aliases: ["flowforge"]` so a rename
-  is reversible and old links resolve. (New field, §4 - the rename proves it.)
+  needs a tombstone (the `family-status@1` "not serving the dialect" honesty rule
+  applied to identity): a consumer that still knows `flowforge` reads "renamed to
+  coreforge," never a 404.
+- **`aliases` field** (§4) - `aliases: ["flowforge"]` makes the rename reversible
+  and old links resolve.
 - **The census gate generalizes into a govstruct pack.** `check-brand-census`
-  becomes a `check`-profile pack that runs *suite-wide*, not per-repo - the
-  first concrete example of §11's "compliance rules ARE packs," and the reason
-  the tool earns its keep.
-- **Rename is the M4 proof.** The PRD's OSS claim ("a stranger can govern their
+  becomes a `check`-profile pack that runs *suite-wide*, not per-repo - the first
+  concrete instance of §11's "compliance rules ARE packs."
+- **The rename is the M3.5 proof.** The OSS claim ("a stranger can govern their
   own family") is only credible if the tool survives its own hardest operation.
-  Renaming flowforge is that test.
-
 
 ---
+
+## 16.6 Case study: delegating a factory (gistory -> railyard)
+
+**The second proving case, and the harder one.** monoforge was prototyped inside
+gistory and is now a standalone repo. Its staging tree, its ferry scripts, and
+its `boot/` bytes still live in **gistory's** `mounts/` registry. The owner wants
+them to live in **railyard** instead. So: *when the factory that owns a repo
+changes, how does every other repo find out?*
+
+### The state today (verified 2026-10-29)
+
+**monoforge is registered in two registries at once** - the duplication that
+makes this a governance problem, not a `git mv`:
+
+| registry | monoforge entry | also registers |
+|---|---|---|
+| `dhaupin/gistory@main` `mounts/state.json` (2026-10-28) | `tier: public`, `tree: monoforge-staging/`, `repo: dhaupin/monoforge`, `boot.tars` + `boot.handoff` populated | poststruct |
+| `dhaupin/railyard` `mounts/state.json` (2026-10-29) | `tier: public`, `tree: monoforge-staging/`, `repo: dhaupin/monoforge`, `boot: {}` (empty) | flowforge |
+
+gistory still carries the trees the registry points at: `monoforge-staging/` and
+`poststruct-staging/` are real directories in gistory's root. railyard's entries
+are registered but **no payload has landed** (its boot objects are empty; its own
+`boot/README.md` says "its move out of dhaupin/gistory is the next step").
+
+### What "delegating the factory" actually means
+
+This is **not** a rename: the member `monoforge` keeps its name. What moves is
+the **ownership of its ferry** - which registry is authoritative for where its
+bytes come from. So the delegation is a change to a member's **`home`**, a field
+the manifest did not have. (The rename case, §16.5, changed the *id*; this changes
+the *factory*.)
+
+The clean model: **a member has exactly one authoritative registry.** govstruct's
+manifest names it in a new `home` field; railyard's registry is the operational
+record it points at. Two registries both claiming monoforge is a **drift** the
+doctor refuses - the same class as two members claiming one npm name.
+
+### The migration (what happens, step by step)
+
+1. **Cut the payload in the old home.** gistory runs its ferry
+   (`make-staging-tars.sh`) and produces `monoforge-staging-git-<date>.tar.gz`
+   plus the lock archive - byte-deterministic, per the mounts contract.
+2. **Land the payload in the new home.** railyard receives the tars into
+   `mounts/public/monoforge/boot/tars/`, and its `state.json` `boot` object is
+   populated to match gistory's (the bytes, not a claim about them).
+3. **Flip the manifest.** govstruct's `members/monoforge.json` gets
+   `home: "railyard"` (was `"gistory"`). One edit.
+4. **The doctor refuses the overlap.** While *both* registries still list
+   monoforge as authoritative, `govstruct doctor --suite` fails and names both
+   files. The migration is not "done" until the old entry is retired.
+5. **Retire the old entry.** gistory's `state.json` drops monoforge (and its
+   `monoforge-staging/` tree moves out, or is archived as a receipt); poststruct's
+   move follows the same path when its turn comes.
+6. **Receipts stay frozen.** gistory's TASKS log keeps saying monoforge lived
+   there first - that is history, and the doctor must not demand it change.
+
+### Why this needs a `home` field and a home-drift rule
+
+- **`home`** (enum, the composing factory: `railyard` | `gistory` | ...) - added
+  to the manifest (§4). It is the member's **ferry authority**, distinct from
+  `repo` (where the source lives) and `role` (what it does).
+- **The home-drift rule.** The doctor cross-checks every member's `home` against
+  the registries it can read, and refuses a member claimed by two homes or by
+  none. This is the check that makes a factory delegation safe - without it, the
+  switch is a hope, not a guarantee.
+- **The registry is data, not law.** railyard's `mounts/state.json` is the
+  operational record; govstruct's manifest is the governance record. They must
+  agree, and the doctor is what proves they do. This is §3.3's "meet at
+  `repo` + `tier`/`role`" extended to `home`.
+
+### The lesson for the OSS tool
+
+A stranger adopting govstruct will hit this exact class: a repo whose build
+factory changes (a monorepo splits, a CI provider moves, a vendored tool is
+extracted). The general shape - **a member names its home, the doctor refuses a
+double-claim, receipts stay frozen** - is why this is a case study and not a
+one-off chore. It is the second proof that the tool is general.
+
+## 16.7 OSS repo hygiene: clean tool, real deployment
+
+govstruct is **MIT and open source**. The repo is a **tool**, and it must read
+that way to a stranger: no Creadev data in the tree. The reference deployment
+lives in **railyard**, which runs govstruct against the real 23-member roster.
+
+This is the §0 line, made a build law:
+
+| the tool repo (`dhaupin/govstruct`) | the reference deployment (railyard) |
+|---|---|
+| `src/` - the general engine, zero deps | `members/*.json` - the real roster |
+| `govstruct.config.json` **schema** + a tiny `examples/` family | `govstruct.config.json` - the Creadev config |
+| the renderers, the doctor, the packs | the emitted `apps.json` + surfaces |
+| a **fixture** suite (`test/fixtures/`) | the suite-wide CI that runs it for real |
+| README/docs written for strangers | creadev.org docs, the real domain |
+
+**The hygiene gate.** A check in the tool's own CI refuses a Creadev literal
+(`dhaupin`, `creadev`, a real member name, a real domain) anywhere in `src/`,
+`README.md`, `docs/`, or the config schema. The names are allowed **only** in
+`examples/`, `test/fixtures/`, and this PRD's case studies. This is the same
+shape as coreforge's brand census gate (§16.5), aimed inward at the tool: the
+tool cannot smuggle the reference deployment into the general product.
+
+**Why this matters for adoption.** A stranger evaluating govstruct must be able
+to run `govstruct lint` on *their* family within a minute of cloning, with no
+Creadev-shaped assumptions to unpick. Every "the roster" in this PRD means *the
+reference roster*; the tool's roster is whatever the adopter's `members/` holds.
+The rule of three still gates the "suite" claim (§15 M2): govstruct does not
+call itself a suite tool until a second, unrelated family uses it.
+
+**What stays in the tool repo, on purpose:** the case studies (§16.5, §16.6),
+because they are the design record and they are *about* governance, not *the*
+governance. They name real members to prove the tool survives a real rename and a
+real factory move - the strongest possible evidence for a stranger that the tool
+is not theoretical. Marked as case studies, they read as receipts, not config.
+
+---
+
 
 ## 17. Open questions
 
@@ -748,12 +876,16 @@ meeting point matters):
 8. **Member scope (v0.2 Q4, now generalized):** with a 23-member roster, does
    every member carry the pane, or only the tool sites? Lean: every member, hub
    included; the mesh is stronger when the hub carries it too.
-9. **The flowforge rename: `coreforge` or `rigforge`?** Both npm-free and
-   repo-free. `coreforge` reads as "the core shell"; `rigforge` reads as "the rig
-   you build sites from." Owner call. Either way it is govstruct's M3.5 proving
-   case (§16.5).
-10. **Does the rename ship before or after govstruct exists?** Doing it by hand
-    now (a `sed` across 4 repos, ~33 living files) is possible but proves nothing
-    and risks missing the cross-repo literals; doing it through govstruct's
-    doctor is the proof. Lean: after M1, so the rename is the tool's first
-    real operation rather than a pre-tool scramble.
+9. **~~The coreforge rename: `coreforge` or `rigforge`?~~** **Decided 2026-10-29:
+`coreforge`**, at `coreforge.creadev.org` (§16.5). npm-free and repo-free.
+10. **When does the rename ship?** Doing it by hand now (a `sed` across 4 repos,
+    ~33 living files) is possible but proves nothing and risks missing the
+    cross-repo literals; doing it through govstruct's doctor is the proof. Lean:
+    after M1, so the rename is the tool's first real operation.
+11. **The factory delegation: who cuts the first monoforge tar out of gistory?**
+    §16.6 designs the migration but the first cut is an owner-driven step (gistory
+    runs its ferry, railyard receives). Lean: the same session that lands the
+    `home` field, so the double-claim window is hours, not weeks.
+12. **Migrare: rebrand or keep?** Deferred - work is parked there, so govstruct
+    keeps `migrare` as-is and marks it `Backburner` in the roster until the owner
+    revives it. A parked member is a `status`, not a removal.
