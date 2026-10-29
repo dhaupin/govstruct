@@ -1,7 +1,7 @@
 # PRD: govstruct (the controller layer)
 
-**Status:** draft v0.5 - rename + factory-delegation + vant handshake + stamp loop designed; OSS hygiene + labs convention stated; gap list open · supersedes v0.3.1 (2026-10-29) · Owner: dhaupin
-**Author:** Buffy (v0.1-v0.2, 2026-10-28/29) · OpenHands agent (v0.3-v0.5 rewrite, 2026-10-29)
+**Status:** draft v0.6 - rename + factory-delegation + vant handshake + stamp loop designed; all twelve ecosystem gaps folded into the normative sections · supersedes v0.3.1 (2026-10-29) · Owner: dhaupin
+**Author:** Buffy (v0.1-v0.2, 2026-10-28/29) · OpenHands agent (v0.3-v0.6 rewrite, 2026-10-29)
 **Name lock:** npm `govstruct` verified free (registry 404, 2026-10-29); GitHub `dhaupin/govstruct` claimed 2026-10-29.
 **Companion PRDs:** `prd-factory` (monoforge), `prd-railyard` (the composer), `prd-creadev-mono`, `prd-gistory`, `prd-sync` live in the fleet repos / gistory `horcrux/prds/`.
 **Build home:** gistory (the ferry factory - staging tree + CI battery per the gistory doctrine); the composer is `dhaupin/railyard`.
@@ -15,7 +15,9 @@
 > §16.8 adds the **vant case study** (verified against axolotl *code*, not the
 > stale docs - vant already runs three of the five arms), §16.9 adds **vant
 > stamping through railyard** (the write path), and §12.1 names the family
-> **`/labs` convention**. §18 lists the remaining gaps to close the ecosystem.
+> **`/labs` convention**. §18 indexes the ecosystem gaps, **all twelve now
+> folded into the normative sections** (§4 fields, §5.1, §6.1-6.6, §7.1, §8,
+> §10 S5/S6, §16.4) - not a wish list, a design.
 >
 > **v0.3.1 note.** Corrects the composer's name to **railyard** (v0.3 wrote
 > "railway" from a stale note) and grounds it in the now-readable private repo:
@@ -218,8 +220,11 @@ Each block file (the **general** field set):
 | `blurb` | string | one line, no marketing spin (docs-style gates lint prose voice) |
 | `icon` | string | token-referenced glyph id, renders everywhere; no bitmaps in v1 |
 | `order` | integer | position in the menu / README table; always explicit, never array-luck |
-| `status` | enum | `Live` \| `Beta` \| `In Development` \| `Backburner` \| `Archived` |
+| `status` | enum | `Live` \| `Beta` \| `In Development` \| `Backburner` \| `Archived` \| `Tombstoned` (§G7 - a retired member still resolves via `aliases`) |
 | `section` | enum | `open-source` \| `proprietary` \| `other` |
+| `needs` | array | **G3** - edges to other members: `[{ id, floor }]`. The doctor topo-sorts the suite and refuses a cycle; this is how a bump propagates |
+| `grants` | array | **G5** - the scoped credentials this member's stamps may spend (`[{ kind, scope }]`). A stamp cannot spend a credential absent from this list |
+| `clause` | object | **ISO** - optional map of this member's checks to standard clauses (`{ "9001-8.5.2": "traveler audit" }`). Carried from day one; the full mapping ships as a profile pack |
 
 Two fields are **declared-but-unknown-safe**: `url` and `repo` accept `null`
 because the served truth already has nulls (private repos, unlaunched sites).
@@ -288,6 +293,21 @@ plain anchor:
 Ordering: `order` wins; equal orders refuse at author time (`doctor`), never
 silently rethrow.
 
+### 5.1 The roll-up's address and cache contract (G12)
+
+`registry.json` is a build artifact, and consumers (creadev.org, vant's connector,
+railyard) all need it - so it needs a **stable address and a cache policy**, or
+every consumer re-derives it and the copies diverge. The contract:
+
+- **`apps.json` is the canonical source;** `registry.json` is one rendering of it.
+  One artifact, many readers, no divergent copies.
+- **the roll-up serves at a versioned path** (so a consumer pins the shape it
+  knows) with an `ETag` and a max-age, so a consumer caches cheaply and
+  revalidates cheaply.
+- **a checksum rides the surface** (`lock`, §6), so a consumer can prove the copy
+  it read is the copy the suite emitted - the same tamper-refusal law the arms
+  apply, one level up.
+
 ---
 
 ## 6. The doctor (the load-bearing half)
@@ -299,9 +319,12 @@ payoff:
 govstruct lint              # manifest fields, id==filename, https, unique urls, order collisions, copy voice
 govstruct render <target>   # emit react | partial | readme | registry from the manifest
 govstruct doctor [--suite]  # adopter-side checksum gate, or suite-wide truth battery
-govstruct check             # run the four compliance shape packs over this tree
+govstruct check             # run the compliance shape packs over this tree
 govstruct registry          # emit the suite roll-up (env / pins / floors / versions)
 govstruct lock              # archive + sha256 receipt, monoforge-shaped
+govstruct names <id>        # G2 - check a candidate id against npm, GitHub, and the roster
+govstruct migrate           # G6 - --status / --dry-run a spec or field migration
+govstruct init              # G9 - scaffold a one-member family (the stranger's first minute)
 ```
 
 The doctor REFUSES, never warns-into-green: duplicate ids, URL/HTTPS breaks,
@@ -309,6 +332,83 @@ menu order collisions, any artifact whose checksum moves without a version bump.
 Refusals are nameable at author time (the crashtest#16 lesson, baked in from day
 one). **`--suite` refuses drift; a lagging adopter inside the roll-up is a state,
 not a crime** (the author-time-vs-run-time split packstruct already draws).
+
+### 6.1 Offline by default, online on request (G11)
+
+The doctor checks URL resolvability (§4) - and that needs a socket, while every
+other arm's law is **no sockets** (crashtest's invariant). The two must not blur,
+or a CI gate becomes network-flaky. So the doctor is split explicitly:
+
+| mode | what it checks | needs a socket? |
+|---|---|---|
+| **offline** (the default) | manifest grammar, pins, floors, checksums, the graph, the refusal vocabulary | **no** - deterministic, CI-safe, the same run everywhere |
+| **online** (`--network`) | URL resolvability, npm existence, GitHub repo existence | yes - opt-in, never in the default gate |
+
+The default run is byte-deterministic like crashtest's: same commit, same
+verdicts. Network truth is a separate, explicit ask.
+
+### 6.2 The naming authority (G2)
+
+The rename (§16.5) was also a *collision fix*: `flowforge` was taken on npm, and
+nothing checked before admitting it. `govstruct names <id>` extends the doctor's
+"unique" rule outward - it checks a candidate against npm, GitHub, and the
+roster, and the manifest carries a `names.reserved` block so a claim is
+**recorded, not remembered**. The doctor refuses a member whose id collides with
+a reserved name or a live registry entry.
+
+### 6.3 The graph (G3)
+
+With `needs[]` on the member block, the doctor **topo-sorts** the suite: it
+orders its checks by dependency, refuses a cycle, and the roll-up renders the
+graph. This is also the propagation path - a floor bump on a member is a diff the
+doctor walks to every dependent.
+
+### 6.4 One refusal vocabulary (G10)
+
+The family's core law is "refusal instant and nameable" - but each tool names its
+own codes (`E_CARRIER_*`, `E_TRAVELER_*`, packstruct's loader errors). A refusal
+the next tool cannot **recognize** is not portable. govstruct ships a **shared
+refusal-code registry**: namespaced by tool (the pack-id pattern), so the doctor
+can report "member X refused with `E_...`" and a consumer can act on it. This is
+the deepest interop gap - it is what makes the arms one system instead of five
+tools that share a repo. The registry is data (a JSON file), not a dialect; each
+tool keeps its own codes and registers them.
+
+### 6.5 The write path (G1)
+
+§16.9 lets a **machine** write the manifest, and that is new: until now the
+manifest was authored by hand. Two agents stamping at once is a race, and the
+manifest is a committed file - last-write-wins silently loses a member. So the
+write path is explicit:
+
+- **a stamp opens a PR, never commits to `main`.** The same gate every human
+  change passes. CI is the serializer; the manifest is append-mostly, and a
+  member row is a small, mergeable unit.
+- **the doctor is the pre-merge check.** A stamp PR that fails `doctor --suite`
+  cannot merge - the machine's change is governed exactly like a human's.
+- **a lock is the fallback** if the PR path proves too slow for a burst of
+  stamps: a single writer holds a lease, and the lease is a ledger row. Lean:
+  start with the PR, add the lock only when measured contention demands it.
+
+This is the difference between a registry (last writer wins) and a governance
+system (every write is a reviewable, refusable claim).
+
+### 6.6 Lifecycle and revocation (G7)
+
+A member is not just `Live` or not - it is **born, changed, and retired**, and
+retirement must not break the links that point at it. The lifecycle:
+
+```
+Live -> Beta -> In Development -> Backburner -> Archived -> Tombstoned
+```
+
+`Tombstoned` is the new terminal state (§4's `status` enum). Its law: a retired
+member **keeps its `aliases` forwarding** and its row, so an old id or url
+resolves to a tombstone ("retired") - **never a 404**. The doctor refuses a
+tombstone that points at nothing (a tombstone with no alias and no history is a
+lie about a member that never existed). This is the same honesty rule as a
+rename (§16.5): a consumer that knew the old name reads what happened, never a
+silent void.
 
 ---
 
@@ -330,6 +430,25 @@ four verify it, and it verifies them.**
 - **poststruct:** every adopter's baked output is audited for the mesh contract:
   crosslinks resolve, all anchors present, no plaintext emails (the §2 lesson as
   law), hreflang/i18n basics intact. "Parity" stops being a claim.
+
+### 7.1 The verdict bus (G4)
+
+The self-proof above is a **pull**: the suite polls every member at a pinned rev,
+so the roll-up is only as fresh as the last cron, and a member that ships tells
+nobody. `family-status@1` is *per-member* proof; there is no aggregate signal. So
+the suite adds the other direction - a **push**:
+
+- a member's CI **emits a signed status receipt** on green (the ledger pattern,
+  one level up: the same append-only, tamper-refusing shape the arms already
+  use);
+- the receipt names the member, the rev, the verdicts, and the refusal codes
+  (§6.4) - it is portable because the vocabulary is shared;
+- the roll-up reads receipts when fresh and falls back to polling when not, so
+  "the suite is green right now" is a fact, not a cache age.
+
+No new protocol: the receipt is the status dialect the family already speaks,
+with a suite-level reader added. This is what turns five members' green CI into
+one suite signal.
 
 **These three are the natural arms of govstruct enforcement.** govstruct does not
 re-implement attack, capture, or baked-artifact audit - it **delegates** each to
@@ -380,6 +499,13 @@ govstruct must **compose with** it, not fork it:
   same ferry the other struct repos proved: gistory's CI battery gates move day,
   then standalone `dhaupin/govstruct` receives it, monoforge-stamped from proven
   blocks.
+- **The migration ritual (G6).** A rename (§16.5) and a factory move (§16.6) are
+  two instances of one class: **a governed change that touches many repos.** A
+  schema change (SPEC v2, a new required field) is the same class. So govstruct
+  ships a `migrations/` convention and `govstruct migrate --status / --dry-run`:
+  a spec bump lands with a named, resumable migration (vant's own migration
+  shape, §16.8), each member's progress is a row, and the doctor refuses a member
+  that skipped a required step. No more scrambling a fleet-wide edit by hand.
 - **railyard enforces** (§3.3) - via the forges' arms, govstruct itself, per-repo
   `/packs`, or the factory; the same model for every member.
 
@@ -406,11 +532,13 @@ govstruct must **compose with** it, not fork it:
 
 ---
 
-## 10. The compliance contract (the four governed surfaces)
+## 10. The compliance contract (the governed surfaces)
 
 v0.2's Part II, kept - it is the strongest part of the draft. Each surface is a
-manifest block, a doctor rule, and a pack. All four are **receipt-backed**: the
-drift they name was measured in the suite, not assumed.
+manifest block, a doctor rule, and a pack. All six are **receipt-backed**: the
+drift they name was measured in the suite, not assumed. S1-S4 are the original
+contract; S5 (a11y/i18n, G8) and S6 (credential delegation, G5) are the additions
+the ecosystem gaps forced (§18).
 
 ### S1 - Runtime floors (`engines`)
 
@@ -469,6 +597,39 @@ the release commit fails. Generalize: any living surface that names the current
 version is checked against the root. The lawful exceptions coreforge already
 classified (dated era rows, range pins `^1.0.0`, other packages' versions) carry
 over verbatim.
+
+### S5 - Accessibility and i18n (G8)
+
+The menu and registry render on **every** member site, and poststruct audits
+`hreflang` - but govstruct's own surfaces have no stated floor. A mesh that is
+present but unusable is not governed. So a fifth surface:
+
+- **a11y:** the rendered pane carries a landmark, a real anchor (never a `div`
+  with a click handler), a keyboard order, and a visible focus ring; contrast
+  meets WCAG AA. Checked by poststruct's existing leg (the interop law: govstruct
+  invokes the sibling's public CLI, re-implements nothing).
+- **i18n:** the pane's strings are keyed, `hreflang` is honest, and a missing
+  locale falls back explicitly (never a blank). poststruct already audits the
+  `hreflang` half; the keyed-strings half is a new pack row.
+
+### S6 - Credential delegation (G5)
+
+The scariest surface for an agent-minted world (§16.9). An agent stamping a repo
+needs a GitHub token, an npm OIDC grant, a domain record. §10's env registry
+governs *env vars*; it does not govern **who may spend a credential**. So:
+
+- every member's `grants[]` (§4) lists the credential **kinds and scopes** its
+  stamps may spend - a stamp cannot spend a credential absent from the list;
+- a stamp runs under a **scoped, single-use grant** (vant's escrow pattern,
+  §16.8, is the reference implementation), logged to the same append-only ledger
+  as the mint;
+- the doctor refuses a stamp whose grant exceeds its member's `grants[]` - **a
+  stamp cannot widen a wall.**
+
+This is the surface that makes §16.9 safe. Without it, an agent that can mint a
+repo can also spend any credential the minting process holds; with it, the
+credential is scoped to the member and the operation, and the spend is a ledger
+row.
 
 ---
 
@@ -569,7 +730,7 @@ govstruct/
   compliance/<id>.json        # the conformance blocks (§10)
   apps.json                   # composed manifest (members + compliance + meta)
   govstruct.config.json       # the tool's own config (member dir, gates)
-  packs/public/*/             # the four shape packs (§11)
+  packs/public/*/             # the shape packs (§11)
   web/                        # coreforge landing shell (prestruct-prerendered)
   docs/                       # coreforge Jekyll rig (Pagefind + freestruct)
   scripts/                    # birth gate + docs gates, inherited
@@ -605,7 +766,7 @@ ships.
 - **No auto-runbook rewrite of any adopter repo by the robot.** PRs only,
   reviewed merges only.
 - **No new "gov" coverage beyond the contract.** The manifest, the render
-  surfaces, the doctor, the four-arm dogfood, and the four compliance surfaces -
+  surfaces, the doctor, the four-arm dogfood, and the six compliance surfaces -
   full list; anything else waits for the rule of three.
 - **No suite-specific names in the tool.** dhaupin/creadev is the reference
   deployment; the tool ships generic.
@@ -630,14 +791,30 @@ Part II actually honored.
   npm to hold the name (the suite's staged-publishing ritual, same
   crashtest/packstruct/eyestruct precedent); file the naming ruling (navstruct
   reserved, `weft` excluded as npm-taken).
+- **M0.5 - baselines (before any build).** The frozen references the build is
+  measured against, so "the tool works" is a diff, not an opinion: the roster
+  truth snapshot (every member's served url, npm name, engines floor, pins,
+  captured as data); the **refusal-code inventory** (every `E_*` the arms already
+  emit, so G10's registry starts from reality, not invention); the rendered-pane
+  baseline (the eyestruct pin + the current menu's `look`); and the doctor's
+  **expected verdict set** over the reference roster (what a green run must
+  refuse, and what it must pass). Baselines land as fixtures under `test/`, the
+  same two-way pattern packstruct uses. **No build step precedes this** - a
+  baseline cut after the build measures the build, not the truth.
 - **M1 - manifest + doctor + surfaces.** `govstruct-staging/` in gistory;
   `apps.json` v1 inked with the **full 23-member roster** and their verifiable
   truths; `lint`/`render`/`doctor` green; artifacts emit; crashtest shape pack
   and packstruct conformance pack both green. Stamp target 0.9.0.
-- **M1.5 - compliance contract inked.** `spec/` v1 for the four surfaces;
+- **M1.5 - compliance contract inked.** `spec/` v1 for the six surfaces (S1-S6);
   `compliance/<id>.json` populated for every member from *measured* reality (the
-  floor table §10 S1 is the first receipt); the four shape packs lint clean under
-  packstruct.
+  floor table §10 S1 is the first receipt); the shape packs lint clean under
+  packstruct. The `clause` field (§4) is carried from the start; the full ISO
+  9001/27001 mapping ships later as a profile pack, not in the core.
+- **M1.6 - the gate rules (G10, G3, then G1+G5).** The three gating gaps land in
+  order: the shared refusal-code registry (§6.4), the dependency graph + topo-sort
+  (§6.3), and the write path + grants pair (§6.5, §10 S6). Each ships with a
+  fixture that breaks it. The remaining gaps (G2, G4, G6, G7, G8, G9, G11, G12)
+  land as independent rules once these three hold (§18, "the build order").
 - **M2 - move day + first adopters.** Standalone `dhaupin/govstruct`
   (monoforge-stamped), OIDC-release ladder per coreforge's template; coreforge
   consumes the manifest (menu lands for `web/` and docs rig); first adopters:
@@ -681,6 +858,23 @@ Because this is general, the repo must read as a tool, not a memoir:
   the tool at its own `members/` and gets its own suite.
 - **The compliance surfaces are optional packs** - a stranger with no npm tools
   uses the mesh half alone.
+
+### 16.4 The stranger's first minute (G9)
+
+§16.7 says the repo is clean; §15 M4 says a second family proves it. Neither says
+**how** a stranger starts - and "the OSS proof" stays a claim until they can.
+So the onboarding path is part of the contract:
+
+- **`govstruct init`** scaffolds a one-member family in under a minute: a
+  `govstruct.config.json`, a `members/hello.json`, and a green `doctor`. The
+  target from §0 - *a stranger runs it on their own family within a minute of
+  cloning, no Creadev-shaped assumptions to unpick.*
+- **`examples/`** carries one complete worked family (the tool's own), so the
+  shape is copyable, not described.
+- **the rule of three gates the *suite* claim, not the *tool* claim.** A stranger
+  can govern one member on day one; "suite" waits for a second unrelated family
+  (§15 M2.5). Onboarding is what earns the claim, so it ships before the claim is
+  made.
 
 
 ---
@@ -1172,12 +1366,31 @@ first; this case study is what makes the registry a *target* rather than a list.
 
 ---
 
-## 18. Gaps to close the ecosystem
+## 18. Gaps to close the ecosystem (resolved into the design)
 
-The four case studies (§16.5-§16.9) prove the *core* works. This section is the
-honest remainder: what the PRD does not yet answer, ranked by how much the
-ecosystem is incomplete without it. Each is nameable, and each has a lean - the
-point is that they are **listed**, not discovered later.
+The four case studies (§16.5-§16.9) prove the *core* works. This section was the
+honest remainder: what the PRD did not answer. **Each gap is now folded into the
+normative section it belongs to** - this section is the index and the rationale,
+not a separate wish list. A gap is closed when its rule lives where a builder
+will look for it, not when it is listed here.
+
+| gap | resolved in | one line |
+|---|---|---|
+| **G1** write-path concurrency | §6.5 | a stamp opens a PR; CI is the serializer |
+| **G2** naming authority | §6.2, §4 (`names.reserved`) | `govstruct names` checks npm + GitHub + roster |
+| **G3** dependency graph | §6.3, §4 (`needs[]`) | topo-sort; refuse a cycle |
+| **G4** verdict bus | §7.1 | members push a signed status receipt on green |
+| **G5** credential delegation | §10 S6, §4 (`grants[]`) | a stamp runs under a scoped, single-use grant |
+| **G6** migration ritual | §8, §6 (`migrate`) | `migrations/` + `govstruct migrate --dry-run` |
+| **G7** revocation lifecycle | §6.6, §4 (`Tombstoned`) | a tombstone keeps aliases; never a 404 |
+| **G8** a11y / i18n | §10 S5 | a fifth surface, checked by poststruct's leg |
+| **G9** stranger onboarding | §16.4, §6 (`init`) | `govstruct init` + a worked example |
+| **G10** shared refusal vocabulary | §6.4 | a namespaced refusal-code registry (data) |
+| **G11** network posture | §6.1 | offline by default; online on `--network` |
+| **G12** roll-up address + cache | §5.1 | versioned path + `ETag` + checksum |
+
+The rest of this section keeps each gap's original rationale, so the *why* is not
+lost when the *where* moves.
 
 ### G1. The write path has no concurrency story (blocking §16.9)
 
@@ -1286,5 +1499,20 @@ concurrency, credentials, and a shared refusal language. Two (G2, G7) are the
 **identity lifecycle**: claiming a name and retiring one. The rest are the
 **furniture** of a real suite: a graph, a bus, migrations, a11y, onboarding, a
 network split, a cache contract. None is speculative - each is a question the
-four case studies raised and the PRD has not yet answered. Closing them is the
-difference between a working core and a complete ecosystem.
+four case studies raised. **All twelve are now folded into the design** (the
+index above); what remains is to build them and prove each with a fixture.
+
+### The build order the gaps imply
+
+The gaps are not equal. Three gate the rest:
+
+1. **G10 (refusal vocabulary)** first - every other rule refuses *through* it, so
+   the shape must exist before the rules that use it.
+2. **G3 (the graph)** second - the doctor cannot order its own checks without it,
+   and §6.5's write path depends on knowing what a member needs.
+3. **G1 + G5 (write path + grants)** third - they are the pair that makes §16.9
+   safe, and neither is meaningful without the other.
+
+The rest (G2, G4, G6, G7, G8, G9, G11, G12) are independent and can land in any
+order once the three above hold. This ordering is the seed of the build plan
+(§15) - baselines first, then the three gates, then the furniture.
