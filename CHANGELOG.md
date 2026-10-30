@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **The landing's docs link + filled legal pages.** The nav vocabulary gains a
+  `Docs` entry (`site.config.js`), so the landing header/footer reach the docs
+  rig like every sibling's does. `Terms.jsx` and `Privacy.jsx` were the blank
+  adopter placeholders; both now carry govstruct's own copy in the family
+  voice, matching the surface facts (offline doctor, no telemetry, MIT).
 - **Release prep for the 0.9.0 manual ship.** The tree was already at 0.9.0 in
   both `package.json` files (the 0.x manual ladder). This adds the two gates a
   manual `npm publish` needs: `prepublishOnly` (`npm test && npm run check`) so

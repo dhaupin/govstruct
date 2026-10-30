@@ -17,6 +17,13 @@ product.
 Every page here carries the four required frontmatter fields (`permalink`,
 `layout`, `title`, `description`); the docs gates refuse a page that omits one.
 
+<div class="crosslinks">
+<p><strong>Surfaces:</strong>
+<a href="{{ site.site_url }}">landing site</a> ·
+<a href="{{ site.repo }}">GitHub repo</a> ·
+<a href="https://github.com/dhaupin/packstruct">the family SPEC (packstruct)</a></p>
+</div>
+
 ## The core law
 
 **Manifest frozen, refusal instant and nameable.** Every refusal carries a code

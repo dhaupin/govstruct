@@ -64,6 +64,7 @@ export default {
     { label: 'Home', to: '/', end: true, group: 'site' },
     { label: 'Packs', to: '/packs', group: 'site' },
     { label: 'Status', to: '/status', group: 'site' },
+    { label: 'Docs', href: 'https://docs.creadev.org/govstruct/', group: 'out' },
     { label: 'GitHub', href: 'https://github.com/dhaupin/govstruct', group: 'out' },
   ],
   // Footer-only extras (legal + provenance). Keep legal labels smaller than
