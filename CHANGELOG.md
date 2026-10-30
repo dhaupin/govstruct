@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **The family status page (family-status@1).** govstruct now serves the
+  family's shared status contract: `web/scripts/build-status.mjs` generates
+  `web/public/status.json` from the committed `labs/crashledger.json` (63
+  refusal verdicts, PASS) and the 11 pack banks under `packs/public/` (31
+  declared members) on every web build, and a new `/status` route renders the
+  family table live - each sibling's served `/status.json` fetched in the
+  browser, absence shown as absent, never guessed. Same fixed path
+  (`/status.json`), same schema, same dialect as packstruct / poststruct /
+  eyestruct / crashtest. The `_headers` CSP `connect-src` now allows the
+  family origins so the island's fetches pass.
 - **The coreforge rig, adopted (PRD section 9).** govstruct's landing and docs
   now ship the family shell verbatim, with the identity swapped: one
   `site.config.js` is the single identity file, and `npm run sync` fans it out

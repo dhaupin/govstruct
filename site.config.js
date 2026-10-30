@@ -62,6 +62,7 @@ export default {
   // renders the text link).
   nav: [
     { label: 'Home', to: '/', end: true, group: 'site' },
+    { label: 'Status', to: '/status', group: 'site' },
     { label: 'GitHub', href: 'https://github.com/dhaupin/govstruct', group: 'out' },
   ],
   // Footer-only extras (legal + provenance). Keep legal labels smaller than
@@ -84,6 +85,16 @@ export default {
         title: 'govstruct - the controller layer for a family of repos',
         description:
           'One manifest of members, one render surface per deployment shape, one doctor verb that verifies every adopter serves the same truth. Manifest frozen, refusal instant and nameable.',
+      },
+    },
+    {
+      path: '/status',
+      priority: '0.7',
+      changefreq: 'weekly',
+      meta: {
+        title: 'Family status | govstruct',
+        description:
+          'The family-status@1 dialect: every struct-family member serves its committed-ledger verdicts at /status.json, generated on every web build, and reads the others with the same schema.',
       },
     },
     {
