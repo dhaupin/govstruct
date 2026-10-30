@@ -1,0 +1,17 @@
+{
+  "id": "omega",
+  "name": "Omega",
+  "role": "product",
+  "url": "https://omega.example.com",
+  "repo": null,
+  "npm": null,
+  "aliases": [],
+  "home": null,
+  "blurb": "fixture.",
+  "icon": "omega",
+  "order": 1,
+  "status": "Live",
+  "section": "open-source",
+  "needs": [],
+  "grants": []
+}

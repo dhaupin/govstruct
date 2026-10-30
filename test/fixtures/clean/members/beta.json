@@ -1,0 +1,24 @@
+{
+  "id": "beta",
+  "name": "Beta",
+  "role": "arm",
+  "url": "https://beta.example.com",
+  "repo": null,
+  "npm": null,
+  "aliases": [
+    "b"
+  ],
+  "home": null,
+  "blurb": "Depends on alpha.",
+  "icon": "beta",
+  "order": 2,
+  "status": "Beta",
+  "section": "open-source",
+  "needs": [
+    {
+      "id": "alpha",
+      "floor": ">=1"
+    }
+  ],
+  "grants": []
+}

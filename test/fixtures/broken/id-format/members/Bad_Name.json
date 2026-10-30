@@ -1,0 +1,17 @@
+{
+  "id": "Bad_Name",
+  "name": "Bad_Name",
+  "role": "product",
+  "url": "https://Bad_Name.example.com",
+  "repo": null,
+  "npm": null,
+  "aliases": [],
+  "home": null,
+  "blurb": "fixture.",
+  "icon": "Bad_Name",
+  "order": 1,
+  "status": "Live",
+  "section": "open-source",
+  "needs": [],
+  "grants": []
+}

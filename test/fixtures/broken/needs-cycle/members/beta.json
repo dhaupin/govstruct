@@ -1,0 +1,21 @@
+{
+  "id": "beta",
+  "name": "Beta",
+  "role": "product",
+  "url": "https://beta.example.com",
+  "repo": null,
+  "npm": null,
+  "aliases": [],
+  "home": null,
+  "blurb": "fixture.",
+  "icon": "beta",
+  "order": 2,
+  "status": "Live",
+  "section": "open-source",
+  "needs": [
+    {
+      "id": "alpha"
+    }
+  ],
+  "grants": []
+}

@@ -1,0 +1,17 @@
+{
+  "id": "alpha",
+  "name": "Alpha",
+  "role": "product",
+  "url": "https://alpha.example.com",
+  "repo": null,
+  "npm": null,
+  "aliases": [],
+  "home": null,
+  "blurb": "fixture.",
+  "icon": "alpha",
+  "order": 1,
+  "status": "Tombstoned",
+  "section": "open-source",
+  "needs": [],
+  "grants": []
+}

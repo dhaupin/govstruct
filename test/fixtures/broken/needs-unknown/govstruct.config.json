@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "family": {
+    "name": "fixture"
+  },
+  "members": {
+    "dir": "members"
+  },
+  "compliance": {
+    "dir": "compliance"
+  }
+}

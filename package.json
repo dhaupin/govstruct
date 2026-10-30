@@ -1,0 +1,52 @@
+{
+  "name": "govstruct",
+  "version": "0.9.0",
+  "description": "The controller layer for a family of repos: one manifest of members, one render surface per deployment shape, one doctor verb that verifies every adopter serves the same truth. Zero dependencies.",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "govstruct": "bin/cli.mjs"
+  },
+  "exports": {
+    ".": "./src/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "spec/",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "lint": "node bin/cli.mjs lint",
+    "check": "node bin/cli.mjs check",
+    "doctor": "node bin/cli.mjs doctor",
+    "registry": "node bin/cli.mjs registry",
+    "crashtest:run": "crashtest run",
+    "lint:packs": "packstruct lint packs --deep"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "crashtest": "1.1.0",
+    "packstruct": "1.0.0"
+  },
+  "keywords": [
+    "governance",
+    "manifest",
+    "suite",
+    "monorepo",
+    "conformance",
+    "ci"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dhaupin/govstruct.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dhaupin/govstruct/issues"
+  },
+  "homepage": "https://github.com/dhaupin/govstruct#readme"
+}
