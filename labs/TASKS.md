@@ -45,9 +45,15 @@ gap list: G10 (refusal vocabulary) first, then G3 (the graph), then G1+G5
 
 ## Next
 
-- [ ] **G1 + G5 - the write path + grants.** The stamp path and the scoped
-      credential list (`grants[]`), so a stamp cannot spend a credential
-      absent from a member's list.
+- [x] **G1 + G5 - the write path + grants.** `govstruct stamp <record.json>`
+      registers a member as a governed write: it validates the block with the
+      same grammar a hand-authored one passes, refuses to overwrite an
+      existing file (append-mostly), and refuses a duplicate id. Every
+      declared spend must be covered by the member's `grants[]`
+      (`E_GRANT_UNLISTED`), and `grants[]` is itself governed - a kind outside
+      `GRANT_KINDS`, an empty scope, or a duplicate is a refusal. The stamp
+      writes the block and one ledger row; it never commits or pushes - the
+      caller opens the PR, so CI is the serializer.
 - [x] **G4 - the verdict bus.** The push side of the self-proof:
       `govstruct verdict emit <receipt.json>` appends a chained, tamper-evident
       receipt to `labs/receipts.jsonl`; `verdict verify` walks it offline;
