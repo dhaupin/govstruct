@@ -18,5 +18,9 @@
       "floor": ">=1"
     }
   ],
-  "grants": []
+  "grants": [],
+  "clause": {
+    "27001-A.8.29": "crashtest: seeded adversarial campaigns refuse new exploits by name",
+    "27001-A.8.26": "crashtest: security requirements exercised as campaigns"
+  }
 }

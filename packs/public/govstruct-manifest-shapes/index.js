@@ -543,5 +543,55 @@ export default {
         return refused('clean family exits 0 with an empty refusals list (the happy wire holds)');
       },
     },
+
+    {
+      name: 'iso-profile-stays-honest',
+      description: 'the ISO evidence profile (G15): the shipped profile is complete and passes, but a profile that resolves nothing, points at a dangling clause, or claims an in-scope clause with no gate refuses by name - the orientation is an evidence map, never a brochure',
+      async run(harness, ctx = {}) {
+        const runIso = async (shape) => {
+          const rec = await harness.run('iso', { method: 'GET', url: `/iso?shape=${shape}` });
+          if (rec.threw) return { threw: true };
+          let body = '';
+          try { body = await rec.response.text(); } catch { /* empty */ }
+          try { return { threw: false, ...JSON.parse(body) }; } catch { return { threw: false, parse: false }; }
+        };
+        const gapCodes = (stdout) => { try { return (JSON.parse(stdout).gaps ?? []).map((x) => x.code) } catch { return null } };
+        const fails = [];
+
+        // The shipped profile is complete: coverage exits 0 with no gaps.
+        const s = await runIso('iso-shipped');
+        if (s.threw || s.parse === false) return exhausted('the iso route crashed or returned an unparseable body');
+        if (s.coverage.exit !== 0) fails.push(`iso-shipped: coverage exit ${s.coverage.exit} (expected 0 - the shipped profile must be complete)`);
+        if (s.check.exit !== 0) fails.push(`iso-shipped: check exit ${s.check.exit} (expected 0 - iso-shapes must pass over the shipped profile)`);
+
+        // A profile that resolves nothing: coverage refuses, and the gaps name
+        // every registered code as unresolved.
+        const u = await runIso('iso-unresolved');
+        if (u.threw || u.parse === false) fails.push('iso-unresolved: unparseable body');
+        else {
+          if (u.coverage.exit !== 1) fails.push(`iso-unresolved: coverage exit ${u.coverage.exit} (expected 1)`);
+          const got = gapCodes(u.coverage.stdout);
+          if (!got || got.length === 0) fails.push('iso-unresolved: expected coverage gaps, got none');
+          if (u.check.exit !== 1) fails.push(`iso-unresolved: check exit ${u.check.exit} (expected 1 - iso-shapes resolution-complete must refuse)`);
+        }
+
+        // A resolution pointing at a dangling clause: coverage names the code.
+        const d = await runIso('iso-dangling-clause');
+        if (d.threw || d.parse === false) fails.push('iso-dangling-clause: unparseable body');
+        else {
+          if (d.coverage.exit !== 1) fails.push(`iso-dangling-clause: coverage exit ${d.coverage.exit} (expected 1)`);
+          const got = gapCodes(d.coverage.stdout);
+          if (!got || !got.includes('E_SUITE_DRIFT')) fails.push(`iso-dangling-clause: gaps ${JSON.stringify(got)} missing E_SUITE_DRIFT`);
+        }
+
+        // A clause with a surface but no gate: the iso-shapes clause check names it.
+        const h = await runIso('iso-surface-half');
+        if (h.threw || h.parse === false) fails.push('iso-surface-half: unparseable body');
+        else if (h.check.exit !== 1) fails.push(`iso-surface-half: check exit ${h.check.exit} (expected 1 - a half-claim must refuse)`);
+
+        if (fails.length) return exhausted(`the ISO evidence map is not honest: ${fails.join(' | ')}`);
+        return refused('the shipped ISO profile is complete (coverage + check green); a profile that resolves nothing (E_ISO_RESOLUTION_MISSING), points at a dangling clause (E_ISO_CLAUSE_UNKNOWN), or claims a clause with no gate each refuses by name - an evidence map, not a certificate (G15)');
+      },
+    },
   ],
 };

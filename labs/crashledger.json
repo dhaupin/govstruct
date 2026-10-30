@@ -152,6 +152,11 @@
       "detail": "clean family exits 0 with an empty refusals list (the happy wire holds)"
     },
     {
+      "id": "govstruct-manifest-shapes/iso-profile-stays-honest",
+      "verdict": "REFUSED",
+      "detail": "the shipped ISO profile is complete (coverage + check green); a profile that resolves nothing (E_ISO_RESOLUTION_MISSING), points at a dangling clause (E_ISO_CLAUSE_UNKNOWN), or claims a clause with no gate each refuses by name - an evidence map, not a certificate (G15)"
+    },
+    {
       "id": "guards/hygiene-no-store",
       "verdict": "REFUSED",
       "detail": "route \"enroll\" not declared on this target - attack skipped (declare it for coverage)"
@@ -224,12 +229,12 @@
     {
       "id": "proto-hygiene/head-get-parity",
       "verdict": "REFUSED",
-      "detail": "9 route(s): HEAD mirrors GET (no throws, no status drift beyond honest 405) + 9 info note(s)"
+      "detail": "10 route(s): HEAD mirrors GET (no throws, no status drift beyond honest 405) + 10 info note(s)"
     },
     {
       "id": "proto-hygiene/request-shape-flood",
       "verdict": "REFUSED",
-      "detail": "9 route(s) x 18 bare shapes (query chaos, path shapes, header casings) all landed 4xx-or-cleaner with case-parity intact"
+      "detail": "10 route(s) x 18 bare shapes (query chaos, path shapes, header casings) all landed 4xx-or-cleaner with case-parity intact"
     },
     {
       "id": "race/double-submit-idempotency",
@@ -349,6 +354,7 @@
     "govstruct-manifest-shapes/rollup-address-holds",
     "govstruct-manifest-shapes/fleet-meter-names-drift",
     "govstruct-manifest-shapes/clean-family-canary",
+    "govstruct-manifest-shapes/iso-profile-stays-honest",
     "guards/hygiene-no-store",
     "guards/burst-wall",
     "input/proto-pollution-body",

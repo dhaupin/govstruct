@@ -8,6 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **The ISO evidence orientation (PRD section 10, G15).** govstruct now ships
+  an ISO 9001:2015 / ISO 27001:2022 evidence map, drop-in and on by default.
+  `spec/iso-profile.json` is the data: a clause catalog where every clause names
+  the govstruct surface that can evidence it and the gate that proves it, plus a
+  resolution for every registered refusal code (the clause it bears on and the
+  action that clears it). `govstruct iso` prints the orientation; `govstruct iso
+  --resolve <code>` turns a refusal into an ISO statement; `govstruct iso
+  --statement` maps a whole run; `govstruct iso --coverage` refuses when a
+  refusal has no resolution. The `iso-shapes` check pack runs the same honesty
+  checks under `govstruct check`. The law is stated in the data and printed on
+  every run: **an evidence map, not a certificate** - govstruct certifies
+  nothing, and a clause with no surface is named out of scope, never faked. A
+  host may point `iso.profile` at its own file; unset uses the shipped profile.
 - **The coreforge rig, adopted (PRD section 9).** govstruct's landing and docs
   now ship the family shell verbatim, with the identity swapped: one
   `site.config.js` is the single identity file, and `npm run sync` fans it out

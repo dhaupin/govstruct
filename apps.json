@@ -65,7 +65,12 @@
           "floor": ">=1"
         }
       ],
-      "grants": []
+      "grants": [],
+      "clause": {
+        "9001-8.5.2": "govstruct audit: the append-only chained ledger",
+        "27001-A.8.15": "govstruct audit verify: the hash-chained event log",
+        "9001-9.1": "govstruct doctor --suite --fleet: the live suite meter"
+      }
     },
     {
       "id": "packstruct",
@@ -82,7 +87,11 @@
       "status": "Live",
       "section": "open-source",
       "needs": [],
-      "grants": []
+      "grants": [],
+      "clause": {
+        "9001-8.5.1": "packstruct lint: the frozen manifest grammar, enforced",
+        "27001-A.8.28": "packstruct lint: strict checks, refusal by name"
+      }
     },
     {
       "id": "crashtest",
@@ -104,7 +113,11 @@
           "floor": ">=1"
         }
       ],
-      "grants": []
+      "grants": [],
+      "clause": {
+        "27001-A.8.29": "crashtest: seeded adversarial campaigns refuse new exploits by name",
+        "27001-A.8.26": "crashtest: security requirements exercised as campaigns"
+      }
     },
     {
       "id": "eyestruct",
@@ -126,7 +139,11 @@
           "floor": ">=1"
         }
       ],
-      "grants": []
+      "grants": [],
+      "clause": {
+        "9001-8.6": "eyestruct: the frozen env surface, release-gated",
+        "27001-A.8.31": "eyestruct: dev/test/prod env separation by registry"
+      }
     },
     {
       "id": "poststruct",
@@ -148,7 +165,11 @@
           "floor": ">=1"
         }
       ],
-      "grants": []
+      "grants": [],
+      "clause": {
+        "9001-7.5.3": "poststruct: the governed voice and docs surfaces",
+        "27001-A.8.25": "poststruct: the prose/voice gates in the build"
+      }
     },
     {
       "id": "monoforge",

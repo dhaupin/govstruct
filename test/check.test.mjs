@@ -11,10 +11,10 @@ import { loadCheckPacks } from '../src/check.mjs'
 const HERE = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(HERE, '..')
 
-test('the repo ships ten check packs, all loadable', async () => {
+test('the repo ships eleven check packs, all loadable', async () => {
   const { packs, bag } = await loadCheckPacks(ROOT)
   assert.equal(bag.ok, true, JSON.stringify(bag.items.map((x) => x.message)))
-  assert.equal(packs.length, 10)
+  assert.equal(packs.length, 11)
 })
 
 test('every check pack carries a non-empty checks array', async () => {

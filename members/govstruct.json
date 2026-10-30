@@ -18,5 +18,10 @@
       "floor": ">=1"
     }
   ],
-  "grants": []
+  "grants": [],
+  "clause": {
+    "9001-8.5.2": "govstruct audit: the append-only chained ledger",
+    "27001-A.8.15": "govstruct audit verify: the hash-chained event log",
+    "9001-9.1": "govstruct doctor --suite --fleet: the live suite meter"
+  }
 }

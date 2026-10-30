@@ -34,7 +34,8 @@ import { auditVerify, appendEntry } from '../src/audit.mjs'
 import { stamp } from '../src/stamp.mjs'
 import { retire } from '../src/lifecycle.mjs'
 import { emitReceipt, verifyReceipts, verdictRollup } from '../src/verdict.mjs'
-import { Refusal } from '../src/refusals.mjs'
+import { Refusal, loadRegistry } from '../src/refusals.mjs'
+import { loadIsoProfile, isoOrientation, isoCoverage, isoStatement, resolveCode, clauseById } from '../src/iso.mjs'
 import { impact } from '../src/graph.mjs'
 
 const argv = process.argv.slice(2)
@@ -50,6 +51,9 @@ const usage = () => {
   doctor [--suite] [--fleet] [--adopters] [--network]  adopter checksum gate, suite battery, fleet drift meter, adopter pin gate, or the online leg
   check                run the compliance shape packs
   registry             emit the suite roll-up (env / pins / floors / versions)
+  iso [--coverage]     the ISO 9001 / 27001 evidence orientation, coverage, or a code's resolution
+  iso --resolve <code> the clause a refusal bears on and the action that clears it
+  iso --statement <csv> the ISO statement for a run's refusal codes (or pipe them on stdin)
   lock                 archive + sha256 receipt
   names <id>           check a candidate id against npm, GitHub, and the roster
   migrate --status     report migration state
@@ -89,6 +93,15 @@ function flagValue(args, flag) {
 function isFlagValue(args, flag, a) {
   const i = args.indexOf(flag)
   return i >= 0 && args[i + 1] === a
+}
+
+/** Read all of stdin as a utf8 string (for `iso --statement` with a pipe). */
+function readStdin() {
+  try {
+    return fsMod.readFileSync(0, 'utf8')
+  } catch {
+    return ''
+  }
 }
 
 /**
@@ -339,6 +352,112 @@ async function main() {
           console.log(`govstruct impact: ${r.id}`)
           console.log(`  direct: ${r.direct.length ? r.direct.join(', ') : '(none)'}`)
           console.log(`  transitive: ${r.transitive.length ? r.transitive.join(', ') : '(none)'}`)
+        }
+        process.exit(0)
+      }
+
+      case 'iso': {
+        rejectUnknownFlags(rest, ['--json', '--coverage', '--resolve', '--statement', '--standard'])
+        const resolveIdx = rest.indexOf('--resolve')
+        const stmtIdx = rest.indexOf('--statement')
+        const stdIdx = rest.indexOf('--standard')
+        // A bare positional (not a flag value) names the host root, so a
+        // stranger runs `govstruct iso /path/to/their/suite`. Default: here.
+        const isoRoot = rest.find((a) =>
+          !a.startsWith('-')
+          && !isFlagValue(rest, '--resolve', a)
+          && !isFlagValue(rest, '--statement', a)
+          && !isFlagValue(rest, '--standard', a)) ?? '.'
+        const profile = loadIsoProfile(isoRoot)
+
+        // iso --resolve <code>: what clause does this refusal bear on, and
+        // what clears it? The drop-in answer to "the suite refused - now what,
+        // in ISO terms?"
+        if (resolveIdx !== -1) {
+          const code = rest[resolveIdx + 1]
+          if (!code) usageError('iso --resolve needs a refusal code: govstruct iso --resolve E_SUITE_DRIFT')
+          const r = resolveCode(code, profile)
+          if (!r) {
+            const msg = `refusal code "${code}" has no resolution in the ISO profile`
+            if (json) console.log(JSON.stringify({ schema: 1, mode: 'iso', sub: 'resolve', ok: false, code, refusals: [{ code: 'E_ISO_RESOLUTION_MISSING', message: msg }] }, null, 2))
+            else console.error(`  REFUSED [E_ISO_RESOLUTION_MISSING]: ${msg}`)
+            process.exit(1)
+          }
+          const clause = clauseById(r.clause, profile)
+          if (!clause) {
+            const msg = `resolution for "${code}" names clause "${r.clause}", which is not in the catalog`
+            if (json) console.log(JSON.stringify({ schema: 1, mode: 'iso', sub: 'resolve', ok: false, code, refusals: [{ code: 'E_ISO_CLAUSE_UNKNOWN', message: msg }] }, null, 2))
+            else console.error(`  REFUSED [E_ISO_CLAUSE_UNKNOWN]: ${msg}`)
+            process.exit(1)
+          }
+          if (json) {
+            console.log(JSON.stringify({ schema: 1, mode: 'iso', sub: 'resolve', ok: true, code, clause, action: r.action }, null, 2))
+          } else {
+            console.log(`govstruct iso: ${code}`)
+            console.log(`  clause:   ${clause.id} - ${clause.title} (${clause.standard})`)
+            console.log(`  requires: ${clause.requires}`)
+            console.log(`  action:   ${r.action}`)
+          }
+          process.exit(0)
+        }
+
+        // iso --statement: read refusal codes (from stdin or --statement <csv>)
+        // and emit the ISO statement for the run.
+        if (stmtIdx !== -1 || rest.includes('--statement')) {
+          let codes = []
+          const inline = stmtIdx !== -1 ? rest[stmtIdx + 1] : null
+          if (inline) codes = inline.split(',').map((s) => s.trim()).filter(Boolean)
+          else codes = readStdin().split(/[\s,]+/).map((s) => s.trim()).filter(Boolean)
+          const r = isoStatement(codes, profile)
+          if (json) {
+            console.log(JSON.stringify({ schema: 1, mode: 'iso', sub: 'statement', ok: r.unmapped.length === 0, touched: r.touched, unmapped: r.unmapped }, null, 2))
+          } else {
+            console.log(`govstruct iso: statement over ${codes.length} refusal code(s)`)
+            for (const t of r.touched) {
+              console.log(`  ${t.clause.id} ${t.clause.title}`)
+              for (const c of t.codes) console.log(`    ${c.code}: ${c.action}`)
+            }
+            for (const u of r.unmapped) console.log(`  UNMAPPED ${u}`)
+          }
+          process.exit(r.unmapped.length === 0 ? 0 : 1)
+        }
+
+        // iso --coverage: the profile's own honesty check.
+        if (rest.includes('--coverage')) {
+          const r = isoCoverage(loadRegistry(), { profile })
+          if (json) {
+            console.log(JSON.stringify({ schema: 1, mode: 'iso', sub: 'coverage', ok: r.gaps.length === 0, ...r }, null, 2))
+          } else {
+            console.log(`govstruct iso: coverage ${r.covered}/${r.total} registered refusal code(s) resolved`)
+            for (const g of r.gaps) console.log(`  GAP ${g.code}: ${g.reason}`)
+            console.log(`  ${r.law}`)
+          }
+          process.exit(r.gaps.length === 0 ? 0 : 1)
+        }
+
+        // iso (default): the orientation - clauses by standard and theme, with
+        // the surface and gate each names. --standard 9001|27001 narrows it.
+        const orientation = isoOrientation(profile)
+        const stdFilter = stdIdx !== -1 ? rest[stdIdx + 1] : null
+        const standards = stdFilter ? orientation.standards.filter((s) => s.id === stdFilter) : orientation.standards
+        if (stdFilter && !standards.length) {
+          usageError(`unknown standard "${stdFilter}" (have: ${orientation.standards.map((s) => s.id).join(', ')})`)
+        }
+        if (json) {
+          console.log(JSON.stringify({ schema: 1, mode: 'iso', sub: 'orientation', law: orientation.law, standards }, null, 2))
+        } else {
+          console.log(`govstruct iso: the ISO evidence orientation`)
+          console.log(`  ${orientation.law}`)
+          for (const s of standards) {
+            console.log(`\n${s.title}`)
+            for (const t of s.themes) {
+              console.log(`  ${t.theme} - ${t.title}`)
+              for (const c of t.clauses) {
+                if (!c.inScope) console.log(`    ${c.id}  [OUT OF SCOPE] ${c.title}`)
+                else console.log(`    ${c.id}  ${c.title}`)
+              }
+            }
+          }
         }
         process.exit(0)
       }
