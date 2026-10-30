@@ -75,6 +75,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Six new refusal codes** (45 total): `E_STAMP_INVALID`,
   `E_STAMP_DUPLICATE`, `E_STAMP_TARGET_EXISTS`, `E_GRANT_SCOPE_EMPTY`,
   `E_GRANT_DUPLICATE`, `E_GRANT_UNKNOWN_KIND`.
+- **The lifecycle + revocation (G7).** A member is born, changed, and
+  retired. `history[]` records the transitions and `status` must agree with
+  the last one, on a forward-only ladder
+  (`Live -> Beta -> In Development -> Backburner -> Archived -> Tombstoned`).
+  A backward step refuses (`E_HISTORY_BACKWARD`), a malformed history refuses
+  (`E_HISTORY_INVALID`), and a status that disagrees with its last transition
+  refuses (`E_HISTORY_MISMATCH`). `govstruct retire <id>` tombstones a member
+  as a governed write: it keeps the member's row so an old id still resolves
+  (never a 404), appends the Tombstoned transition to `history[]`, and logs
+  one ledger row (G14). Retirement is terminal - a second retire refuses
+  (`E_RETIRE_ALREADY_TOMBSTONED`), and an unknown member refuses
+  (`E_RETIRE_UNKNOWN_MEMBER`). A tombstone with neither an alias nor the
+  history that retired it is a lie about a member that never existed
+  (`E_TOMBSTONE_EMPTY`).
+- **Six new refusal codes** (55 total): `E_HISTORY_INVALID`,
+  `E_HISTORY_BACKWARD`, `E_HISTORY_MISMATCH`, `E_RETIRE_UNKNOWN_MEMBER`,
+  `E_RETIRE_ALREADY_TOMBSTONED`, `E_RETIRE_ALIAS_REQUIRED`.
 
 ### Notes
 - The reference roster (23 members) is data, not code: member 24 is a block

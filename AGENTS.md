@@ -72,6 +72,15 @@
   `labs/receipts.jsonl`, append-only and chained like the audit ledger. A
   receipt is portable only if its refusal codes are registered (G10);
   `verdict rollup` reads fresh receipts and polls the rest.
+- The lifecycle (G7) is a forward-only ladder
+  (`Live -> Beta -> In Development -> Backburner -> Archived -> Tombstoned`).
+  `history[]` records the transitions and `status` must agree with the last
+  one; a backward step, a malformed history, or a status mismatch refuses.
+  `govstruct retire <id>` tombstones a member as a governed write: it keeps
+  the row so an old id still resolves (never a 404), appends the Tombstoned
+  transition, and logs one ledger row. Retirement is terminal - a second
+  retire refuses. A tombstone with neither an alias nor its history is a lie
+  about a member that never existed (`E_TOMBSTONE_EMPTY`).
 - The audit address canonicalizes RECURSIVELY (keys sorted at every depth).
   A shallow key sort drops nested keys from the hash, so a rewritten verdict
   row or actor id would not break the chain - tamper-evidence would be a lie.

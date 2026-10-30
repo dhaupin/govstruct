@@ -17,6 +17,7 @@ export { names } from './names.mjs'
 export { migrateStatus, migrateDryRun } from './migrate.mjs'
 export { init } from './init.mjs'
 export { stamp, validateStamp } from './stamp.mjs'
+export { retire, validateRetire } from './lifecycle.mjs'
 export { coversGrant, checkSpends } from './grants.mjs'
 export { appendEntry, auditVerify, readLedger, entryAddress, LEDGER_PATH } from './audit.mjs'
 export {

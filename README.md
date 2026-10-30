@@ -39,6 +39,7 @@ govstruct names <id>           # check a candidate id against npm, GitHub, the r
 govstruct migrate --status     # report / preview a spec or field migration
 govstruct init [<dir>]         # scaffold a one-member family
 govstruct stamp <record.json>  # register a stamped member (the write path)
+govstruct retire <id>          # tombstone a member, keeping its aliases (the lifecycle)
 govstruct audit verify         # walk the audit ledger chain (offline)
 govstruct verdict rollup       # read fresh receipts, poll the rest (the verdict bus)
 ```

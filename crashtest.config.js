@@ -80,6 +80,21 @@ const HOSTILE = {
   'grant-duplicate': {
     'a.json': goodMember('a', { grants: [{ kind: 'npm', scope: 'pkg:a' }, { kind: 'npm', scope: 'pkg:a' }] }),
   },
+  // G7: the lifecycle is forward-only and status must agree with the last
+  // transition. A backward step or a status that disagrees is a refusal.
+  'history-backward': {
+    'a.json': goodMember('a', {
+      status: 'Beta',
+      history: [{ status: 'Live', at: '2026-01-01T00:00:00Z' }, { status: 'Archived', at: '2026-02-01T00:00:00Z' }, { status: 'Beta', at: '2026-03-01T00:00:00Z' }],
+    }),
+  },
+  'history-mismatch': {
+    'a.json': goodMember('a', {
+      status: 'Archived',
+      history: [{ status: 'Live', at: '2026-01-01T00:00:00Z' }, { status: 'Beta', at: '2026-02-01T00:00:00Z' }],
+    }),
+  },
+  'history-invalid': { 'a.json': goodMember('a', { status: 'Live', history: 'not-an-array' }) },
 };
 
 // Spec-ALLOWED shapes: the lint MUST NOT flag these (tolerance canary).
@@ -90,6 +105,18 @@ const TOLERANT = {
   'alias-retired': { 'a.json': goodMember('a', { aliases: ['old-a'] }) },
   'grant-valid': {
     'a.json': goodMember('a', { grants: [{ kind: 'github', scope: 'repo:a/a' }, { kind: 'npm', scope: '*' }] }),
+  },
+  // G7: a forward-only history that agrees with status is spec-ALLOWED.
+  'history-valid': {
+    'a.json': goodMember('a', {
+      status: 'Backburner',
+      history: [
+        { status: 'Live', at: '2026-01-01T00:00:00Z' },
+        { status: 'Beta', at: '2026-02-01T00:00:00Z' },
+        { status: 'In Development', at: '2026-03-01T00:00:00Z' },
+        { status: 'Backburner', at: '2026-04-01T00:00:00Z' },
+      ],
+    }),
   },
 };
 
@@ -172,9 +199,58 @@ function makeVerdictHandler() {
   };
 }
 
+// The lifecycle (G7): a member is born, changed, and retired. This route
+// materializes a one-member family, runs `retire` through the CLI, then
+// lints the result and reads back the member block - the wire a retirement
+// actually travels. A retired member must resolve (keep an alias), and a
+// second retirement must refuse (terminal).
+async function retireOne(shape) {
+  const root = mkdtempSync(join(tmpdir(), 'govstruct-ct-r-'));
+  try {
+    const init = spawnSync(process.execPath, [CLI, 'init', root], { encoding: 'utf8', timeout: 30_000 });
+    if (init.status !== 0) return { status: 200, body: JSON.stringify({ exit: 9, stdout: '', stderr: init.stderr ?? 'init failed' }) };
+
+    const first = spawnSync(process.execPath, [CLI, 'retire', 'hello', '--json'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+    let block = null;
+    try { block = JSON.parse(readFileSync(join(root, 'members', 'hello.json'), 'utf8')); } catch { /* leave null */ }
+    const lint = spawnSync(process.execPath, [CLI, 'lint'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+
+    let second = null;
+    if (shape === 'retire-twice') {
+      second = spawnSync(process.execPath, [CLI, 'retire', 'hello', '--json'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+    }
+    if (shape === 'retire-unknown') {
+      second = spawnSync(process.execPath, [CLI, 'retire', 'ghost', '--json'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+    }
+
+    return {
+      status: 200,
+      body: JSON.stringify({
+        firstExit: first.status ?? 2,
+        secondExit: second ? (second.status ?? 2) : null,
+        secondOut: second ? (second.stdout ?? '') : '',
+        lintExit: lint.status ?? 2,
+        block,
+      }),
+    };
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function makeRetireHandler() {
+  return async ({ request }) => {
+    let shape;
+    try { shape = new URL(request.url).searchParams.get('shape'); } catch { shape = null; }
+    if (!shape) return new Response(JSON.stringify({ error: 'shape param required' }), { status: 400 });
+    const r = await retireOne(shape);
+    return new Response(r.body, { status: r.status, headers: { 'content-type': 'application/json' } });
+  };
+}
+
 export default {
   baseUrl: 'https://govstruct.local',
-  routes: { lint: makeLintHandler(), verdict: makeVerdictHandler() },
+  routes: { lint: makeLintHandler(), verdict: makeVerdictHandler(), retire: makeRetireHandler() },
   // Adopt only OUR scenario pack: the packs/public tree also carries the
   // check-profile packs (floor-shapes and friends), which are govstruct's
   // compliance packs, not crashtest scenarios. Pointing at the one pack dir

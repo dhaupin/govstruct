@@ -28,6 +28,7 @@ import { migrateStatus, migrateDryRun } from '../src/migrate.mjs'
 import { init } from '../src/init.mjs'
 import { auditVerify, appendEntry } from '../src/audit.mjs'
 import { stamp } from '../src/stamp.mjs'
+import { retire } from '../src/lifecycle.mjs'
 import { emitReceipt, verifyReceipts, verdictRollup } from '../src/verdict.mjs'
 import { Refusal } from '../src/refusals.mjs'
 
@@ -50,6 +51,7 @@ const usage = () => {
   migrate --dry-run    preview a migration
   init [<dir>]         scaffold a one-member family
   stamp <record.json>  register a stamped member (write path, G1)
+  retire <id>          tombstone a member, keeping its aliases (G7)
   audit verify         walk the audit ledger chain
   verdict emit <file>  push a member's status receipt (verdict bus, G4)
   verdict verify       walk the receipt chain offline
@@ -191,6 +193,16 @@ async function main() {
         }
         const r = stamp('.', record, { dryRun: rest.includes('--dry-run') })
         if (json) console.log(JSON.stringify({ schema: 1, mode: 'stamp', ok: r.ok, wrote: r.wrote, entry: r.entry, refusals: r.refusals.map(serializeRefusal) }, null, 2))
+        else for (const line of r.lines) console.log(line)
+        process.exit(r.ok ? 0 : 1)
+      }
+
+      case 'retire': {
+        rejectUnknownFlags(rest, ['--json', '--dry-run'])
+        const id = rest.find((a) => !a.startsWith('-'))
+        if (!id) usageError('retire needs a member id: govstruct retire <id>')
+        const r = retire('.', { id }, { dryRun: rest.includes('--dry-run') })
+        if (json) console.log(JSON.stringify({ schema: 1, mode: 'retire', ok: r.ok, wrote: r.wrote, entry: r.entry, refusals: r.refusals.map(serializeRefusal) }, null, 2))
         else for (const line of r.lines) console.log(line)
         process.exit(r.ok ? 0 : 1)
       }

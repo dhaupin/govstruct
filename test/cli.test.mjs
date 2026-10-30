@@ -69,6 +69,36 @@ test('stamp on a non-JSON record refuses E_STAMP_INVALID', () => {
   }
 })
 
+test('retire needs a member id (usage)', () => {
+  assert.equal(run(['retire']).status, 2)
+})
+
+test('retire tombstones a member and the family still lints', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'govstruct-cli-retire-'))
+  try {
+    init(dir)
+    const r = spawnSync(process.execPath, [CLI, 'retire', 'hello', '--json'], { cwd: dir, encoding: 'utf8' })
+    assert.equal(r.status, 0, r.stderr)
+    const out = JSON.parse(r.stdout)
+    assert.equal(out.ok, true)
+    assert.equal(spawnSync(process.execPath, [CLI, 'lint'], { cwd: dir, encoding: 'utf8' }).status, 0)
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})
+
+test('retire of an unknown member refuses', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'govstruct-cli-retire2-'))
+  try {
+    init(dir)
+    const r = spawnSync(process.execPath, [CLI, 'retire', 'ghost', '--json'], { cwd: dir, encoding: 'utf8' })
+    assert.equal(r.status, 1)
+    assert.equal(JSON.parse(r.stdout).refusals[0].code, 'E_RETIRE_UNKNOWN_MEMBER')
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})
+
 test('verdict needs a subcommand (usage)', () => {
   assert.equal(run(['verdict']).status, 2)
 })

@@ -84,7 +84,7 @@
     {
       "id": "govstruct-manifest-shapes/hostile-manifest-fuzz",
       "verdict": "REFUSED",
-      "detail": "16 hostile family shapes held: in-bounds verdicts, nameable refusals, no crash, no deep stack (PRD section 6)"
+      "detail": "19 hostile family shapes held: in-bounds verdicts, nameable refusals, no crash, no deep stack (PRD section 6)"
     },
     {
       "id": "govstruct-manifest-shapes/oversize-in-bounds",
@@ -110,6 +110,11 @@
       "id": "govstruct-manifest-shapes/verdict-chain-tamper-refuses",
       "verdict": "REFUSED",
       "detail": "a fresh receipt verifies green; a nested verdict rewrite (E_RECEIPT_TAMPER) and a seq gap (E_RECEIPT_CHAIN) each break the chain by name (G4)"
+    },
+    {
+      "id": "govstruct-manifest-shapes/lifecycle-retire-resolves",
+      "verdict": "REFUSED",
+      "detail": "retirement tombstones and keeps a forwarding alias (lint green), a second retire refuses E_RETIRE_ALREADY_TOMBSTONED, and an unknown member refuses E_RETIRE_UNKNOWN_MEMBER (G7)"
     },
     {
       "id": "govstruct-manifest-shapes/clean-family-canary",
@@ -189,12 +194,12 @@
     {
       "id": "proto-hygiene/head-get-parity",
       "verdict": "REFUSED",
-      "detail": "2 route(s): HEAD mirrors GET (no throws, no status drift beyond honest 405) + 2 info note(s)"
+      "detail": "3 route(s): HEAD mirrors GET (no throws, no status drift beyond honest 405) + 3 info note(s)"
     },
     {
       "id": "proto-hygiene/request-shape-flood",
       "verdict": "REFUSED",
-      "detail": "2 route(s) x 18 bare shapes (query chaos, path shapes, header casings) all landed 4xx-or-cleaner with case-parity intact"
+      "detail": "3 route(s) x 18 bare shapes (query chaos, path shapes, header casings) all landed 4xx-or-cleaner with case-parity intact"
     },
     {
       "id": "race/double-submit-idempotency",
@@ -306,6 +311,7 @@
     "govstruct-manifest-shapes/over-strict-drift-canary",
     "govstruct-manifest-shapes/grant-wall-refuses",
     "govstruct-manifest-shapes/verdict-chain-tamper-refuses",
+    "govstruct-manifest-shapes/lifecycle-retire-resolves",
     "govstruct-manifest-shapes/clean-family-canary",
     "guards/hygiene-no-store",
     "guards/burst-wall",

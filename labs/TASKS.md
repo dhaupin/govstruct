@@ -52,6 +52,14 @@ gap list: G10 (refusal vocabulary) first, then G3 (the graph), then G1+G5
 - [x] **Deep tamper-evidence.** `entryAddress` canonicalizes recursively (a
       shallow key sort left nested fields - verdict rows, actor ids - outside
       the hash); the committed ledger is re-addressed over unchanged bodies.
+- [x] **G7 - lifecycle + revocation.** `history[]` records the transitions
+      and `status` must agree with the last one, on a forward-only ladder
+      (`Live -> Beta -> In Development -> Backburner -> Archived ->
+      Tombstoned`). `govstruct retire <id>` tombstones a member as a governed
+      write: it keeps the row so an old id resolves (never a 404), records
+      the transition, and logs one ledger row. A backward step, a status
+      mismatch, a second retirement, and a tombstone with neither alias nor
+      history all refuse by name.
 - [ ] **G8 - accessibility + i18n** (PRD section 10 S5).
 - [ ] **`compliance.yml`** - `govstruct doctor --suite` over every adopter at
       a pinned rev, refusing drift.

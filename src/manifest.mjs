@@ -12,6 +12,10 @@ import { membersDir, complianceDir, resolveIn } from './config.mjs'
 
 export const ROLES = ['arm', 'forge', 'factory', 'composer', 'product', 'component']
 export const STATUSES = ['Live', 'Beta', 'In Development', 'Backburner', 'Archived', 'Tombstoned']
+// G7: the lifecycle is the status enum read as a forward-only ladder. A member
+// is born, changed, and retired; it never walks backward. `history[]` records
+// the transitions and `status` must agree with the last one.
+export const LIFECYCLE = STATUSES
 export const SECTIONS = ['open-source', 'proprietary', 'other']
 // G5: the governed credential kinds a member's stamps may spend. A kind
 // outside this list is a refusal (a stamp cannot widen a wall by inventing
@@ -157,12 +161,49 @@ export function validateBlock(block, bag) {
     }
   }
 
+  // G7: the lifecycle. `history[]` records the transitions; `status` is the
+  // member's present state and must agree with the last transition. The ladder
+  // is forward-only: a member is retired, never resurrected.
+  if (block.history !== undefined) {
+    if (!Array.isArray(block.history)) {
+      bag.add('E_HISTORY_INVALID', `${file}: history must be an array`, where)
+    } else if (block.history.length === 0) {
+      bag.add('E_HISTORY_INVALID', `${file}: history must carry at least one transition`, where)
+    } else {
+      let prevIndex = -1
+      block.history.forEach((h, i) => {
+        if (!h || typeof h !== 'object' || Array.isArray(h)) {
+          bag.add('E_HISTORY_INVALID', `${file}: history[${i}] must be an object { status, at, note? }`, where)
+          return
+        }
+        if (typeof h.status !== 'string' || !STATUSES.includes(h.status)) {
+          bag.add('E_HISTORY_INVALID', `${file}: history[${i}].status must be one of ${STATUSES.join(' | ')}`, where)
+          return
+        }
+        if (typeof h.at !== 'string' || !h.at.trim()) {
+          bag.add('E_HISTORY_INVALID', `${file}: history[${i}].at must be a non-empty timestamp`, where)
+        }
+        const idx = LIFECYCLE.indexOf(h.status)
+        if (idx < prevIndex) {
+          bag.add('E_HISTORY_BACKWARD', `${file}: history[${i}] moves ${LIFECYCLE[prevIndex]} -> ${h.status}; the lifecycle is forward-only`, where)
+        }
+        prevIndex = Math.max(prevIndex, idx)
+      })
+      const last = block.history[block.history.length - 1]
+      if (last && typeof last.status === 'string' && typeof block.status === 'string' && last.status !== block.status) {
+        bag.add('E_HISTORY_MISMATCH', `${file}: status "${block.status}" disagrees with the last transition "${last.status}"`, where)
+      }
+    }
+  }
+
   // G7: a tombstone with no alias and no history is a lie about a member
-  // that never existed. A tombstone must keep a forwarding alias.
+  // that never existed. A tombstone must point at something: a forwarding
+  // alias (a rename) OR the history that retired it. Both absent is the lie.
   if (block.status === 'Tombstoned') {
     const aliases = Array.isArray(block.aliases) ? block.aliases : []
-    if (aliases.length === 0) {
-      bag.add('E_TOMBSTONE_EMPTY', `${file}: a Tombstoned member must carry at least one alias (never a 404)`, where)
+    const history = Array.isArray(block.history) ? block.history : []
+    if (aliases.length === 0 && history.length === 0) {
+      bag.add('E_TOMBSTONE_EMPTY', `${file}: a Tombstoned member must carry a forwarding alias or the history that retired it (never a 404)`, where)
     }
   }
 }

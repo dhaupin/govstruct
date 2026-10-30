@@ -26,6 +26,7 @@ export function manifestChecksum(manifest) {
       npm: m.npm, aliases: m.aliases ?? [], home: m.home ?? null,
       blurb: m.blurb, icon: m.icon, order: m.order, status: m.status,
       section: m.section, needs: m.needs ?? [], grants: m.grants ?? [],
+      history: m.history ?? [],
     })),
   })
   return 'sha256:' + createHash('sha256').update(canonical).digest('hex')

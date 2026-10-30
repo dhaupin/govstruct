@@ -1,0 +1,22 @@
+{
+  "id": "alpha",
+  "name": "Alpha",
+  "role": "product",
+  "url": "https://alpha.example.com",
+  "repo": null,
+  "npm": null,
+  "aliases": [],
+  "home": null,
+  "blurb": "fixture.",
+  "icon": "alpha",
+  "order": 1,
+  "status": "Beta",
+  "section": "open-source",
+  "needs": [],
+  "grants": [],
+  "history": [
+    { "status": "Live", "at": "2026-01-01T00:00:00.000Z" },
+    { "status": "Archived", "at": "2026-02-01T00:00:00.000Z" },
+    { "status": "Beta", "at": "2026-03-01T00:00:00.000Z" }
+  ]
+}

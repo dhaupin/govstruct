@@ -74,6 +74,7 @@ export default {
           'url-duplicate', 'order-collision', 'role-unknown', 'status-unknown',
           'needs-cycle', 'needs-self', 'tombstone-empty', 'field-missing',
           'wrongtypes', 'grant-unknown-kind', 'grant-scope-empty', 'grant-duplicate',
+          'history-backward', 'history-mismatch', 'history-invalid',
         ];
         const crashes = [];
         const bad = [];
@@ -141,7 +142,7 @@ export default {
       async run(harness, ctx = {}) {
         const route = routeOf(ctx);
         const overStrict = [];
-        for (const shape of ['clean', 'null-url-repo', 'extra-keys', 'alias-retired', 'grant-valid']) {
+        for (const shape of ['clean', 'null-url-repo', 'extra-keys', 'alias-retired', 'grant-valid', 'history-valid']) {
           const r = await runLint(harness, route, shape);
           if (r.threw) { overStrict.push(`${shape}: harness throw`); continue; }
           const v = parseVerdict(r.body);
@@ -214,6 +215,51 @@ export default {
         }
         if (fails.length) return exhausted(`the verdict chain is not tamper-evident: ${fails.join(' | ')}`);
         return refused('a fresh receipt verifies green; a nested verdict rewrite (E_RECEIPT_TAMPER) and a seq gap (E_RECEIPT_CHAIN) each break the chain by name (G4)');
+      },
+    },
+
+    {
+      name: 'lifecycle-retire-resolves',
+      description: 'the lifecycle (G7): retiring a member tombstones it, keeps an alias so old links resolve (never a 404), lints green; a second retire and an unknown retire each refuse by name (retirement is terminal)',
+      async run(harness, ctx = {}) {
+        const route = routeOf(ctx);
+        const runRetire = async (shape) => {
+          const rec = await harness.run('retire', { method: 'GET', url: `/retire?shape=${shape}` });
+          if (rec.threw) return { threw: true };
+          let body = '';
+          try { body = await rec.response.text(); } catch { /* empty */ }
+          try { return { threw: false, ...JSON.parse(body) }; } catch { return { threw: false, parse: false }; }
+        };
+        const fails = [];
+
+        const r = await runRetire('retire-plain');
+        if (r.threw || r.parse === false) return exhausted('retire route crashed or returned an unparseable body');
+        if (r.firstExit !== 0) fails.push(`retire: exit ${r.firstExit} (expected 0)`);
+        if (!r.block) fails.push('retire: member file could not be read back');
+        else {
+          if (r.block.status !== 'Tombstoned') fails.push(`retire: status is ${r.block.status}, expected Tombstoned`);
+          if (r.block.id !== 'hello') fails.push('retire: the row lost its id - an old link would 404');
+          const hist = Array.isArray(r.block.history) ? r.block.history : [];
+          if (!hist.length || hist.at(-1).status !== 'Tombstoned') fails.push('retire: history does not record the Tombstoned transition');
+        }
+        if (r.lintExit !== 0) fails.push(`retire: a tombstoned member failed lint (exit ${r.lintExit}) - it must resolve, never 404`);
+
+        const twice = await runRetire('retire-twice');
+        if (twice.threw || twice.parse === false) fails.push('retire-twice: unparseable body');
+        else {
+          if (twice.secondExit !== 1) fails.push(`retire-twice: exit ${twice.secondExit} (expected 1 - terminal)`);
+          if (!String(twice.secondOut).includes('E_RETIRE_ALREADY_TOMBSTONED')) fails.push('retire-twice: expected E_RETIRE_ALREADY_TOMBSTONED');
+        }
+
+        const unknown = await runRetire('retire-unknown');
+        if (unknown.threw || unknown.parse === false) fails.push('retire-unknown: unparseable body');
+        else {
+          if (unknown.secondExit !== 1) fails.push(`retire-unknown: exit ${unknown.secondExit} (expected 1)`);
+          if (!String(unknown.secondOut).includes('E_RETIRE_UNKNOWN_MEMBER')) fails.push('retire-unknown: expected E_RETIRE_UNKNOWN_MEMBER');
+        }
+
+        if (fails.length) return exhausted(`the lifecycle leaked: ${fails.join(' | ')}`);
+        return refused('retirement tombstones and keeps a forwarding alias (lint green), a second retire refuses E_RETIRE_ALREADY_TOMBSTONED, and an unknown member refuses E_RETIRE_UNKNOWN_MEMBER (G7)');
       },
     },
 

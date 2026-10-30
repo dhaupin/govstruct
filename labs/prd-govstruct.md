@@ -225,6 +225,7 @@ Each block file (the **general** field set):
 | `needs` | array | **G3** - edges to other members: `[{ id, floor }]`. The doctor topo-sorts the suite and refuses a cycle; this is how a bump propagates |
 | `grants` | array | **G5** - the scoped credentials this member's stamps may spend (`[{ kind, scope }]`). A stamp cannot spend a credential absent from this list |
 | `clause` | object | **ISO** - optional map of this member's checks to standard clauses (`{ "9001-8.5.2": "traveler audit" }`). Carried from day one; the full mapping ships as a profile pack |
+| `history` | array | **G7** - optional lifecycle transitions `[{ status, at, note? }]`. Forward-only on the §6.6 ladder; `status` must agree with the last transition |
 
 Two fields are **declared-but-unknown-safe**: `url` and `repo` accept `null`
 because the served truth already has nulls (private repos, unlaunched sites).
@@ -409,6 +410,16 @@ tombstone that points at nothing (a tombstone with no alias and no history is a
 lie about a member that never existed). This is the same honesty rule as a
 rename (§16.5): a consumer that knew the old name reads what happened, never a
 silent void.
+
+**Implemented (G7).** The transition is recorded in the member's `history[]`
+(§4), and `status` must agree with the last transition - a member carries the
+receipt of how it got here, so a tombstone is provable, not asserted. The
+ladder is forward-only: a backward step (`E_HISTORY_BACKWARD`), a malformed
+history (`E_HISTORY_INVALID`), and a status/history mismatch
+(`E_HISTORY_MISMATCH`) are refusals. `govstruct retire <id>` is the governed
+write - it keeps the member's row (so the id resolves), records the Tombstoned
+transition, and appends one ledger row (G14). Retirement is terminal: a second
+retire refuses (`E_RETIRE_ALREADY_TOMBSTONED`).
 
 ---
 

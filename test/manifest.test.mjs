@@ -34,6 +34,8 @@ const CASES = [
   ['needs-unknown', 'E_NEEDS_UNKNOWN'],
   ['home-unknown', 'E_HOME_UNKNOWN'],
   ['tombstone-empty', 'E_TOMBSTONE_EMPTY'],
+  ['history-backward', 'E_HISTORY_BACKWARD'],
+  ['history-mismatch', 'E_HISTORY_MISMATCH'],
   ['field-missing', 'E_FIELD_MISSING'],
   ['id-format', 'E_ID_FORMAT'],
   ['invalid-json', 'E_MEMBER_INVALID_JSON'],
