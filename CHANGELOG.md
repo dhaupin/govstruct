@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **The coreforge rig, adopted (PRD section 9).** govstruct's landing and docs
+  now ship the family shell verbatim, with the identity swapped: one
+  `site.config.js` is the single identity file, and `npm run sync` fans it out
+  to every surface that cannot import it (`web/ssr.config.js`,
+  `docs/_config.yml`, `docs/freestruct.config.yml`, `web/public/robots.txt`,
+  `web/public/site.webmanifest`). The gates come with it: the birth gate
+  (workflows YAML-parse, every `uses:` SHA-pinned, reusable-workflow contract),
+  the brand census (no identity literal outside `site.config.js`), the docs
+  gates (frontmatter, links, style, fiction signatures, Jekyll filters), and
+  paint-scheme parity. `docs-build.yml` (reusable) + `docs-deploy.yml` (thin
+  caller, deploy gated to main) build the Jekyll + pagefind + freestruct docs
+  lane and publish it to Pages. The product is its own first adopter: the
+  landing renders govstruct's own `render react` surface over its own roster,
+  so the served HTML carries a plain anchor per member.
 - **The adopter gate + `compliance.yml` (PRD M2.5).** `govstruct doctor
   --adopters` reads each declared adopter's `govstruct` pin against the version
   the suite serves and refuses pin drift by name (`E_ADOPTER_MISSING`,

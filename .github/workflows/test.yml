@@ -11,14 +11,21 @@ jobs:
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with: { node-version: 20 }
       - run: npm install --no-fund --no-audit
       - run: npm test
       # The check host over the nine source-consistency packs.
       - name: check battery
         run: npm run check
+      # The rig gates: the docs lint, the birth gate (SHA-pinned actions),
+      # the brand census (identity lives once, in site.config.js), the paint
+      # scheme parity, and the sync drift check over the derived surfaces.
+      - name: docs lint
+        run: npm run lint:docs
+      - name: rig gates (birth + census + theme parity + sync)
+        run: npm run check:rig
       # The manifest grammar through the CLI, both ways: the reference roster
       # lints green, and a broken fixture family refuses.
       - name: lint the repo's own fixtures through the CLI (both ways)

@@ -24,13 +24,19 @@
     "doctor": "node bin/cli.mjs doctor",
     "registry": "node bin/cli.mjs registry",
     "crashtest:run": "crashtest run",
-    "lint:packs": "packstruct lint packs --deep"
+    "lint:packs": "packstruct lint packs --deep",
+    "sync": "node scripts/sync.mjs",
+    "sync:check": "node scripts/sync.mjs --check",
+    "lint:docs": "node scripts/check-docs-frontmatter.cjs && node scripts/check-docs-links.cjs && node scripts/check-docs-style.cjs && node scripts/check-fiction-signatures.cjs && node scripts/check-jekyll-filters.cjs && node scripts/check-theme-parity.cjs",
+    "check:rig": "node scripts/check-birth-gate.cjs && node scripts/check-brand-census.mjs && node scripts/check-theme-parity.cjs && node scripts/sync.mjs --check",
+    "build:web": "npm run build --prefix web"
   },
   "engines": {
     "node": ">=20"
   },
   "devDependencies": {
     "crashtest": "1.1.0",
+    "js-yaml": "^4.3.2",
     "packstruct": "1.0.0"
   },
   "keywords": [
