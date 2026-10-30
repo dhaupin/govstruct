@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "name": "a11y-shapes",
+  "description": "The a11y-shapes compliance check pack (govstruct PRD section 10 S5). A packstruct SPEC v1 check-profile pack: pure-reading verifiers over files on disk, no transport.",
+  "version": "0.1.0",
+  "entry": "index.mjs"
+}

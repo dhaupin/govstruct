@@ -12,7 +12,7 @@
 //   npx crashtest run            (from the govstruct repo root)
 //
 // In CI the crashtest lane runs after `npm test`.
-import { mkdtempSync, writeFileSync, mkdirSync, rmSync, readFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, mkdirSync, rmSync, readFileSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -248,9 +248,57 @@ function makeRetireHandler() {
   };
 }
 
+// The a11y/i18n surface (S5, G8): the rendered pane must carry a named
+// landmark, real anchors, a visible focus ring, and keyed chrome strings
+// with an explicit locale fallback. This route materializes a family whose
+// pane is a chosen shape, symlinks the repo's check packs into it, and runs
+// `govstruct check --json` - the wire an adopter's CI consumes.
+async function a11yOne(shape) {
+  const root = mkdtempSync(join(tmpdir(), 'govstruct-ct-a11y-'));
+  try {
+    writeFamily(root, { 'a.json': goodMember('a') });
+    mkdirSync(join(root, 'web', 'public'), { recursive: true });
+    // The check host loads packs from the target root; point it at ours.
+    try { symlinkSync(join(REPO_ROOT, 'packs'), join(root, 'packs'), 'dir'); } catch { /* best effort */ }
+
+    let pane;
+    if (shape === 'pane-clean') {
+      const r = spawnSync(process.execPath, [CLI, 'render', 'partial'], { cwd: REPO_ROOT, encoding: 'utf8', timeout: 30_000 });
+      pane = r.stdout ?? '';
+    } else {
+      pane = PANES[shape];
+    }
+    if (pane === undefined) return { status: 404, body: JSON.stringify({ error: `unknown shape ${shape}` }) };
+    writeFileSync(join(root, 'web', 'public', 'apps-menu.html'), pane);
+
+    const rec = spawnSync(process.execPath, [CLI, 'check', '--json'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+    return { status: 200, body: JSON.stringify({ exit: rec.status ?? 2, stdout: rec.stdout ?? '', stderr: rec.stderr ?? '' }) };
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// Hostile panes: each MUST refuse with its exact a11y/i18n code.
+const PANES = {
+  'pane-no-landmark': '<div class="apps-menu"><ul></ul></div>',
+  'pane-fake-anchor': '<nav aria-label="Suite apps" data-i18n="apps.menu.label" data-i18n-default="en"><style>.x:focus-visible{outline:2px solid}</style><ul><li class="apps-menu__item" onclick="go()">x</li></ul></nav>',
+  'pane-no-focus': '<nav aria-label="Suite apps" data-i18n="apps.menu.label" data-i18n-default="en"><ul></ul></nav>',
+  'pane-unkeyed': '<nav aria-label="Suite apps"><style>.x:focus-visible{outline:2px solid}</style><ul></ul></nav>',
+};
+
+function makeA11yHandler() {
+  return async ({ request }) => {
+    let shape;
+    try { shape = new URL(request.url).searchParams.get('shape'); } catch { shape = null; }
+    if (!shape) return new Response(JSON.stringify({ error: 'shape param required' }), { status: 400 });
+    const r = await a11yOne(shape);
+    return new Response(r.body, { status: r.status, headers: { 'content-type': 'application/json' } });
+  };
+}
+
 export default {
   baseUrl: 'https://govstruct.local',
-  routes: { lint: makeLintHandler(), verdict: makeVerdictHandler(), retire: makeRetireHandler() },
+  routes: { lint: makeLintHandler(), verdict: makeVerdictHandler(), retire: makeRetireHandler(), a11y: makeA11yHandler() },
   // Adopt only OUR scenario pack: the packs/public tree also carries the
   // check-profile packs (floor-shapes and friends), which are govstruct's
   // compliance packs, not crashtest scenarios. Pointing at the one pack dir

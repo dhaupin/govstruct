@@ -3,6 +3,9 @@
   "description": "The shared refusal-code registry (PRD section 6.4, gap G10). One namespaced vocabulary so a refusal one tool emits is a refusal the next tool can read. Codes are namespaced by tool with the pack-id pattern (tool/E_CODE). Each tool keeps its own codes and registers them here; govstruct refuses to emit a code it has not registered.",
   "namespaces": {
     "govstruct": {
+      "E_A11Y_FAKE_ANCHOR": "a menu row is not a real anchor",
+      "E_A11Y_NO_FOCUS": "the pane declares no visible focus ring",
+      "E_A11Y_NO_LANDMARK": "the rendered pane has no named landmark",
       "E_ALIAS_DUPLICATE": "an alias collides with a live id or another alias",
       "E_ALIAS_SELF": "a member lists its own id as an alias",
       "E_CHECKSUM_DRIFT": "an emitted artifact checksum moved without a version bump",
@@ -20,6 +23,8 @@
       "E_HISTORY_INVALID": "a lifecycle history entry is malformed (not an array, empty, or a bad status/timestamp)",
       "E_HISTORY_MISMATCH": "a member's status disagrees with its last recorded lifecycle transition",
       "E_HOME_UNKNOWN": "home names a member that is not in the roster",
+      "E_I18N_NO_FALLBACK": "a keyed string declares no explicit locale fallback",
+      "E_I18N_UNKEYED": "a chrome string is not keyed for translation",
       "E_ICON_MISSING": "icon token is absent",
       "E_ID_DUPLICATE": "two member blocks share an id",
       "E_ID_FORMAT": "a member id is not kebab-case",

@@ -150,6 +150,7 @@ export default function AppsMenu() {
   }, [open])
   return (
     <div className="apps-menu" ref={ref}>
+      <style>{STYLE}</style>
       <button
         type="button"
         className="apps-menu__toggle"
@@ -160,7 +161,7 @@ export default function AppsMenu() {
       >
         <span className="apps-menu__grid" aria-hidden="true">⋯</span>
       </button>
-      <nav id="apps-menu-pane" className="apps-menu__pane" hidden={!open} aria-label="Suite apps">
+      <nav id="apps-menu-pane" className="apps-menu__pane" hidden={!open} aria-label="Suite apps" data-i18n="apps.menu.label" data-i18n-default="en">
         <ul className="apps-menu__list">
       <li className="apps-menu__item">
         <a className="apps-menu__link" href="https://packstruct.creadev.org">
@@ -299,3 +300,5 @@ export default function AppsMenu() {
     </div>
   )
 }
+// S5 (G8): a visible focus ring, so the pane is keyboard-usable.
+const STYLE = `.apps-menu__link:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }`

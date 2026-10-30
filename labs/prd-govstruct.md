@@ -625,6 +625,16 @@ present but unusable is not governed. So a fifth surface:
   locale falls back explicitly (never a blank). poststruct already audits the
   `hreflang` half; the keyed-strings half is a new pack row.
 
+**Implemented (G8).** `packs/public/a11y-shapes` checks the structural floor
+that travels with the emitted bytes: the pane carries a named landmark
+(`<nav>` with `aria-label`), a real anchor per row (never a `div` with a click
+handler), a `:focus-visible` rule, and keyed chrome strings
+(`data-i18n` + `data-i18n-default`) with an explicit fallback. Each refusal is
+nameable: `E_A11Y_NO_LANDMARK`, `E_A11Y_FAKE_ANCHOR`, `E_A11Y_NO_FOCUS`,
+`E_I18N_UNKEYED`, `E_I18N_NO_FALLBACK`. The deeper DOM/contrast leg stays
+poststruct's - govstruct invokes the sibling's public CLI and re-implements
+nothing.
+
 ### S6 - Credential delegation (G5)
 
 The scariest surface for an agent-minted world (§16.9). An agent stamping a repo
@@ -660,7 +670,7 @@ packs/public/
   env-shapes/pack.json       # S2: declared keys vs source inventory
   pin-shapes/pack.json       # S3: pin ledger vs the surfaces that enforce it
   version-shapes/pack.json   # S4: root version vs every living claim
-  a11y-shapes/pack.json      # S5: landmark, anchor, focus, contrast
+  a11y-shapes/pack.json      # S5: landmark, anchor, focus, i18n keys
   test-shapes/pack.json      # S7: a test exists for every living module
   hygiene-shapes/pack.json   # S7: no debugger, no stray log, no committed secret
   naming-shapes/pack.json    # S7: file names match ids, no cross-namespace imports

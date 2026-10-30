@@ -76,6 +76,7 @@ export default function AppsMenu() {
   }, [open])
   return (
     <div className="apps-menu" ref={ref}>
+      <style>{STYLE}</style>
       <button
         type="button"
         className="apps-menu__toggle"
@@ -86,7 +87,7 @@ export default function AppsMenu() {
       >
         <span className="apps-menu__grid" aria-hidden="true">\u22ef</span>
       </button>
-      <nav id="apps-menu-pane" className="apps-menu__pane" hidden={!open} aria-label="Suite apps">
+      <nav id="apps-menu-pane" className="apps-menu__pane" hidden={!open} aria-label="Suite apps" data-i18n="apps.menu.label" data-i18n-default="en">
         <ul className="apps-menu__list">
 ${items}
         </ul>
@@ -94,6 +95,8 @@ ${items}
     </div>
   )
 }
+// S5 (G8): a visible focus ring, so the pane is keyboard-usable.
+const STYLE = \`.apps-menu__link:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }\`
 `
 }
 
@@ -103,12 +106,17 @@ export function renderPartial(manifest) {
   const items = publicMembers(manifest)
     .map((m) => `      <li class="apps-menu__item">\n        <a class="apps-menu__link" href="${esc(m.url)}">\n          <span class="apps-menu__name">${esc(m.name)}</span>\n          <span class="apps-menu__blurb">${esc(m.blurb)}</span>\n        </a>\n      </li>`)
     .join('\n')
+  // S5 (G8): the pane carries a named landmark, real anchors, a visible
+  // focus ring, and keyed chrome strings with an explicit locale fallback.
   return `<!-- ${header('partial', checksum)} -->
-<nav class="apps-menu" aria-label="Suite apps">
+<nav class="apps-menu" aria-label="Suite apps" data-i18n="apps.menu.label" data-i18n-default="en">
   <ul class="apps-menu__list">
 ${items}
   </ul>
 </nav>
+<style>
+  .apps-menu__link:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+</style>
 `
 }
 

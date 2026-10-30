@@ -22,8 +22,9 @@ gap list: G10 (refusal vocabulary) first, then G3 (the graph), then G1+G5
       statically; `registry.json` carries the manifest checksum.
 - [x] **The doctor.** Offline by default (G11); `--suite` reports the
       suite-wide truth battery.
-- [x] **The check host + nine source-consistency packs** (PRD section 11):
-      comment, env, floor, hygiene, naming, pin, style, test, version.
+- [x] **The check host + source-consistency packs** (PRD section 11):
+      comment, env, floor, hygiene, naming, pin, style, test, version, and
+      (G8) a11y.
 - [x] **The registry roll-up.** Floors, env, pins, versions from the
       compliance blocks into one addressed, checksummed surface.
 - [x] **G14 - the audit ledger.** Append-only, tamper-evident
@@ -33,9 +34,9 @@ gap list: G10 (refusal vocabulary) first, then G3 (the graph), then G1+G5
       one-member family; `names` checks the roster + the reserved block;
       `migrate --status/--dry-run` reports the ritual.
 - [x] **The crashtest dogfood.** `packs/public/govstruct-manifest-shapes`,
-      five attacks over a hostile corpus through an in-process double. All
+      nine attacks over a hostile corpus through an in-process double. All
       REFUSED, zero exploited.
-- [x] **The test spine.** 74 tests over 13 modules, two-way fixtures.
+- [x] **The test spine.** `node --test` over the modules, two-way fixtures.
 - [x] **Docs + CI.** AGENTS.md, CHANGELOG.md, DEPLOY.md, README refresh,
       `.github/workflows/{test,crashtest,publish}.yml`.
 
@@ -60,7 +61,13 @@ gap list: G10 (refusal vocabulary) first, then G3 (the graph), then G1+G5
       the transition, and logs one ledger row. A backward step, a status
       mismatch, a second retirement, and a tombstone with neither alias nor
       history all refuse by name.
-- [ ] **G8 - accessibility + i18n** (PRD section 10 S5).
+- [x] **G8 - accessibility + i18n** (PRD section 10 S5). The emitted pane
+      carries a named landmark, a real anchor per row, a visible focus ring,
+      and keyed chrome strings with an explicit locale fallback. A tenth
+      check pack, `packs/public/a11y-shapes`, verifies it; the deeper
+      DOM/contrast leg stays poststruct's (the interop law). The dogfood
+      caught a real bug on the way: the check host renamed any code carrying
+      a digit to `E_SUITE_DRIFT`, so the `E_A11Y_*` family never surfaced.
 - [ ] **`compliance.yml`** - `govstruct doctor --suite` over every adopter at
       a pinned rev, refusing drift.
 - [ ] **`web/` + `docs/`** - the coreforge landing shell and the Jekyll rig,

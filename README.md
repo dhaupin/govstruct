@@ -57,7 +57,7 @@ MIT.
 
 ```bash
 npm test          # the spine: node --test + the two-way fixtures
-npm run check     # the nine source-consistency check packs
+npm run check     # the compliance check packs (S1-S7)
 npx crashtest run # the lint contract under a hostile member-block corpus
 ```
 

@@ -24,7 +24,14 @@
 - Source-level consistency IS a pack (PRD section 11), not a fifth app:
   the rules live under `packs/public/*-shapes/` as packstruct SPEC v1
   check-profile packs. `check.mjs` hosts them; it never judges a sibling's
-  pack shape.
+  pack shape. A finding code survives to the report only if it matches
+  `/^[A-Z][A-Z0-9_]*$/` (digits allowed - the `E_A11Y_*` family needs them);
+  anything else is renamed to `E_SUITE_DRIFT`.
+- The a11y/i18n floor (G8, PRD section 10 S5) is `packs/public/a11y-shapes`:
+  the emitted pane must carry a named landmark, a real anchor per row, a
+  `:focus-visible` rule, and keyed chrome strings with an explicit locale
+  fallback. The deeper DOM/contrast leg stays poststruct's - govstruct
+  invokes the sibling's CLI and re-implements nothing.
 - `npm test` before touching anything in `src/`. The spine is
   `node --test test/*.test.mjs`.
 - Adding a validate rule = added cases both ways in `test/fixtures`: a clean

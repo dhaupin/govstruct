@@ -42,9 +42,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and the reserved block; `migrate --status/--dry-run` reports the migration
   ritual.
 - **The crashtest dogfood.** `crashtest.config.js` +
-  `packs/public/govstruct-manifest-shapes`: seven attacks over a hostile
-  member-block corpus and the verdict chain through an in-process double.
-  All REFUSED, zero exploited.
+  `packs/public/govstruct-manifest-shapes`: nine attacks over a hostile
+  member-block corpus, the verdict chain, the retirement wire, and the
+  a11y/i18n pane through an in-process double. All REFUSED, zero exploited.
 - **The verdict bus (G4).** The self-proof the arms provide is a pull; this
   adds the push. `govstruct verdict emit <receipt.json>` appends a member's
   status receipt to `labs/receipts.jsonl` - append-only, content-addressed,
@@ -92,6 +92,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Six new refusal codes** (55 total): `E_HISTORY_INVALID`,
   `E_HISTORY_BACKWARD`, `E_HISTORY_MISMATCH`, `E_RETIRE_UNKNOWN_MEMBER`,
   `E_RETIRE_ALREADY_TOMBSTONED`, `E_RETIRE_ALIAS_REQUIRED`.
+- **Accessibility and i18n (G8, S5).** The menu renders on every member site,
+  so govstruct's own surface now states its floor: the emitted pane carries a
+  named landmark, a real anchor per row (never a click-handler `div`), a
+  visible focus ring, and keyed chrome strings with an explicit locale
+  fallback. A tenth check pack, `packs/public/a11y-shapes`, verifies it - and
+  the deeper DOM/contrast leg stays poststruct's, invoked by CLI (the interop
+  law). A pane with no landmark (`E_A11Y_NO_LANDMARK`), a row that is not a
+  link (`E_A11Y_FAKE_ANCHOR`), no focus ring (`E_A11Y_NO_FOCUS`), an unkeyed
+  string (`E_I18N_UNKEYED`), or no locale fallback (`E_I18N_NO_FALLBACK`) each
+  refuses by name.
+- **A real bug the dogfood caught.** The check host coerced a finding code to
+  `E_SUITE_DRIFT` unless it matched `/^[A-Z_]+$/` - so any code carrying a digit
+  (the whole `E_A11Y_*` family) was silently renamed. The shape is now
+  `/^[A-Z][A-Z0-9_]*$/`, so a digit-bearing code survives to the report.
+- **Five new refusal codes** (60 total): `E_A11Y_NO_LANDMARK`,
+  `E_A11Y_FAKE_ANCHOR`, `E_A11Y_NO_FOCUS`, `E_I18N_UNKEYED`,
+  `E_I18N_NO_FALLBACK`.
 
 ### Notes
 - The reference roster (23 members) is data, not code: member 24 is a block

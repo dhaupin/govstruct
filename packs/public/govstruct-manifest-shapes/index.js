@@ -264,6 +264,53 @@ export default {
     },
 
     {
+      name: 'a11y-pane-refuses',
+      description: 'the a11y/i18n surface (S5, G8): the emitted pane is clean, but a pane with no landmark, a click-handler row, no focus ring, and unkeyed chrome each refuses by name',
+      async run(harness, ctx = {}) {
+        const runCheck = async (shape) => {
+          const rec = await harness.run('a11y', { method: 'GET', url: `/a11y?shape=${shape}` });
+          if (rec.threw) return { threw: true };
+          let body = '';
+          try { body = await rec.response.text(); } catch { /* empty */ }
+          try { return { threw: false, ...JSON.parse(body) }; } catch { return { threw: false, parse: false }; }
+        };
+        const parseCheck = (v) => {
+          try { const r = JSON.parse(v.stdout); return { exit: v.exit, refusals: r.refusals ?? [] }; } catch { return null; }
+        };
+
+        // The emitted pane is clean: exit 0, zero refusals.
+        const clean = await runCheck('pane-clean');
+        if (clean.threw || clean.parse === false) return exhausted('a11y route crashed or returned an unparseable body');
+        const c = parseCheck(clean);
+        if (!c) return exhausted('a11y pane-clean: unparseable check body');
+        if (c.exit !== 0 || c.refusals.length > 0) {
+          return exhausted(`the emitted pane failed its own a11y/i18n check: exit ${c.exit}, ${JSON.stringify(c.refusals.slice(0, 4))}`);
+        }
+
+        // Each hostile pane must refuse with its exact code (exit 1).
+        const expect = {
+          'pane-no-landmark': 'E_A11Y_NO_LANDMARK',
+          'pane-fake-anchor': 'E_A11Y_FAKE_ANCHOR',
+          'pane-no-focus': 'E_A11Y_NO_FOCUS',
+          'pane-unkeyed': 'E_I18N_UNKEYED',
+        };
+        const fails = [];
+        for (const [shape, code] of Object.entries(expect)) {
+          const r = await runCheck(shape);
+          if (r.threw || r.parse === false) { fails.push(`${shape}: unparseable body`); continue; }
+          const v = parseCheck(r);
+          if (!v) { fails.push(`${shape}: unparseable check body`); continue; }
+          if (v.exit !== 1) { fails.push(`${shape}: exit ${v.exit} (expected 1)`); continue; }
+          if (!v.refusals.some((x) => x.code === code)) {
+            fails.push(`${shape}: expected ${code}, got [${v.refusals.map((x) => x.code).join(', ')}]`);
+          }
+        }
+        if (fails.length) return exhausted(`the a11y/i18n floor leaked: ${fails.join(' | ')}`);
+        return refused('the emitted pane passes a11y/i18n; no landmark, a click-handler row, no focus ring, and unkeyed chrome each refuse by name (S5/G8)');
+      },
+    },
+
+    {
       name: 'clean-family-canary',
       description: 'the conforming family exits 0 with an empty refusals list - the happy wire holds',
       async run(harness, ctx = {}) {

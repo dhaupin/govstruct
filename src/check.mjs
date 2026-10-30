@@ -116,7 +116,7 @@ export async function runChecks(target = '.', { json = false, packsDir } = {}) {
         continue
       }
       for (const f of findings) {
-        const code = f.code && /^[A-Z_]+$/.test(f.code) ? f.code : 'E_SUITE_DRIFT'
+        const code = f.code && /^[A-Z][A-Z0-9_]*$/.test(f.code) ? f.code : 'E_SUITE_DRIFT'
         bag.add(code, `[${pack.name}/${check.id}] ${f.message}`, { pack: pack.name, check: check.id, path: f.path })
       }
       results.push({ pack: pack.name, check: check.id, findings: findings.length })

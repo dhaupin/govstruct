@@ -117,6 +117,11 @@
       "detail": "retirement tombstones and keeps a forwarding alias (lint green), a second retire refuses E_RETIRE_ALREADY_TOMBSTONED, and an unknown member refuses E_RETIRE_UNKNOWN_MEMBER (G7)"
     },
     {
+      "id": "govstruct-manifest-shapes/a11y-pane-refuses",
+      "verdict": "REFUSED",
+      "detail": "the emitted pane passes a11y/i18n; no landmark, a click-handler row, no focus ring, and unkeyed chrome each refuse by name (S5/G8)"
+    },
+    {
       "id": "govstruct-manifest-shapes/clean-family-canary",
       "verdict": "REFUSED",
       "detail": "clean family exits 0 with an empty refusals list (the happy wire holds)"
@@ -194,12 +199,12 @@
     {
       "id": "proto-hygiene/head-get-parity",
       "verdict": "REFUSED",
-      "detail": "3 route(s): HEAD mirrors GET (no throws, no status drift beyond honest 405) + 3 info note(s)"
+      "detail": "4 route(s): HEAD mirrors GET (no throws, no status drift beyond honest 405) + 4 info note(s)"
     },
     {
       "id": "proto-hygiene/request-shape-flood",
       "verdict": "REFUSED",
-      "detail": "3 route(s) x 18 bare shapes (query chaos, path shapes, header casings) all landed 4xx-or-cleaner with case-parity intact"
+      "detail": "4 route(s) x 18 bare shapes (query chaos, path shapes, header casings) all landed 4xx-or-cleaner with case-parity intact"
     },
     {
       "id": "race/double-submit-idempotency",
@@ -312,6 +317,7 @@
     "govstruct-manifest-shapes/grant-wall-refuses",
     "govstruct-manifest-shapes/verdict-chain-tamper-refuses",
     "govstruct-manifest-shapes/lifecycle-retire-resolves",
+    "govstruct-manifest-shapes/a11y-pane-refuses",
     "govstruct-manifest-shapes/clean-family-canary",
     "guards/hygiene-no-store",
     "guards/burst-wall",
