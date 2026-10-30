@@ -92,6 +92,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Six new refusal codes** (55 total): `E_HISTORY_INVALID`,
   `E_HISTORY_BACKWARD`, `E_HISTORY_MISMATCH`, `E_RETIRE_UNKNOWN_MEMBER`,
   `E_RETIRE_ALREADY_TOMBSTONED`, `E_RETIRE_ALIAS_REQUIRED`.
+- **The fleet drift meter (G13, the golden case).** The four proving cases are
+  events; this is the steady state. `govstruct doctor --suite --fleet
+  --fleet-root <dir>` reads each member's live surfaces (engines floor,
+  lockfile presence, pin style, repo version, workflow count) against the
+  truth its compliance block declares, and reports every drift on one page as
+  a typed refusal. Offline by default: a member with no local checkout is
+  reported UNCHECKED, never a silent pass. Codes: `E_FLEET_FLOOR_DRIFT`,
+  `E_FLEET_LOCK_MISSING`, `E_FLEET_PIN_STYLE_DRIFT`, `E_FLEET_CI_SHAPE_DRIFT`,
+  `E_FLEET_VERSION_DRIFT`.
 - **The dependency graph, both halves (G3).** `needs[]` edges were already
   topo-sorted and cycle-refused; now the PRD's other two promises land. The
   roll-up (`registry.json`) renders the graph (`{ id, needs, neededBy }` per
@@ -117,6 +126,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `E_A11Y_FAKE_ANCHOR`, `E_A11Y_NO_FOCUS`, `E_I18N_UNKEYED`,
   `E_I18N_NO_FALLBACK`.
 - **One more refusal code** (61 total): `E_IMPACT_UNKNOWN_MEMBER`.
+- **Five fleet-meter refusal codes** (66 total): `E_FLEET_FLOOR_DRIFT`,
+  `E_FLEET_LOCK_MISSING`, `E_FLEET_PIN_STYLE_DRIFT`, `E_FLEET_CI_SHAPE_DRIFT`,
+  `E_FLEET_VERSION_DRIFT`.
 
 ### Notes
 - The reference roster (23 members) is data, not code: member 24 is a block

@@ -77,6 +77,16 @@ gap list: G10 (refusal vocabulary) first, then G3 (the graph), then G1+G5
       DOM/contrast leg stays poststruct's (the interop law). The dogfood
       caught a real bug on the way: the check host renamed any code carrying
       a digit to `E_SUITE_DRIFT`, so the `E_A11Y_*` family never surfaced.
+- [x] **G13 - the fleet drift meter (the golden case, PRD 16.10).** The
+      steady-state job the proving cases are not: coreforge *prevents*, the
+      meter *detects*. `govstruct doctor --suite --fleet --fleet-root <dir>`
+      reads each member's live surfaces (engines floor, lockfile presence,
+      pin style, repo version, workflow count) against its compliance block,
+      and reports every drift on one page as a typed refusal
+      (`E_FLEET_FLOOR_DRIFT`, `E_FLEET_LOCK_MISSING`, `E_FLEET_PIN_STYLE_DRIFT`,
+      `E_FLEET_CI_SHAPE_DRIFT`, `E_FLEET_VERSION_DRIFT`). Offline by default;
+      a member with no checkout is UNCHECKED, never a silent pass. The meter
+      warns where the doctor refuses - a lagging repo is a state, not a crime.
 - [ ] **`compliance.yml`** - `govstruct doctor --suite` over every adopter at
       a pinned rev, refusing drift.
 - [ ] **`web/` + `docs/`** - the coreforge landing shell and the Jekyll rig,

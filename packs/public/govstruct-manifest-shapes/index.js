@@ -350,6 +350,62 @@ export default {
     },
 
     {
+      name: 'fleet-meter-names-drift',
+      description: 'the fleet drift meter (G13): a drifted member is named by its exact refusal on one page, a clean member passes, and a member with no checkout is unchecked - never a silent pass',
+      async run(harness, ctx = {}) {
+        const runFleet = async (shape) => {
+          const rec = await harness.run('fleet', { method: 'GET', url: `/fleet?shape=${shape}` });
+          if (rec.threw) return { threw: true };
+          let body = '';
+          try { body = await rec.response.text(); } catch { /* empty */ }
+          try { return { threw: false, ...JSON.parse(body) }; } catch { return { threw: false, parse: false }; }
+        };
+        const reportOf = (r) => {
+          try { return JSON.parse(r.stdout) } catch { return null }
+        };
+        const codes = (rep) => (rep?.refusals ?? []).map((x) => x.code);
+        const fails = [];
+
+        // Clean fleet: exit 0, no drifts.
+        const c = await runFleet('fleet-clean');
+        if (c.threw || c.parse === false) return exhausted('fleet route crashed or returned an unparseable body');
+        if (c.exit !== 0) fails.push(`fleet-clean: exit ${c.exit} (expected 0)`);
+        const cr = reportOf(c);
+        if (!cr) fails.push('fleet-clean: unparseable report');
+        else if (cr.report.drifts.length) fails.push(`fleet-clean: unexpected drifts ${JSON.stringify(cr.report.drifts)}`);
+        else if (cr.report.read !== 2) fails.push(`fleet-clean: read ${cr.report.read} (expected 2)`);
+
+        // Drifted fleet: beta names floor, lockfile, version, and pin-style drift.
+        const d = await runFleet('fleet-drift');
+        if (d.threw || d.parse === false) fails.push('fleet-drift: unparseable body');
+        else {
+          if (d.exit !== 1) fails.push(`fleet-drift: exit ${d.exit} (expected 1)`);
+          const dr = reportOf(d);
+          const got = codes(dr).sort();
+          const want = ['E_FLEET_FLOOR_DRIFT', 'E_FLEET_LOCK_MISSING', 'E_FLEET_PIN_STYLE_DRIFT', 'E_FLEET_VERSION_DRIFT'];
+          if (JSON.stringify(got) !== JSON.stringify(want)) fails.push(`fleet-drift: codes ${JSON.stringify(got)} (expected ${JSON.stringify(want)})`);
+          if (dr && dr.report.drifts.some((x) => x.startsWith('alpha'))) fails.push('fleet-drift: alpha (clean) should contribute no drift');
+        }
+
+        // Unchecked fleet: no checkout read, but never a silent pass.
+        const u = await runFleet('fleet-unchecked');
+        if (u.threw || u.parse === false) fails.push('fleet-unchecked: unparseable body');
+        else {
+          const ur = reportOf(u);
+          if (!ur) fails.push('fleet-unchecked: unparseable report');
+          else if (ur.report.read !== 0) fails.push(`fleet-unchecked: read ${ur.report.read} (expected 0)`);
+          else if (!/no local checkout to read/.test(ur.lines ? ur.lines.join('\n') : '')) {
+            // lines may be absent in JSON mode; the note lives in report.unchecked.
+            if (ur.report.unchecked !== 2) fails.push('fleet-unchecked: expected both members unchecked and named as such');
+          }
+        }
+
+        if (fails.length) return exhausted(`the fleet meter leaked: ${fails.join(' | ')}`);
+        return refused('a drifted member is named by its exact refusal (floor + lockfile + version + pin style) on one page, a clean member passes, and a member with no checkout is unchecked - never a silent pass');
+      },
+    },
+
+    {
       name: 'clean-family-canary',
       description: 'the conforming family exits 0 with an empty refusals list - the happy wire holds',
       async run(harness, ctx = {}) {

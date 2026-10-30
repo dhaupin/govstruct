@@ -31,7 +31,7 @@ and pin themselves is the product.
 ```
 govstruct lint                 # manifest grammar
 govstruct render <target>      # react | partial | readme | registry
-govstruct doctor [--suite]     # adopter checksum gate, or suite-wide truth battery
+govstruct doctor [--suite] [--fleet]  # adopter checksum gate, suite battery, or fleet drift meter
 govstruct check                # the source-consistency check packs
 govstruct registry             # the suite roll-up (env / pins / floors / versions)
 govstruct lock                 # archive + sha256 receipt

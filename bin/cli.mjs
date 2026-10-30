@@ -3,7 +3,7 @@
 //
 //   govstruct lint                 # manifest grammar
 //   govstruct render <target>      # react | partial | readme | registry
-//   govstruct doctor [--suite]     # adopter checksum gate, or suite-wide truth battery
+//   govstruct doctor [--suite] [--fleet]  adopter checksum gate, suite-wide truth battery, or the fleet drift meter
 //   govstruct check                # the compliance shape packs
 //   govstruct registry             # the suite roll-up (env / pins / floors / versions)
 //   govstruct lock                 # archive + sha256 receipt
@@ -15,11 +15,14 @@
 // Exit contract: 0 all checks honored, 1 any refusal, 2 usage error - the
 // same ladder packstruct and crashtest use.
 import { lint, formatRefusals } from '../src/lint.mjs'
+import * as fsMod from 'node:fs'
+import * as pathMod from 'node:path'
 import { loadConfig } from '../src/config.mjs'
 import { loadManifest } from '../src/manifest.mjs'
 import { SURFACES, renderRegistry, manifestChecksum } from '../src/render.mjs'
 import { renderSurface, writeSurfaces } from '../src/surfaces.mjs'
 import { doctor, doctorSuite } from '../src/doctor.mjs'
+import { fleetMeter } from '../src/fleet.mjs'
 import { runChecks } from '../src/check.mjs'
 import { suiteRegistry } from '../src/registry.mjs'
 import { lock } from '../src/lock.mjs'
@@ -43,7 +46,7 @@ const usage = () => {
 
   lint                 validate the manifest grammar
   render <target>      emit react | partial | readme | registry
-  doctor [--suite]     adopter checksum gate, or suite-wide truth battery
+  doctor [--suite] [--fleet]  adopter checksum gate, suite battery, or fleet drift meter
   check                run the compliance shape packs
   registry             emit the suite roll-up (env / pins / floors / versions)
   lock                 archive + sha256 receipt
@@ -73,6 +76,37 @@ function rejectUnknownFlags(args, known) {
   for (const a of args) {
     if (a.startsWith('-') && !known.includes(a)) usageError(`unknown flag "${a}" (have: ${known.join(', ')})`)
   }
+}
+
+/** The value that follows `flag` in args, or null. */
+function flagValue(args, flag) {
+  const i = args.indexOf(flag)
+  return i >= 0 ? (args[i + 1] ?? null) : null
+}
+
+/** Is `a` the value consumed by `flag` (so it is not the target dir)? */
+function isFlagValue(args, flag, a) {
+  const i = args.indexOf(flag)
+  return i >= 0 && args[i + 1] === a
+}
+
+/**
+ * Resolve per-member checkout paths under a fleet root. `--fleet-root <dir>`
+ * names a directory whose `<member-id>/` children are the fleet's checkouts:
+ * `/repos/govstruct` -> { govstruct: '/repos/govstruct', ... }. Only members
+ * with an existing child directory get a row.
+ */
+function fleetRoots(target, fleetRoot) {
+  const { resolve } = pathMod
+  const { existsSync } = fsMod
+  const base = resolve(target, fleetRoot)
+  const out = {}
+  if (!existsSync(base)) return out
+  for (const name of fsMod.readdirSync(base)) {
+    const p = resolve(base, name)
+    if (existsSync(p) && fsMod.statSync(p).isDirectory()) out[name] = p
+  }
+  return out
 }
 
 async function main() {
@@ -111,13 +145,21 @@ async function main() {
       }
 
       case 'doctor': {
-        rejectUnknownFlags(rest, ['--json', '--suite', '--network', '--fleet'])
-        const useSuite = rest.includes('--suite') || rest.includes('--fleet')
+        rejectUnknownFlags(rest, ['--json', '--suite', '--network', '--fleet', '--fleet-root'])
+        const useFleet = rest.includes('--fleet')
+        const useSuite = useFleet || rest.includes('--suite')
         const network = rest.includes('--network')
-        const target = rest.find((a) => !a.startsWith('-')) ?? '.'
-        const r = useSuite ? await doctorSuite(target, { network }) : doctor(target, { network })
+        const target = rest.find((a) => !a.startsWith('-') && !isFlagValue(rest, '--fleet-root', a)) ?? '.'
+        let r
+        if (useFleet) {
+          const fleetRoot = flagValue(rest, '--fleet-root')
+          r = fleetMeter(target, { roots: fleetRoot ? fleetRoots(target, fleetRoot) : {} })
+        } else {
+          r = useSuite ? await doctorSuite(target, { network }) : doctor(target, { network })
+        }
         if (json) {
-          console.log(JSON.stringify({ schema: 1, mode: useSuite ? 'suite' : 'doctor', ok: r.ok, refusals: r.refusals.map(serializeRefusal), report: r.report }, null, 2))
+          const mode = useFleet ? 'fleet' : useSuite ? 'suite' : 'doctor'
+          console.log(JSON.stringify({ schema: 1, mode, ok: r.ok, refusals: r.refusals.map(serializeRefusal), report: r.report }, null, 2))
         } else {
           for (const line of r.lines) console.log(line)
         }
