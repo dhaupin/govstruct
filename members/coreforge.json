@@ -24,5 +24,14 @@
       "floor": ">=0.9"
     }
   ],
-  "grants": []
+  "grants": [],
+  "pending": {
+    "resources": [
+      "repo",
+      "npm",
+      "url"
+    ],
+    "interim": "creadev-site/src/forge",
+    "note": "the flowforge -> coreforge rename is in progress: the repo (dhaupin/coreforge), the npm name, and the domain are declared but not yet live; the rig is embedded in creadev-site src/forge/ until the rename lands"
+  }
 }

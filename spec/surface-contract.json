@@ -30,7 +30,8 @@
         "url": { "type": ["string", "null"], "contract": true, "note": "absolute https, or null" },
         "blurb": { "type": "string", "contract": true },
         "repo": { "type": ["string", "null"], "contract": true, "optional": true, "note": "owner/name, or null; absent when unset" },
-        "npm": { "type": ["string", "null"], "contract": true, "optional": true, "note": "the published name, or null; absent when unset" }
+        "npm": { "type": ["string", "null"], "contract": true, "optional": true, "note": "the published name, or null; absent when unset" },
+        "pending": { "type": "object", "contract": true, "optional": true, "note": "declared-but-not-live resources: { resources: [repo|npm|url], interim?, note? }; absent when every declared resource is live" }
       }
     },
     "member": {
@@ -52,7 +53,8 @@
         "home": { "type": ["string", "null"], "contract": true },
         "needs": { "type": "array", "contract": true, "note": "graph edges: [{ id, floor? }]" },
         "grants": { "type": "array", "contract": true, "note": "scoped credentials: [{ kind, scope }]" },
-        "clause": { "type": "object", "contract": true, "optional": true, "note": "ISO clause annotations; absent when a member declares none" }
+        "clause": { "type": "object", "contract": true, "optional": true, "note": "ISO clause annotations; absent when a member declares none" },
+        "pending": { "type": "object", "contract": true, "optional": true, "note": "declared-but-not-live resources: { resources: [repo|npm|url], interim?, note? }; absent when every declared resource is live" }
       }
     },
     "apps": {

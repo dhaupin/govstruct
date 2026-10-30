@@ -6,7 +6,7 @@
 
 ## Findings
 
-### 🛡 REFUSED (65)
+### 🛡 REFUSED (66)
 - auth/identity-spoof-headers: route "admin" not declared on this target - spoof matrix skipped (declare it for coverage)
 - auth/secret-watermark: no fake secrets planted in env - declare CRASHTEST_SECRET to arm this probe
 - auth/privilege-escalation: route "device" not declared on this target - escalation skipped (declare it for coverage)
@@ -23,11 +23,12 @@
 - governance/capability-no-sideways: vocabulary knob(s) "grantsRoute", "resolveRoute" not declared on this target - governance skipped (export moduleCtx['governance'].grantsRoute/resolveRoute for coverage)
 - governance/lock-ttl-honesty: governance knob(s) "locksRoute", "ttlMode" not declared on this target - lock-ttl-honesty skipped (declare locksRoute + the DOCUMENTED ttlMode for coverage)
 - governance/lock-owner-fencing: governance knob(s) "locksRoute", "staleToken" not declared on this target - fencing skipped (declare locksRoute + staleToken for coverage)
-- govstruct-manifest-shapes/hostile-manifest-fuzz: 19 hostile family shapes held: in-bounds verdicts, nameable refusals, no crash, no deep stack (PRD section 6)
+- govstruct-manifest-shapes/hostile-manifest-fuzz: 21 hostile family shapes held: in-bounds verdicts, nameable refusals, no crash, no deep stack (PRD section 6)
 - govstruct-manifest-shapes/oversize-in-bounds: oversize but spec-allowed shapes (deep extra nesting, half-megabyte string) answered in-bounds
 - govstruct-manifest-shapes/refusal-codes-registered: every emitted refusal code is registered (the G10 vocabulary holds)
 - govstruct-manifest-shapes/over-strict-drift-canary: minimum-spec shapes held: null url/repo, extra keys, retired aliases, and valid grants all exit 0, zero refusals
 - govstruct-manifest-shapes/grant-wall-refuses: the credential wall holds: unknown kind, empty scope, and duplicate grant each refuse by name (G5)
+- govstruct-manifest-shapes/pending-annotation-honest: the pending annotation holds: a flag on an undeclared/ungoverned resource refuses E_PENDING_UNKNOWN/E_PENDING_INVALID by name, while a well-formed annotation on a declared resource exits 0 (ask #3)
 - govstruct-manifest-shapes/verdict-chain-tamper-refuses: a fresh receipt verifies green; a nested verdict rewrite (E_RECEIPT_TAMPER) and a seq gap (E_RECEIPT_CHAIN) each break the chain by name (G4)
 - govstruct-manifest-shapes/lifecycle-retire-resolves: retirement tombstones and keeps a forwarding alias (lint green), a second retire refuses E_RETIRE_ALREADY_TOMBSTONED, and an unknown member refuses E_RETIRE_UNKNOWN_MEMBER (G7)
 - govstruct-manifest-shapes/a11y-pane-refuses: the emitted pane passes a11y/i18n; no landmark, a click-handler row, no focus ring, and unkeyed chrome each refuse by name (S5/G8)
@@ -78,7 +79,7 @@
 ### 🔒 BOUNDED (0)
 
 ## Cost economics
-- total: 286 backend ops across 950 in-process requests from 65 attacks
+- total: 292 backend ops across 1069 in-process requests from 66 attacks
   - auth/identity-spoof-headers: 0 ops / 0 requests
   - auth/secret-watermark: 0 ops / 0 requests
   - auth/privilege-escalation: 0 ops / 0 requests
@@ -95,22 +96,23 @@
   - governance/capability-no-sideways: 0 ops / 0 requests
   - governance/lock-ttl-honesty: 0 ops / 0 requests
   - governance/lock-owner-fencing: 0 ops / 0 requests
-  - govstruct-manifest-shapes/hostile-manifest-fuzz: 19 ops / 19 requests
-  - govstruct-manifest-shapes/oversize-in-bounds: 2 ops / 21 requests
-  - govstruct-manifest-shapes/refusal-codes-registered: 5 ops / 26 requests
-  - govstruct-manifest-shapes/over-strict-drift-canary: 6 ops / 32 requests
-  - govstruct-manifest-shapes/grant-wall-refuses: 3 ops / 35 requests
-  - govstruct-manifest-shapes/verdict-chain-tamper-refuses: 3 ops / 38 requests
-  - govstruct-manifest-shapes/lifecycle-retire-resolves: 3 ops / 41 requests
-  - govstruct-manifest-shapes/a11y-pane-refuses: 5 ops / 46 requests
-  - govstruct-manifest-shapes/graph-propagation-walks: 2 ops / 48 requests
-  - govstruct-manifest-shapes/online-leg-refuses-by-name: 1 ops / 49 requests
-  - govstruct-manifest-shapes/adopter-pins-refuse-by-name: 3 ops / 52 requests
-  - govstruct-manifest-shapes/rollup-address-holds: 3 ops / 55 requests
-  - govstruct-manifest-shapes/fleet-meter-names-drift: 3 ops / 58 requests
-  - govstruct-manifest-shapes/clean-family-canary: 1 ops / 59 requests
-  - govstruct-manifest-shapes/iso-profile-stays-honest: 4 ops / 63 requests
-  - govstruct-manifest-shapes/surface-contract-holds: 3 ops / 66 requests
+  - govstruct-manifest-shapes/hostile-manifest-fuzz: 21 ops / 21 requests
+  - govstruct-manifest-shapes/oversize-in-bounds: 2 ops / 23 requests
+  - govstruct-manifest-shapes/refusal-codes-registered: 5 ops / 28 requests
+  - govstruct-manifest-shapes/over-strict-drift-canary: 7 ops / 35 requests
+  - govstruct-manifest-shapes/grant-wall-refuses: 3 ops / 38 requests
+  - govstruct-manifest-shapes/pending-annotation-honest: 3 ops / 41 requests
+  - govstruct-manifest-shapes/verdict-chain-tamper-refuses: 3 ops / 44 requests
+  - govstruct-manifest-shapes/lifecycle-retire-resolves: 3 ops / 47 requests
+  - govstruct-manifest-shapes/a11y-pane-refuses: 5 ops / 52 requests
+  - govstruct-manifest-shapes/graph-propagation-walks: 2 ops / 54 requests
+  - govstruct-manifest-shapes/online-leg-refuses-by-name: 1 ops / 55 requests
+  - govstruct-manifest-shapes/adopter-pins-refuse-by-name: 3 ops / 58 requests
+  - govstruct-manifest-shapes/rollup-address-holds: 3 ops / 61 requests
+  - govstruct-manifest-shapes/fleet-meter-names-drift: 3 ops / 64 requests
+  - govstruct-manifest-shapes/clean-family-canary: 1 ops / 65 requests
+  - govstruct-manifest-shapes/iso-profile-stays-honest: 4 ops / 69 requests
+  - govstruct-manifest-shapes/surface-contract-holds: 3 ops / 72 requests
   - guards/hygiene-no-store: 0 ops / 0 requests
   - guards/burst-wall: 0 ops / 0 requests
   - input/proto-pollution-body: 0 ops / 0 requests

@@ -249,7 +249,16 @@
       "blurb": "The site rig: one config file, four verbs, two surfaces, zero hand-editing of brand data.",
       "status": "Live",
       "npm": "coreforge",
-      "repo": "dhaupin/coreforge"
+      "repo": "dhaupin/coreforge",
+      "pending": {
+        "resources": [
+          "repo",
+          "npm",
+          "url"
+        ],
+        "interim": "creadev-site/src/forge",
+        "note": "the flowforge -> coreforge rename is in progress: the repo (dhaupin/coreforge), the npm name, and the domain are declared but not yet live; the rig is embedded in creadev-site src/forge/ until the rename lands"
+      }
     },
     {
       "id": "gistory",

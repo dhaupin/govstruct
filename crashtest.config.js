@@ -95,6 +95,11 @@ const HOSTILE = {
     }),
   },
   'history-invalid': { 'a.json': goodMember('a', { status: 'Live', history: 'not-an-array' }) },
+  // Issue #23 ask #3: a declared-but-not-live resource is annotated, never a
+  // phantom. A pending flag on a resource the member does not declare, or a
+  // resource outside the governed list, refuses by name.
+  'pending-unknown': { 'a.json': goodMember('a', { pending: { resources: ['repo'] } }) },
+  'pending-invalid': { 'a.json': goodMember('a', { pending: { resources: [] } }) },
 };
 
 // Spec-ALLOWED shapes: the lint MUST NOT flag these (tolerance canary).
@@ -116,6 +121,14 @@ const TOLERANT = {
         { status: 'In Development', at: '2026-03-01T00:00:00Z' },
         { status: 'Backburner', at: '2026-04-01T00:00:00Z' },
       ],
+    }),
+  },
+  // Issue #23 ask #3: a well-formed pending annotation on a declared resource
+  // is spec-ALLOWED - it records a real state, not a lint fault.
+  'pending-valid': {
+    'a.json': goodMember('a', {
+      repo: 'dhaupin/a',
+      pending: { resources: ['repo'], interim: 'x/src/forge', note: 'rename pending' },
     }),
   },
 };

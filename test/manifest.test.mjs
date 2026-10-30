@@ -8,6 +8,8 @@ import assert from 'node:assert/strict'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { lint } from '../src/lint.mjs'
+import { validateBlock } from '../src/manifest.mjs'
+import { RefusalBag } from '../src/refusals.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const CLEAN = join(HERE, 'fixtures', 'clean')
@@ -44,6 +46,8 @@ const CASES = [
   ['grant-unknown-kind', 'E_GRANT_UNKNOWN_KIND'],
   ['grant-scope-empty', 'E_GRANT_SCOPE_EMPTY'],
   ['grant-duplicate', 'E_GRANT_DUPLICATE'],
+  ['pending-unknown', 'E_PENDING_UNKNOWN'],
+  ['pending-invalid', 'E_PENDING_INVALID'],
 ]
 
 for (const [fixture, code] of CASES) {
@@ -59,4 +63,66 @@ test('a missing config refuses E_CONFIG_MISSING', () => {
   const r = lint(join(BROKEN, 'does-not-exist'))
   assert.equal(r.ok, false)
   assert.equal(r.refusals[0].code, 'E_CONFIG_MISSING')
+})
+
+// --- issue #23 ask #3: the pending annotation, two ways ---
+
+test('a well-formed pending annotation passes validateBlock', () => {
+  const block = {
+    __file: 'members/a.json', __filename: 'a', id: 'a', name: 'A', role: 'product', status: 'Live',
+    section: 'open-source', blurb: 'b', icon: 'a', order: 1, url: 'https://a.example.com',
+    repo: 'dhaupin/a', npm: 'a', aliases: [], home: null, needs: [], grants: [],
+    pending: { resources: ['repo', 'npm'], interim: 'x/src/forge', note: 'rename pending' },
+  }
+  const bag = new RefusalBag()
+  validateBlock(block, bag)
+  assert.equal(bag.ok, true, JSON.stringify(bag.items.map((x) => x.message)))
+})
+
+test('pending naming a resource the member does not declare refuses E_PENDING_UNKNOWN', () => {
+  const block = {
+    __file: 'members/a.json', __filename: 'a', id: 'a', name: 'A', role: 'product', status: 'Live',
+    section: 'open-source', blurb: 'b', icon: 'a', order: 1, url: 'https://a.example.com',
+    repo: null, npm: null, aliases: [], home: null, needs: [], grants: [],
+    pending: { resources: ['repo'] },
+  }
+  const bag = new RefusalBag()
+  validateBlock(block, bag)
+  assert.ok(bag.items.some((x) => x.code === 'E_PENDING_UNKNOWN'), JSON.stringify(bag.items))
+})
+
+test('pending with a non-governed resource refuses E_PENDING_UNKNOWN', () => {
+  const block = {
+    __file: 'members/a.json', __filename: 'a', id: 'a', name: 'A', role: 'product', status: 'Live',
+    section: 'open-source', blurb: 'b', icon: 'a', order: 1, url: 'https://a.example.com',
+    repo: 'dhaupin/a', npm: null, aliases: [], home: null, needs: [], grants: [],
+    pending: { resources: ['docs'] },
+  }
+  const bag = new RefusalBag()
+  validateBlock(block, bag)
+  assert.ok(bag.items.some((x) => x.code === 'E_PENDING_UNKNOWN'))
+})
+
+test('pending with no resources refuses E_PENDING_INVALID', () => {
+  const block = {
+    __file: 'members/a.json', __filename: 'a', id: 'a', name: 'A', role: 'product', status: 'Live',
+    section: 'open-source', blurb: 'b', icon: 'a', order: 1, url: 'https://a.example.com',
+    repo: 'dhaupin/a', npm: null, aliases: [], home: null, needs: [], grants: [],
+    pending: { resources: [] },
+  }
+  const bag = new RefusalBag()
+  validateBlock(block, bag)
+  assert.ok(bag.items.some((x) => x.code === 'E_PENDING_INVALID'))
+})
+
+test('pending with an empty note refuses E_PENDING_INVALID', () => {
+  const block = {
+    __file: 'members/a.json', __filename: 'a', id: 'a', name: 'A', role: 'product', status: 'Live',
+    section: 'open-source', blurb: 'b', icon: 'a', order: 1, url: 'https://a.example.com',
+    repo: 'dhaupin/a', npm: null, aliases: [], home: null, needs: [], grants: [],
+    pending: { resources: ['repo'], note: '  ' },
+  }
+  const bag = new RefusalBag()
+  validateBlock(block, bag)
+  assert.ok(bag.items.some((x) => x.code === 'E_PENDING_INVALID'))
 })

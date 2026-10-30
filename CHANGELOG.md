@@ -21,6 +21,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`E_SURFACE_FIELD_MISSING`) or a retyped one (`E_SURFACE_TYPE_DRIFT`) by name.
   The `surface-shapes` check pack runs the same honesty checks under `govstruct
   check`, and the doctor folds it in as the `surface-contract` check.
+- **Starter pin floors (issue #23, ask #2, PRD section 10 S3).** An integrator
+  that cuts a repo from a starter template needs to know the dependency floors
+  it may rely on, instead of guessing. A member's compliance block now carries
+  them as data (`templates: { file, floors: [{ name, floor }] }`), and the
+  `template-shapes` check pack verifies each pinned spec honors its floor,
+  refusing `E_TEMPLATE_FLOOR_DRIFT` by name when a pin has drifted below the
+  declared floor or names a dependency the template does not pin. The
+  comparison is honest about what it cannot prove: an unparseable spec or floor
+  is a state, not a refusal.
+- **The pending annotation (issue #23, ask #3).** A member may declare a
+  resource (repo, npm, url) that is promised but not yet live - the flowforge
+  → coreforge rename being the first case. `members/<id>.json` now accepts a
+  governed `pending` block (`{ resources, interim?, note? }`) that records the
+  state honestly and names the interim home, so a consumer reads a named state
+  instead of a phantom. The annotation rides the roll-up (`registry.v1.json`
+  member rows) and the `doctor --network` leg honors it: a declared-pending url
+  or npm is skipped as a named state rather than refused. A pending flag on a
+  resource the member does not declare, or a resource outside the governed
+  list, refuses `E_PENDING_UNKNOWN`; a malformed annotation refuses
+  `E_PENDING_INVALID`.
 - **The ISO evidence orientation (PRD section 10, G15).** govstruct now ships
   an ISO 9001:2015 / ISO 27001:2022 evidence map, drop-in and on by default.
   `spec/iso-profile.json` is the data: a clause catalog where every clause names

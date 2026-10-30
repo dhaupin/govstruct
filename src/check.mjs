@@ -19,6 +19,7 @@ import { loadManifest } from './manifest.mjs'
 import { RefusalBag, loadRegistry } from './refusals.mjs'
 import { loadIsoProfile, isoCoverage } from './iso.mjs'
 import { loadSurfaceContract, verifySurfaces } from './surface.mjs'
+import { honorsFloor } from './templates.mjs'
 
 /**
  * Load every check pack under `<root>/packs/public/<name>/`. Returns
@@ -106,6 +107,7 @@ export async function runChecks(target = '.', { json = false, packsDir } = {}) {
     isoCoverage: () => isoCoverage(loadRegistry(), { profile: loadIsoProfile(root) }),
     loadSurfaceContract: () => loadSurfaceContract(),
     verifySurfaces: () => verifySurfaces(root, loadSurfaceContract()),
+    honorsFloor,
   }
 
   lines.push(`govstruct check: ${packs.length} pack(s) over ${root}`)

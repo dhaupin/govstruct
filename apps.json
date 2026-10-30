@@ -214,7 +214,16 @@
           "floor": ">=0.9"
         }
       ],
-      "grants": []
+      "grants": [],
+      "pending": {
+        "resources": [
+          "repo",
+          "npm",
+          "url"
+        ],
+        "interim": "creadev-site/src/forge",
+        "note": "the flowforge -> coreforge rename is in progress: the repo (dhaupin/coreforge), the npm name, and the domain are declared but not yet live; the rig is embedded in creadev-site src/forge/ until the rename lands"
+      }
     },
     {
       "id": "gistory",
@@ -512,6 +521,23 @@
         },
         "env": [],
         "pins": [],
+        "templates": {
+          "file": "web/package.json",
+          "floors": [
+            {
+              "name": "react",
+              "floor": ">=18"
+            },
+            {
+              "name": "vite",
+              "floor": ">=5"
+            },
+            {
+              "name": "react-router-dom",
+              "floor": ">=6"
+            }
+          ]
+        },
         "clause": {}
       },
       "crashtest": {

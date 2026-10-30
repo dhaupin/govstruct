@@ -169,30 +169,44 @@ export async function doctorOnline(target = '.', { probe = defaultProbe } = {}) 
 
   let urlsChecked = 0
   let npmChecked = 0
+  let pendingSkipped = 0
   for (const m of manifest.members) {
+    // Issue #23 ask #3: a resource the member declares `pending` is a named
+    // state, not a refusal - the record already says it is not live yet. The
+    // online leg honors the annotation instead of crying 404 at a promise.
+    const pending = new Set(Array.isArray(m.pending?.resources) ? m.pending.resources : [])
     if (typeof m.url === 'string' && m.url) {
-      const https = await probe(m.url)
-      const insecure = await probe(m.url.replace(/^https:/, 'http:'))
-      urlsChecked += 1
-      if (https < 200 || https >= 400) {
-        if (insecure >= 200 && insecure < 400) {
-          bag.add('E_URL_INSECURE', `member "${m.id}" resolves over http but not https: ${m.url}`, { id: m.id, url: m.url })
-        } else {
-          bag.add('E_URL_UNRESOLVABLE', `member "${m.id}" url does not resolve: ${m.url} (HTTP ${https})`, { id: m.id, url: m.url })
+      if (pending.has('url')) {
+        pendingSkipped += 1
+      } else {
+        const https = await probe(m.url)
+        const insecure = await probe(m.url.replace(/^https:/, 'http:'))
+        urlsChecked += 1
+        if (https < 200 || https >= 400) {
+          if (insecure >= 200 && insecure < 400) {
+            bag.add('E_URL_INSECURE', `member "${m.id}" resolves over http but not https: ${m.url}`, { id: m.id, url: m.url })
+          } else {
+            bag.add('E_URL_UNRESOLVABLE', `member "${m.id}" url does not resolve: ${m.url} (HTTP ${https})`, { id: m.id, url: m.url })
+          }
         }
       }
     }
     if (typeof m.npm === 'string' && m.npm) {
-      const st = await probe(`https://registry.npmjs.org/${m.npm}`)
-      npmChecked += 1
-      if (st < 200 || st >= 400) {
-        bag.add('E_NPM_MISSING', `member "${m.id}" declares npm "${m.npm}" which is not on the registry (HTTP ${st})`, { id: m.id, npm: m.npm })
+      if (pending.has('npm')) {
+        pendingSkipped += 1
+      } else {
+        const st = await probe(`https://registry.npmjs.org/${m.npm}`)
+        npmChecked += 1
+        if (st < 200 || st >= 400) {
+          bag.add('E_NPM_MISSING', `member "${m.id}" declares npm "${m.npm}" which is not on the registry (HTTP ${st})`, { id: m.id, npm: m.npm })
+        }
       }
     }
   }
 
   report.checks.push({ name: 'url-resolvability', ok: bag.ok, detail: `${urlsChecked} url(s) checked` })
   report.checks.push({ name: 'npm-existence', ok: bag.ok, detail: `${npmChecked} npm name(s) checked` })
+  report.checks.push({ name: 'pending-resources', ok: true, detail: `${pendingSkipped} declared-pending resource(s) skipped (a named state)` })
 
   const refusals = bag.sorted()
   lines.push(`govstruct doctor --network: ${manifest.memberCount} member(s) in ${root}`)

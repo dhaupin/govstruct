@@ -84,7 +84,7 @@
     {
       "id": "govstruct-manifest-shapes/hostile-manifest-fuzz",
       "verdict": "REFUSED",
-      "detail": "19 hostile family shapes held: in-bounds verdicts, nameable refusals, no crash, no deep stack (PRD section 6)"
+      "detail": "21 hostile family shapes held: in-bounds verdicts, nameable refusals, no crash, no deep stack (PRD section 6)"
     },
     {
       "id": "govstruct-manifest-shapes/oversize-in-bounds",
@@ -105,6 +105,11 @@
       "id": "govstruct-manifest-shapes/grant-wall-refuses",
       "verdict": "REFUSED",
       "detail": "the credential wall holds: unknown kind, empty scope, and duplicate grant each refuse by name (G5)"
+    },
+    {
+      "id": "govstruct-manifest-shapes/pending-annotation-honest",
+      "verdict": "REFUSED",
+      "detail": "the pending annotation holds: a flag on an undeclared/ungoverned resource refuses E_PENDING_UNKNOWN/E_PENDING_INVALID by name, while a well-formed annotation on a declared resource exits 0 (ask #3)"
     },
     {
       "id": "govstruct-manifest-shapes/verdict-chain-tamper-refuses",
@@ -350,6 +355,7 @@
     "govstruct-manifest-shapes/refusal-codes-registered",
     "govstruct-manifest-shapes/over-strict-drift-canary",
     "govstruct-manifest-shapes/grant-wall-refuses",
+    "govstruct-manifest-shapes/pending-annotation-honest",
     "govstruct-manifest-shapes/verdict-chain-tamper-refuses",
     "govstruct-manifest-shapes/lifecycle-retire-resolves",
     "govstruct-manifest-shapes/a11y-pane-refuses",

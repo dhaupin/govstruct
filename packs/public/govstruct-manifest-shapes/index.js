@@ -75,6 +75,7 @@ export default {
           'needs-cycle', 'needs-self', 'tombstone-empty', 'field-missing',
           'wrongtypes', 'grant-unknown-kind', 'grant-scope-empty', 'grant-duplicate',
           'history-backward', 'history-mismatch', 'history-invalid',
+          'pending-unknown', 'pending-invalid',
         ];
         const crashes = [];
         const bad = [];
@@ -142,7 +143,7 @@ export default {
       async run(harness, ctx = {}) {
         const route = routeOf(ctx);
         const overStrict = [];
-        for (const shape of ['clean', 'null-url-repo', 'extra-keys', 'alias-retired', 'grant-valid', 'history-valid']) {
+        for (const shape of ['clean', 'null-url-repo', 'extra-keys', 'alias-retired', 'grant-valid', 'history-valid', 'pending-valid']) {
           const r = await runLint(harness, route, shape);
           if (r.threw) { overStrict.push(`${shape}: harness throw`); continue; }
           const v = parseVerdict(r.body);
@@ -178,6 +179,37 @@ export default {
         }
         if (fails.length) return exhausted(`the credential wall leaked: ${fails.join(' | ')}`);
         return refused('the credential wall holds: unknown kind, empty scope, and duplicate grant each refuse by name (G5)');
+      },
+    },
+
+    {
+      name: 'pending-annotation-honest',
+      description: 'issue #23 ask #3: a declared-but-not-live resource is annotated, never a phantom. A pending flag on an undeclared resource or one outside the governed list refuses by name, while a well-formed annotation on a declared resource exits 0 (tolerance canary holds)',
+      async run(harness, ctx = {}) {
+        const route = routeOf(ctx);
+        const expect = {
+          'pending-unknown': 'E_PENDING_UNKNOWN',
+          'pending-invalid': 'E_PENDING_INVALID',
+        };
+        const fails = [];
+        for (const [shape, code] of Object.entries(expect)) {
+          const r = await runLint(harness, route, shape);
+          if (r.threw) { fails.push(`${shape}: harness throw`); continue; }
+          const v = parseVerdict(r.body);
+          if (!v) { fails.push(`${shape}: unparseable verdict`); continue; }
+          if (v.exit !== 1) fails.push(`${shape}: exit ${v.exit} (expected 1)`);
+          const codes = v.refusals.map((x) => x.code);
+          if (!codes.includes(code)) fails.push(`${shape}: expected ${code}, got [${codes.join(', ')}]`);
+        }
+        const ok = await runLint(harness, route, 'pending-valid');
+        if (ok.threw) fails.push('pending-valid: harness throw');
+        else {
+          const v = parseVerdict(ok.body);
+          if (!v) fails.push('pending-valid: unparseable verdict');
+          else if (v.exit !== 0 || v.refusals.length > 0) fails.push(`pending-valid: exit ${v.exit}, ${v.refusals.length} refusal(s) - a real annotation must not be flagged`);
+        }
+        if (fails.length) return exhausted(`the pending annotation leaked: ${fails.join(' | ')}`);
+        return refused('the pending annotation holds: a flag on an undeclared/ungoverned resource refuses E_PENDING_UNKNOWN/E_PENDING_INVALID by name, while a well-formed annotation on a declared resource exits 0 (ask #3)');
       },
     },
 
