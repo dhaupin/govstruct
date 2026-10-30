@@ -62,6 +62,9 @@ export default {
   // renders the text link).
   nav: [
     { label: 'Home', to: '/', end: true, group: 'site' },
+    { label: 'Why', to: '/why', group: 'site' },
+    { label: 'What', to: '/what', group: 'site' },
+    { label: 'About', to: '/about', group: 'site' },
     { label: 'Packs', to: '/packs', group: 'site' },
     { label: 'Status', to: '/status', group: 'site' },
     { label: 'Docs', href: 'https://docs.creadev.org/govstruct/', group: 'out' },
@@ -97,6 +100,36 @@ export default {
         title: 'Packs | govstruct',
         description:
           'The extension surface: ten SPEC v1 check-profile packs and one crashtest lane that attacks govstruct lint with a hostile member-block corpus, judged by the REFUSED / BOUNDED / PASSED / EXPLOITED verdict taxonomy.',
+      },
+    },
+    {
+      path: '/why',
+      priority: '0.6',
+      changefreq: 'monthly',
+      meta: {
+        title: 'Why govstruct | govstruct',
+        description:
+          'The crosslink mesh was hand-typed N times and drifted. Why a family of repos needs governed data with teeth instead of discipline.',
+      },
+    },
+    {
+      path: '/what',
+      priority: '0.6',
+      changefreq: 'monthly',
+      meta: {
+        title: 'What govstruct is | govstruct',
+        description:
+          'One zero-dependency CLI: the manifest grammar, the render surfaces, the doctor, and the boundary between what govstruct owns and what it defers to the family.',
+      },
+    },
+    {
+      path: '/about',
+      priority: '0.5',
+      changefreq: 'monthly',
+      meta: {
+        title: 'About | govstruct',
+        description:
+          'Who builds govstruct, the struct family it belongs to, and the license and provenance terms.',
       },
     },
     {

@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **The why / what / about pages, both surfaces.** The landing gains three
+  routes (`/why`, `/what`, `/about`) in the nav vocabulary, each a real page in
+  the family voice: the crosslink-mesh problem and the refusal thesis; the CLI
+  verbs and the owns-versus-defers boundary; who builds it and the MIT
+  provenance. The docs tree grows the matching `docs/why.md`, `docs/what.md`,
+  `docs/about.md`, reachable from the docs nav. This closes the family-wide gap
+  where no member carried a supporting trio.
 - **The landing's docs link + filled legal pages.** The nav vocabulary gains a
   `Docs` entry (`site.config.js`), so the landing header/footer reach the docs
   rig like every sibling's does. `Terms.jsx` and `Privacy.jsx` were the blank
