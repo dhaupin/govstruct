@@ -1,0 +1,17 @@
+{
+  "id": "migrare",
+  "name": "Migrare",
+  "role": "product",
+  "url": "https://migrare.creadev.org",
+  "repo": "dhaupin/migrare",
+  "npm": "migrare",
+  "aliases": [],
+  "home": null,
+  "blurb": "A migration tool, parked: the work is on hold and the rebrand is deferred, so it stays a status, not a removal.",
+  "icon": "migrare",
+  "order": 13,
+  "status": "Backburner",
+  "section": "open-source",
+  "needs": [],
+  "grants": []
+}

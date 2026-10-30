@@ -1,0 +1,13 @@
+{
+  "id": "eyestruct",
+  "floors": {
+    "consumer": ">=18",
+    "battery": ">=18"
+  },
+  "version": {
+    "repo": "1.1.0"
+  },
+  "env": [],
+  "pins": [],
+  "clause": {}
+}

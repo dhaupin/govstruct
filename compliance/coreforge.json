@@ -1,0 +1,13 @@
+{
+  "id": "coreforge",
+  "floors": {
+    "consumer": ">=18",
+    "battery": ">=18"
+  },
+  "version": {
+    "repo": "0.9.0"
+  },
+  "env": [],
+  "pins": [],
+  "clause": {}
+}

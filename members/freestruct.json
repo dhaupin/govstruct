@@ -1,0 +1,17 @@
+{
+  "id": "freestruct",
+  "name": "Freestruct",
+  "role": "product",
+  "url": "https://freestruct.creadev.org",
+  "repo": "dhaupin/freestruct",
+  "npm": "freestruct",
+  "aliases": [],
+  "home": null,
+  "blurb": "The after-build SEO layer: runs and injects over the baked output, basePath aware.",
+  "icon": "freestruct",
+  "order": 11,
+  "status": "Live",
+  "section": "open-source",
+  "needs": [],
+  "grants": []
+}

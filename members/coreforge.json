@@ -1,0 +1,28 @@
+{
+  "id": "coreforge",
+  "name": "Coreforge",
+  "role": "forge",
+  "url": "https://coreforge.creadev.org",
+  "repo": "dhaupin/coreforge",
+  "npm": "coreforge",
+  "aliases": [
+    "flowforge"
+  ],
+  "home": null,
+  "blurb": "The site rig: one config file, four verbs, two surfaces, zero hand-editing of brand data.",
+  "icon": "coreforge",
+  "order": 7,
+  "status": "Live",
+  "section": "open-source",
+  "needs": [
+    {
+      "id": "prestruct",
+      "floor": ">=1"
+    },
+    {
+      "id": "poststruct",
+      "floor": ">=0.9"
+    }
+  ],
+  "grants": []
+}

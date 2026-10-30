@@ -1,0 +1,13 @@
+{
+  "id": "freestruct",
+  "floors": {
+    "consumer": ">=20",
+    "battery": ">=20"
+  },
+  "version": {
+    "repo": "1.2.0"
+  },
+  "env": [],
+  "pins": [],
+  "clause": {}
+}

@@ -1,0 +1,17 @@
+{
+  "id": "weisync",
+  "name": "Weisync",
+  "role": "product",
+  "url": "https://weisync.com",
+  "repo": null,
+  "npm": null,
+  "aliases": [],
+  "home": null,
+  "blurb": "A sync product running on its own domain, with a private repository.",
+  "icon": "weisync",
+  "order": 17,
+  "status": "Live",
+  "section": "proprietary",
+  "needs": [],
+  "grants": []
+}

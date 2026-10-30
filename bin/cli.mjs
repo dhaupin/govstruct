@@ -1,0 +1,223 @@
+#!/usr/bin/env node
+// bin/cli.mjs - the govstruct CLI, zero dependencies.
+//
+//   govstruct lint                 # manifest grammar
+//   govstruct render <target>      # react | partial | readme | registry
+//   govstruct doctor [--suite]     # adopter checksum gate, or suite-wide truth battery
+//   govstruct check                # the compliance shape packs
+//   govstruct registry             # the suite roll-up (env / pins / floors / versions)
+//   govstruct lock                 # archive + sha256 receipt
+//   govstruct names <id>           # check a candidate id against npm, GitHub, the roster
+//   govstruct migrate              # --status / --dry-run a spec or field migration
+//   govstruct init [<dir>]         # scaffold a one-member family
+//   govstruct audit verify         # walk the audit ledger chain
+//
+// Exit contract: 0 all checks honored, 1 any refusal, 2 usage error - the
+// same ladder packstruct and crashtest use.
+import { lint, formatRefusals } from '../src/lint.mjs'
+import { loadConfig } from '../src/config.mjs'
+import { loadManifest } from '../src/manifest.mjs'
+import { SURFACES, renderRegistry, manifestChecksum } from '../src/render.mjs'
+import { renderSurface, writeSurfaces } from '../src/surfaces.mjs'
+import { doctor, doctorSuite } from '../src/doctor.mjs'
+import { runChecks } from '../src/check.mjs'
+import { suiteRegistry } from '../src/registry.mjs'
+import { lock } from '../src/lock.mjs'
+import { names } from '../src/names.mjs'
+import { migrateStatus, migrateDryRun } from '../src/migrate.mjs'
+import { init } from '../src/init.mjs'
+import { auditVerify, appendEntry } from '../src/audit.mjs'
+import { Refusal } from '../src/refusals.mjs'
+
+const argv = process.argv.slice(2)
+const verb = argv[0] ?? 'help'
+const rest = argv.slice(1)
+const json = rest.includes('--json')
+
+const usage = () => {
+  console.error(`Usage: govstruct <verb> [options]
+
+  lint                 validate the manifest grammar
+  render <target>      emit react | partial | readme | registry
+  doctor [--suite]     adopter checksum gate, or suite-wide truth battery
+  check                run the compliance shape packs
+  registry             emit the suite roll-up (env / pins / floors / versions)
+  lock                 archive + sha256 receipt
+  names <id>           check a candidate id against npm, GitHub, and the roster
+  migrate --status     report migration state
+  migrate --dry-run    preview a migration
+  init [<dir>]         scaffold a one-member family
+  audit verify         walk the audit ledger chain
+
+Global: --json for machine output; --network to allow socket checks.`)
+}
+
+function usageError(msg) {
+  if (msg) console.error(msg)
+  usage()
+  process.exit(2)
+}
+
+// Reject unknown leading-dash flags so a typo never silently changes mode.
+function rejectUnknownFlags(args, known) {
+  for (const a of args) {
+    if (a.startsWith('-') && !known.includes(a)) usageError(`unknown flag "${a}" (have: ${known.join(', ')})`)
+  }
+}
+
+async function main() {
+  try {
+    switch (verb) {
+      case 'lint': {
+        rejectUnknownFlags(rest, ['--json'])
+        const r = lint('.')
+        if (json) {
+          console.log(JSON.stringify({ schema: 1, mode: 'lint', ok: r.ok, memberCount: r.memberCount, refusals: r.refusals.map(serializeRefusal) }, null, 2))
+        } else if (r.ok) {
+          console.log(`govstruct lint: ${r.memberCount} member(s) clean`)
+        } else {
+          console.log(`govstruct lint: ${r.refusals.length} refusal(s)`)
+          console.log(formatRefusals(r.refusals))
+        }
+        process.exit(r.ok ? 0 : 1)
+      }
+
+      case 'render': {
+        const target = rest.find((a) => !a.startsWith('-'))
+        rejectUnknownFlags(rest, ['--json', '--write', '--out'])
+        if (!target) usageError('render needs a target: react | partial | readme | registry')
+        if (!(target in SURFACES)) usageError(`unknown render target "${target}" (have: ${Object.keys(SURFACES).join(', ')})`)
+        const outIdx = rest.indexOf('--out')
+        const out = outIdx !== -1 ? rest[outIdx + 1] : null
+        if (rest.includes('--write')) {
+          const written = writeSurfaces('.', [target], { out })
+          if (json) console.log(JSON.stringify({ schema: 1, mode: 'render', target, written }, null, 2))
+          else for (const w of written) console.log(`govstruct render: wrote ${w}`)
+          process.exit(0)
+        }
+        process.stdout.write(renderSurface('.', target))
+        process.exit(0)
+      }
+
+      case 'doctor': {
+        rejectUnknownFlags(rest, ['--json', '--suite', '--network', '--fleet'])
+        const useSuite = rest.includes('--suite') || rest.includes('--fleet')
+        const network = rest.includes('--network')
+        const r = useSuite ? await doctorSuite('.', { network }) : doctor('.', { network })
+        if (json) {
+          console.log(JSON.stringify({ schema: 1, mode: useSuite ? 'suite' : 'doctor', ok: r.ok, refusals: r.refusals.map(serializeRefusal), report: r.report }, null, 2))
+        } else {
+          for (const line of r.lines) console.log(line)
+        }
+        process.exit(r.ok ? 0 : 1)
+      }
+
+      case 'check': {
+        rejectUnknownFlags(rest, ['--json'])
+        const r = await runChecks('.', { json })
+        process.exit(r.ok ? 0 : 1)
+      }
+
+      case 'registry': {
+        rejectUnknownFlags(rest, ['--json', '--write'])
+        const r = suiteRegistry('.')
+        if (rest.includes('--write')) {
+          const written = writeSurfaces('.', ['registry'])
+          if (!json) console.log(`govstruct registry: wrote ${written.join(', ')}`)
+          else console.log(JSON.stringify({ schema: 1, mode: 'registry', written, registry: r }, null, 2))
+          process.exit(0)
+        }
+        if (json) console.log(JSON.stringify({ schema: 1, mode: 'registry', registry: r }, null, 2))
+        else console.log(renderRegistry((loadManifest('.').manifest)))
+        process.exit(0)
+      }
+
+      case 'lock': {
+        rejectUnknownFlags(rest, ['--json'])
+        const r = lock('.')
+        if (json) console.log(JSON.stringify({ schema: 1, mode: 'lock', ...r }, null, 2))
+        else console.log(`govstruct lock: ${r.archive} (${r.sha256.slice(0, 16)}...)`)
+        process.exit(r.ok ? 0 : 1)
+      }
+
+      case 'names': {
+        rejectUnknownFlags(rest, ['--json', '--network'])
+        const id = rest.find((a) => !a.startsWith('-'))
+        if (!id) usageError('names needs a candidate id')
+        const network = rest.includes('--network')
+        const r = await names('.', id, { network })
+        if (json) console.log(JSON.stringify({ schema: 1, mode: 'names', ...r }, null, 2))
+        else for (const line of r.lines) console.log(line)
+        process.exit(r.ok ? 0 : 1)
+      }
+
+      case 'migrate': {
+        rejectUnknownFlags(rest, ['--json', '--status', '--dry-run'])
+        const r = rest.includes('--dry-run') ? migrateDryRun('.') : migrateStatus('.')
+        if (json) console.log(JSON.stringify({ schema: 1, mode: 'migrate', ...r }, null, 2))
+        else for (const line of r.lines) console.log(line)
+        process.exit(r.ok ? 0 : 1)
+      }
+
+      case 'init': {
+        rejectUnknownFlags(rest, ['--json', '--force'])
+        const dir = rest.find((a) => !a.startsWith('-')) ?? '.'
+        const r = init(dir, { force: rest.includes('--force') })
+        if (json) console.log(JSON.stringify({ schema: 1, mode: 'init', ...r }, null, 2))
+        else for (const line of r.lines) console.log(line)
+        process.exit(r.ok ? 0 : 1)
+      }
+
+      case 'audit': {
+        const sub = rest[0]
+        rejectUnknownFlags(rest.slice(1), ['--json', '--verb', '--subject', '--member', '--rev'])
+        if (sub === 'verify') {
+          const r = auditVerify('.')
+          if (json) console.log(JSON.stringify({ schema: 1, mode: 'audit', sub, ...r }, null, 2))
+          else for (const line of r.lines) console.log(line)
+          process.exit(r.ok ? 0 : 1)
+        }
+        if (sub === 'record') {
+          const flag = (name) => {
+            const i = rest.indexOf(name)
+            return i !== -1 ? rest[i + 1] : undefined
+          }
+          const verbName = flag('--verb')
+          if (!verbName) usageError('audit record needs --verb <name>')
+          const entry = appendEntry('.', {
+            verb: verbName,
+            subject: { member: flag('--subject') ?? flag('--member'), rev: flag('--rev') },
+            actor: { kind: 'human', id: process.env.GOVSTRUCT_ACTOR ?? 'local' },
+          })
+          if (json) console.log(JSON.stringify({ schema: 1, mode: 'audit', sub, entry }, null, 2))
+          else console.log(`govstruct audit record: seq ${entry.seq} ${entry.verb} (${entry.addr})`)
+          process.exit(0)
+        }
+        usageError('audit needs a subcommand: verify | record')
+      }
+
+      case 'help':
+      case '--help':
+      case '-h':
+        usage()
+        process.exit(0)
+
+      default:
+        usageError(`unknown verb "${verb}"`)
+    }
+  } catch (e) {
+    if (e instanceof Refusal) {
+      if (json) console.log(JSON.stringify({ schema: 1, ok: false, refusals: [serializeRefusal(e)] }, null, 2))
+      else console.error(`  REFUSED [${e.code}]: ${e.message}`)
+      process.exit(1)
+    }
+    console.error(`govstruct: ${e.message}`)
+    process.exit(1)
+  }
+}
+
+function serializeRefusal(r) {
+  return { code: r.code, message: r.message, context: r.context ?? {} }
+}
+
+main()

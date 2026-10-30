@@ -1,0 +1,17 @@
+{
+  "id": "this",
+  "name": "This",
+  "role": "product",
+  "url": "https://github.com/dhaupin/this",
+  "repo": "dhaupin/this",
+  "npm": null,
+  "aliases": [],
+  "home": null,
+  "blurb": "A repository-only product, live but not yet a site.",
+  "icon": "this",
+  "order": 19,
+  "status": "Live",
+  "section": "open-source",
+  "needs": [],
+  "grants": []
+}

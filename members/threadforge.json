@@ -1,0 +1,17 @@
+{
+  "id": "threadforge",
+  "name": "Threadforge",
+  "role": "product",
+  "url": "https://threadforge.creadev.org",
+  "repo": null,
+  "npm": null,
+  "aliases": [],
+  "home": null,
+  "blurb": "A thread shaping tool, in beta, with a private repository.",
+  "icon": "threadforge",
+  "order": 16,
+  "status": "Beta",
+  "section": "proprietary",
+  "needs": [],
+  "grants": []
+}

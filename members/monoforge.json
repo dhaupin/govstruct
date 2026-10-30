@@ -1,0 +1,17 @@
+{
+  "id": "monoforge",
+  "name": "Monoforge",
+  "role": "forge",
+  "url": "https://monoforge.creadev.org",
+  "repo": "dhaupin/monoforge",
+  "npm": null,
+  "aliases": [],
+  "home": null,
+  "blurb": "The stamp: new, cut, doctor, and lock, so a repo is born from proven blocks with its truth slots filled.",
+  "icon": "monoforge",
+  "order": 6,
+  "status": "Live",
+  "section": "open-source",
+  "needs": [],
+  "grants": []
+}

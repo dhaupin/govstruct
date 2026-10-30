@@ -1,0 +1,17 @@
+{
+  "id": "vibeflow",
+  "name": "Vibe Flow Festival",
+  "role": "product",
+  "url": "https://vibeflowfestival.com",
+  "repo": null,
+  "npm": null,
+  "aliases": [],
+  "home": null,
+  "blurb": "A festival site, shipped on its own domain.",
+  "icon": "vibeflow",
+  "order": 20,
+  "status": "Live",
+  "section": "other",
+  "needs": [],
+  "grants": []
+}

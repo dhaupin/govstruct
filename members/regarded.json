@@ -1,0 +1,17 @@
+{
+  "id": "regarded",
+  "name": "Regarded",
+  "role": "product",
+  "url": "https://github.com/dhaupin/regarded",
+  "repo": "dhaupin/regarded",
+  "npm": null,
+  "aliases": [],
+  "home": null,
+  "blurb": "A product on the backburner, living as a repository until the owner revives it.",
+  "icon": "regarded",
+  "order": 18,
+  "status": "Backburner",
+  "section": "open-source",
+  "needs": [],
+  "grants": []
+}

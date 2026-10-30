@@ -1,0 +1,22 @@
+{
+  "id": "govstruct",
+  "name": "Govstruct",
+  "role": "arm",
+  "url": null,
+  "repo": "dhaupin/govstruct",
+  "npm": "govstruct",
+  "aliases": [],
+  "home": null,
+  "blurb": "The controller layer: one manifest of members, one render surface per shape, one doctor that verifies suite truth.",
+  "icon": "govstruct",
+  "order": 1,
+  "status": "In Development",
+  "section": "open-source",
+  "needs": [
+    {
+      "id": "packstruct",
+      "floor": ">=1"
+    }
+  ],
+  "grants": []
+}

@@ -1,0 +1,17 @@
+{
+  "id": "creadev",
+  "name": "Creadev.org",
+  "role": "product",
+  "url": "https://creadev.org",
+  "repo": "dhaupin/creadev",
+  "npm": null,
+  "aliases": [],
+  "home": null,
+  "blurb": "The shop and the home site: the reference deployment every other member is proven against.",
+  "icon": "creadev",
+  "order": 21,
+  "status": "Live",
+  "section": "proprietary",
+  "needs": [],
+  "grants": []
+}

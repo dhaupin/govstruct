@@ -1,0 +1,17 @@
+{
+  "id": "vant",
+  "name": "Vant",
+  "role": "product",
+  "url": "https://vant.creadev.org",
+  "repo": "dhaupin/vant",
+  "npm": "vant-os",
+  "aliases": [],
+  "home": null,
+  "blurb": "The agent OS that remembers its own work: a git-backed brain served over MCP, governed like any member.",
+  "icon": "vant",
+  "order": 12,
+  "status": "Live",
+  "section": "open-source",
+  "needs": [],
+  "grants": []
+}

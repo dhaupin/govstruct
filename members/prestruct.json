@@ -1,0 +1,17 @@
+{
+  "id": "prestruct",
+  "name": "Prestruct",
+  "role": "product",
+  "url": "https://prestruct.creadev.org",
+  "repo": "dhaupin/prestruct",
+  "npm": "prestruct",
+  "aliases": [],
+  "home": null,
+  "blurb": "Build-time prerendering and structured-data injection: one index.html per route, one sitemap.",
+  "icon": "prestruct",
+  "order": 10,
+  "status": "Live",
+  "section": "open-source",
+  "needs": [],
+  "grants": []
+}

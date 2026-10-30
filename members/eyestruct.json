@@ -1,0 +1,22 @@
+{
+  "id": "eyestruct",
+  "name": "Eyestruct",
+  "role": "arm",
+  "url": "https://eyestruct.creadev.org",
+  "repo": "dhaupin/eyestruct",
+  "npm": "eyestruct",
+  "aliases": [],
+  "home": null,
+  "blurb": "Deterministic look and diff over the rendered surface, with committed visual memory in labs/.eyes/.",
+  "icon": "eyestruct",
+  "order": 4,
+  "status": "Live",
+  "section": "open-source",
+  "needs": [
+    {
+      "id": "packstruct",
+      "floor": ">=1"
+    }
+  ],
+  "grants": []
+}

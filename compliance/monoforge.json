@@ -1,0 +1,9 @@
+{
+  "id": "monoforge",
+  "version": {
+    "repo": "0.9.0"
+  },
+  "env": [],
+  "pins": [],
+  "clause": {}
+}

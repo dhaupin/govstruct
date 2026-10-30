@@ -1,0 +1,13 @@
+{
+  "id": "crashtest",
+  "floors": {
+    "consumer": ">=18.17",
+    "battery": ">=18.17"
+  },
+  "version": {
+    "repo": "1.2.0"
+  },
+  "env": [],
+  "pins": [],
+  "clause": {}
+}

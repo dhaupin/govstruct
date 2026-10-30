@@ -1,0 +1,17 @@
+{
+  "id": "stegoframe",
+  "name": "Stegoframe",
+  "role": "product",
+  "url": "https://stegoframe.creadev.org",
+  "repo": "dhaupin/stegoframe",
+  "npm": null,
+  "aliases": [],
+  "home": null,
+  "blurb": "A steganography frame for carrying payloads inside images.",
+  "icon": "stegoframe",
+  "order": 14,
+  "status": "Live",
+  "section": "open-source",
+  "needs": [],
+  "grants": []
+}

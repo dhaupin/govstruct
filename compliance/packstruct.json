@@ -1,0 +1,13 @@
+{
+  "id": "packstruct",
+  "floors": {
+    "consumer": ">=20",
+    "battery": ">=20"
+  },
+  "version": {
+    "repo": "1.1.0"
+  },
+  "env": [],
+  "pins": [],
+  "clause": {}
+}

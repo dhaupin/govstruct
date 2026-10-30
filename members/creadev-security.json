@@ -1,0 +1,17 @@
+{
+  "id": "creadev-security",
+  "name": "Creadev Security",
+  "role": "component",
+  "url": "https://www.npmjs.com/package/@creadev.org/security",
+  "repo": null,
+  "npm": "@creadev.org/security",
+  "aliases": [],
+  "home": null,
+  "blurb": "A published security library carved from a product.",
+  "icon": "creadev-security",
+  "order": 22,
+  "status": "Live",
+  "section": "proprietary",
+  "needs": [],
+  "grants": []
+}

@@ -1,0 +1,17 @@
+{
+  "id": "gistory",
+  "name": "Gistory",
+  "role": "factory",
+  "url": "https://gistory.creadev.org",
+  "repo": "dhaupin/gistory",
+  "npm": "gistory-sync",
+  "aliases": [],
+  "home": "railyard",
+  "blurb": "The prompt keeper and the prototype factory: staging trees plus the ferry that lands proven blocks.",
+  "icon": "gistory",
+  "order": 8,
+  "status": "Live",
+  "section": "proprietary",
+  "needs": [],
+  "grants": []
+}

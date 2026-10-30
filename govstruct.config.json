@@ -1,0 +1,61 @@
+{
+  "$schema": "https://govstruct.dev/config.schema.json",
+  "schemaVersion": 1,
+  "family": {
+    "name": "dhaupin",
+    "title": "The dhaupin struct family"
+  },
+  "members": {
+    "dir": "members"
+  },
+  "compliance": {
+    "dir": "compliance"
+  },
+  "manifest": {
+    "out": "apps.json"
+  },
+  "surfaces": {
+    "react": "web/src/components/AppsMenu.jsx",
+    "partial": "web/public/apps-menu.html",
+    "readme": "labs/readme-members.md",
+    "registry": "registry.json"
+  },
+  "gates": {
+    "packstruct": true,
+    "crashtest": true,
+    "poststruct": false
+  },
+  "names": {
+    "reserved": [
+      "govstruct",
+      "packstruct",
+      "crashtest",
+      "eyestruct",
+      "poststruct",
+      "monoforge",
+      "coreforge",
+      "railyard",
+      "gistory",
+      "prestruct",
+      "freestruct",
+      "vant",
+      "creadev",
+      "migrare",
+      "stegoframe",
+      "audithole",
+      "threadforge",
+      "weisync",
+      "regarded",
+      "this",
+      "vibeflow",
+      "creadev-security",
+      "creadev-qos",
+      "navstruct",
+      "flowforge"
+    ]
+  },
+  "lock": {
+    "out": "horcrux",
+    "name": "govstruct"
+  }
+}

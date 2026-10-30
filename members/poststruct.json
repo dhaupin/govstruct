@@ -1,0 +1,22 @@
+{
+  "id": "poststruct",
+  "name": "Poststruct",
+  "role": "arm",
+  "url": "https://poststruct.creadev.org",
+  "repo": "dhaupin/poststruct",
+  "npm": "poststruct",
+  "aliases": [],
+  "home": null,
+  "blurb": "Audit over what actually shipped: baked HTML, links, i18n, and feeds, plus the family voice module.",
+  "icon": "poststruct",
+  "order": 5,
+  "status": "Live",
+  "section": "open-source",
+  "needs": [
+    {
+      "id": "packstruct",
+      "floor": ">=1"
+    }
+  ],
+  "grants": []
+}

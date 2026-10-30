@@ -1,0 +1,17 @@
+{
+  "id": "audithole",
+  "name": "Audithole",
+  "role": "product",
+  "url": "https://audithole.creadev.org",
+  "repo": "dhaupin/audithole",
+  "npm": null,
+  "aliases": [],
+  "home": null,
+  "blurb": "A hole to drop an audit through: inspect what a build actually shipped.",
+  "icon": "audithole",
+  "order": 15,
+  "status": "Live",
+  "section": "open-source",
+  "needs": [],
+  "grants": []
+}

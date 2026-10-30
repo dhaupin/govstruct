@@ -1,0 +1,17 @@
+{
+  "id": "railyard",
+  "name": "Railyard",
+  "role": "composer",
+  "url": "https://railyard.creadev.org",
+  "repo": "dhaupin/railyard",
+  "npm": null,
+  "aliases": [],
+  "home": null,
+  "blurb": "The composer and the real factory: declares the suite, holds the mount registry, dispatches work across it.",
+  "icon": "railyard",
+  "order": 9,
+  "status": "In Development",
+  "section": "proprietary",
+  "needs": [],
+  "grants": []
+}

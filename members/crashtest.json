@@ -1,0 +1,22 @@
+{
+  "id": "crashtest",
+  "name": "Crashtest",
+  "role": "arm",
+  "url": "https://crashtest.creadev.org",
+  "repo": "dhaupin/crashtest",
+  "npm": "crashtest",
+  "aliases": [],
+  "home": null,
+  "blurb": "Adversarial in-process QA: seeded campaigns whose verdicts refuse new exploits by name.",
+  "icon": "crashtest",
+  "order": 3,
+  "status": "Live",
+  "section": "open-source",
+  "needs": [
+    {
+      "id": "packstruct",
+      "floor": ">=1"
+    }
+  ],
+  "grants": []
+}

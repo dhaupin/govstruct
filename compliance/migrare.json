@@ -1,0 +1,10 @@
+{
+  "id": "migrare",
+  "floors": {
+    "consumer": ">=18.0.0",
+    "battery": ">=18.0.0"
+  },
+  "env": [],
+  "pins": [],
+  "clause": {}
+}

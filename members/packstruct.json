@@ -1,0 +1,17 @@
+{
+  "id": "packstruct",
+  "name": "Packstruct",
+  "role": "arm",
+  "url": "https://packstruct.creadev.org",
+  "repo": "dhaupin/packstruct",
+  "npm": "packstruct",
+  "aliases": [],
+  "home": null,
+  "blurb": "The shared /packs spec and its zero-dependency lint CLI; one manifest, entry, and lifecycle contract.",
+  "icon": "packstruct",
+  "order": 2,
+  "status": "Live",
+  "section": "open-source",
+  "needs": [],
+  "grants": []
+}

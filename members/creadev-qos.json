@@ -1,0 +1,17 @@
+{
+  "id": "creadev-qos",
+  "name": "Creadev QoS",
+  "role": "component",
+  "url": "https://www.npmjs.com/package/@creadev.org/qos",
+  "repo": null,
+  "npm": "@creadev.org/qos",
+  "aliases": [],
+  "home": null,
+  "blurb": "A published quality-of-service library carved from a product.",
+  "icon": "creadev-qos",
+  "order": 23,
+  "status": "Live",
+  "section": "proprietary",
+  "needs": [],
+  "grants": []
+}
