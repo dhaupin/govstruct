@@ -343,7 +343,7 @@ or a CI gate becomes network-flaky. So the doctor is split explicitly:
 | mode | what it checks | needs a socket? |
 |---|---|---|
 | **offline** (the default) | manifest grammar, pins, floors, checksums, the graph, the refusal vocabulary | **no** - deterministic, CI-safe, the same run everywhere |
-| **online** (`--network`) | URL resolvability, npm existence, GitHub repo existence | yes - opt-in, never in the default gate |
+| **online** (`--network`, its own mode) | URL resolvability (https, refusing `E_URL_UNRESOLVABLE`; `E_URL_INSECURE` when only the http twin answers), npm existence (`E_NPM_MISSING`) | yes - opt-in, never in the default gate, and never combined with `--suite`/`--fleet` |
 
 The default run is byte-deterministic like crashtest's: same commit, same
 verdicts. Network truth is a separate, explicit ask.

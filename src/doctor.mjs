@@ -73,7 +73,7 @@ export function doctor(target = '.', { network = false } = {}) {
 
   // Check 4: online truth, opt-in only.
   if (network) {
-    report.checks.push({ name: 'network', ok: true, detail: 'requested (resolvability checked by the caller harness)' })
+    report.checks.push({ name: 'network', ok: true, detail: 'online is a separate explicit ask: `govstruct doctor --network` (this call stays socket-free)' })
   } else {
     report.checks.push({ name: 'network', ok: true, detail: 'offline (default)' })
   }
@@ -139,6 +139,68 @@ function countBy(items, key) {
   const out = {}
   for (const i of items) out[i[key]] = (out[i[key]] ?? 0) + 1
   return out
+}
+
+/**
+ * Online doctor (--network): the socket leg, opt-in and explicit. The offline
+ * doctor stays deterministic and socket-free (G11); this is the ONLY arm that
+ * opens one. It checks each member's url resolvability (and that it lands on
+ * https) and each declared npm name's existence. `probe` is injectable so the
+ * tests never touch the network: it takes a url and returns an HTTP status
+ * (0 on a transport failure). Returns { ok, refusals, report, lines }.
+ */
+export async function doctorOnline(target = '.', { probe = defaultProbe } = {}) {
+  const { root, config } = loadConfig(target)
+  const bag = new RefusalBag()
+  const lines = []
+  const report = { checks: [], memberCount: 0, network: true }
+
+  const { manifest, bag: loadBag } = loadManifest(root, { root, config })
+  for (const r of loadBag.items) bag.add(r.code, r.message, r.context)
+  report.memberCount = manifest.memberCount
+
+  let urlsChecked = 0
+  let npmChecked = 0
+  for (const m of manifest.members) {
+    if (typeof m.url === 'string' && m.url) {
+      const https = await probe(m.url)
+      const insecure = await probe(m.url.replace(/^https:/, 'http:'))
+      urlsChecked += 1
+      if (https < 200 || https >= 400) {
+        if (insecure >= 200 && insecure < 400) {
+          bag.add('E_URL_INSECURE', `member "${m.id}" resolves over http but not https: ${m.url}`, { id: m.id, url: m.url })
+        } else {
+          bag.add('E_URL_UNRESOLVABLE', `member "${m.id}" url does not resolve: ${m.url} (HTTP ${https})`, { id: m.id, url: m.url })
+        }
+      }
+    }
+    if (typeof m.npm === 'string' && m.npm) {
+      const st = await probe(`https://registry.npmjs.org/${m.npm}`)
+      npmChecked += 1
+      if (st < 200 || st >= 400) {
+        bag.add('E_NPM_MISSING', `member "${m.id}" declares npm "${m.npm}" which is not on the registry (HTTP ${st})`, { id: m.id, npm: m.npm })
+      }
+    }
+  }
+
+  report.checks.push({ name: 'url-resolvability', ok: bag.ok, detail: `${urlsChecked} url(s) checked` })
+  report.checks.push({ name: 'npm-existence', ok: bag.ok, detail: `${npmChecked} npm name(s) checked` })
+
+  const refusals = bag.sorted()
+  lines.push(`govstruct doctor --network: ${manifest.memberCount} member(s) in ${root}`)
+  for (const c of report.checks) lines.push(`  ${c.ok ? 'ok  ' : 'FAIL'} ${c.name}: ${c.detail}`)
+  for (const r of refusals) lines.push(`  REFUSED [${r.code}]: ${r.message}`)
+  return { ok: bag.ok, refusals, report, lines }
+}
+
+/** The default probe: a HEAD request, status 0 on a transport failure. */
+async function defaultProbe(url) {
+  try {
+    const res = await fetch(url, { method: 'HEAD', redirect: 'manual' })
+    return res.status
+  } catch {
+    return 0
+  }
 }
 
 export { readFileSync }

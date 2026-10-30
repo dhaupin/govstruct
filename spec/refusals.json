@@ -47,6 +47,7 @@
       "E_NEEDS_SELF": "a member declares a dependency on itself",
       "E_NEEDS_UNKNOWN": "needs names a member that is not in the roster",
       "E_NETWORK_DISABLED": "a network check was requested without --network",
+      "E_NPM_MISSING": "a member declares an npm name that does not exist on the registry (online mode only)",
       "E_ORDER_COLLISION": "two members share an order within a section",
       "E_ORDER_MISSING": "order is absent where the section requires explicit ordering",
       "E_PACK_INVALID": "a check pack manifest or module violates the packstruct contract",
@@ -71,6 +72,8 @@
       "E_UNKNOWN_FLAG": "an unrecognized flag was passed",
       "E_URL_DUPLICATE": "two members share a url",
       "E_URL_FORMAT": "url is not an absolute https url",
+      "E_URL_INSECURE": "a member url resolves but only over http, not https (online mode only)",
+      "E_URL_UNRESOLVABLE": "a member url does not resolve over the network (online mode only)",
       "E_USAGE": "the command was called with the wrong arguments"
     },
     "packstruct": {

@@ -92,6 +92,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Six new refusal codes** (55 total): `E_HISTORY_INVALID`,
   `E_HISTORY_BACKWARD`, `E_HISTORY_MISMATCH`, `E_RETIRE_UNKNOWN_MEMBER`,
   `E_RETIRE_ALREADY_TOMBSTONED`, `E_RETIRE_ALIAS_REQUIRED`.
+- **The online leg (G11, PRD 6.1).** `doctor --network` is now its own mode -
+  the ONLY arm that opens a socket, so the offline default stays
+  byte-deterministic and CI-safe. It checks each member's url resolvability
+  (refusing `E_URL_UNRESOLVABLE`, or `E_URL_INSECURE` when only the http twin
+  answers) and each declared npm name's existence (`E_NPM_MISSING`). The probe
+  is injectable, so its tests never touch the network; combining `--network`
+  with `--suite`/`--fleet` refuses rather than silently dropping a flag.
 - **The roll-up address + cache contract (G12, PRD 5.1).** `registry.json` is a
   build artifact many consumers read, so it gets a stable address and a cache
   policy. `apps.json` is now the canonical composed source (members +
@@ -141,6 +148,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `E_FLEET_VERSION_DRIFT`.
 - **Three roll-up-address refusal codes** (69 total): `E_ADDRESS_VERSION_UNKNOWN`,
   `E_ROLLUP_ETAG_STALE`, `E_ROLLUP_NOT_CANONICAL`.
+- **Three online-leg refusal codes** (72 total): `E_URL_UNRESOLVABLE`,
+  `E_URL_INSECURE`, `E_NPM_MISSING`.
 
 ### Notes
 - The reference roster (23 members) is data, not code: member 24 is a block

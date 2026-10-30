@@ -21,7 +21,7 @@ import { loadConfig } from '../src/config.mjs'
 import { loadManifest } from '../src/manifest.mjs'
 import { SURFACES, renderRegistry, manifestChecksum } from '../src/render.mjs'
 import { renderSurface, writeSurfaces, surfaceDrift, writeVersionedRollup } from '../src/surfaces.mjs'
-import { doctor, doctorSuite } from '../src/doctor.mjs'
+import { doctor, doctorSuite, doctorOnline } from '../src/doctor.mjs'
 import { fleetMeter } from '../src/fleet.mjs'
 import { runChecks } from '../src/check.mjs'
 import { suiteRegistry } from '../src/registry.mjs'
@@ -149,16 +149,21 @@ async function main() {
         const useFleet = rest.includes('--fleet')
         const useSuite = useFleet || rest.includes('--suite')
         const network = rest.includes('--network')
+        if (network && (rest.includes('--suite') || rest.includes('--fleet'))) {
+          usageError('--network is its own mode (the online leg); it cannot be combined with --suite or --fleet')
+        }
         const target = rest.find((a) => !a.startsWith('-') && !isFlagValue(rest, '--fleet-root', a)) ?? '.'
         let r
-        if (useFleet) {
+        if (network) {
+          r = await doctorOnline(target, {})
+        } else if (useFleet) {
           const fleetRoot = flagValue(rest, '--fleet-root')
           r = fleetMeter(target, { roots: fleetRoot ? fleetRoots(target, fleetRoot) : {} })
         } else {
           r = useSuite ? await doctorSuite(target, { network }) : doctor(target, { network })
         }
         if (json) {
-          const mode = useFleet ? 'fleet' : useSuite ? 'suite' : 'doctor'
+          const mode = network ? 'network' : useFleet ? 'fleet' : useSuite ? 'suite' : 'doctor'
           console.log(JSON.stringify({ schema: 1, mode, ok: r.ok, refusals: r.refusals.map(serializeRefusal), report: r.report }, null, 2))
         } else {
           for (const line of r.lines) console.log(line)

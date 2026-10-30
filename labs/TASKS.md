@@ -24,7 +24,9 @@ gap list: G10 (refusal vocabulary) first, then G3 (the graph), then G1+G5
 - [x] **The render surfaces.** react | partial | readme | registry, emitted
       statically; `registry.json` carries the manifest checksum.
 - [x] **The doctor.** Offline by default (G11); `--suite` reports the
-      suite-wide truth battery.
+      suite-wide truth battery. `--network` is the online leg - its own mode,
+      the only socket arm (url resolvability + npm existence), with an
+      injectable probe so its tests stay offline.
 - [x] **The check host + source-consistency packs** (PRD section 11):
       comment, env, floor, hygiene, naming, pin, style, test, version, and
       (G8) a11y.
