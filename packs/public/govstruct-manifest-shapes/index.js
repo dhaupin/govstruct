@@ -350,6 +350,53 @@ export default {
     },
 
     {
+      name: 'rollup-address-holds',
+      description: 'the roll-up address + cache contract (G12): a clean roll-up carries a versioned path, an ETag, and a max-age and passes; a stale ETag refuses E_ROLLUP_ETAG_STALE and a divergent rendering refuses E_CHECKSUM_DRIFT',
+      async run(harness, ctx = {}) {
+        const runRollup = async (shape) => {
+          const rec = await harness.run('rollup', { method: 'GET', url: `/rollup?shape=${shape}` });
+          if (rec.threw) return { threw: true };
+          let body = '';
+          try { body = await rec.response.text(); } catch { /* empty */ }
+          try { return { threw: false, ...JSON.parse(body) }; } catch { return { threw: false, parse: false }; }
+        };
+        const reportOf = (r) => { try { return JSON.parse(r.stdout) } catch { return null } };
+        const codes = (rep) => (rep?.refusals ?? []).map((x) => x.code);
+        const fails = [];
+
+        // Clean: exit 0, the address is present and versioned.
+        const c = await runRollup('rollup-clean');
+        if (c.threw || c.parse === false) return exhausted('rollup route crashed or returned an unparseable body');
+        if (c.exit !== 0) fails.push(`rollup-clean: exit ${c.exit} (expected 0)`);
+        const cr = reportOf(c);
+        if (!cr) fails.push('rollup-clean: unparseable report');
+        else {
+          const addr = cr.report.checks.find((x) => x.name === 'surface-rollup-address');
+          if (!addr || !addr.ok) fails.push('rollup-clean: the address check is not green');
+        }
+
+        // Stale ETag: the versioned copy lies about the manifest it serves.
+        const s = await runRollup('rollup-stale-etag');
+        if (s.threw || s.parse === false) fails.push('rollup-stale-etag: unparseable body');
+        else {
+          if (s.exit !== 1) fails.push(`rollup-stale-etag: exit ${s.exit} (expected 1)`);
+          if (!codes(reportOf(s)).includes('E_ROLLUP_ETAG_STALE')) fails.push(`rollup-stale-etag: codes ${JSON.stringify(codes(reportOf(s)))} missing E_ROLLUP_ETAG_STALE`);
+        }
+
+        // Divergent rendering: registry.json moved without the manifest moving.
+        const d = await runRollup('rollup-divergent');
+        if (d.threw || d.parse === false) fails.push('rollup-divergent: unparseable body');
+        else {
+          if (d.exit !== 1) fails.push(`rollup-divergent: exit ${d.exit} (expected 1)`);
+          if (!codes(reportOf(d)).includes('E_CHECKSUM_DRIFT')) fails.push(`rollup-divergent: codes ${JSON.stringify(codes(reportOf(d)))} missing E_CHECKSUM_DRIFT`);
+        }
+
+        if (fails.length) return exhausted(`the roll-up address leaked: ${fails.join(' | ')}`);
+        return refused('a clean roll-up carries a versioned path, an ETag, and a max-age and passes; a stale ETag refuses E_ROLLUP_ETAG_STALE and a divergent rendering refuses E_CHECKSUM_DRIFT');
+      },
+    },
+
+    {
       name: 'fleet-meter-names-drift',
       description: 'the fleet drift meter (G13): a drifted member is named by its exact refusal on one page, a clean member passes, and a member with no checkout is unchecked - never a silent pass',
       async run(harness, ctx = {}) {

@@ -5,17 +5,19 @@
 // menu. Every surface is emitted at build/publish time from the manifest,
 // so a bot reads a plain anchor.
 //
-// Four surfaces, one manifest:
+// Five surfaces, one manifest:
+//   apps      - the canonical composed manifest (members + compliance + meta)
 //   react     - a React component (server-rendered; every <a href> in HTML)
 //   partial   - pure HTML+CSS, zero JS, for Jekyll/docs consumers
 //   readme    - a generated markdown table snippet
-//   registry  - machine-readable manifest export
+//   registry  - machine-readable roll-up, ONE rendering of apps (PRD 5.1)
 //
 // Every emitted artifact carries a provenance header naming the manifest
 // checksum, so a consumer can prove the copy it read is the copy the suite
 // emitted (PRD section 5.1).
 import { createHash } from 'node:crypto'
 import { buildGraph } from './graph.mjs'
+import { rollupAddress } from './address.mjs'
 
 /** The manifest checksum: a stable sha256 over the canonical member list. */
 export function manifestChecksum(manifest) {
@@ -137,19 +139,61 @@ ${rows}
 /** 4. Registry surface: machine-readable manifest export. */
 export function renderRegistry(manifest) {
   const checksum = manifestChecksum(manifest)
+  const address = rollupAddress(manifest)
   const { needs, dependents } = buildGraph(manifest)
+  const members = manifest.members.map((m) => ({
+    id: m.id,
+    name: m.name,
+    role: m.role,
+    url: m.url,
+    blurb: m.blurb,
+    status: m.status,
+    ...(m.npm ? { npm: m.npm } : {}),
+    ...(m.repo ? { repo: m.repo } : {}),
+  }))
   return JSON.stringify({
     schemaVersion: 1,
+    // PRD 5.1: apps.json is the canonical source; the roll-up is ONE
+    // rendering of it. `generated.manifest` is the copy a consumer proves.
     generated: { by: 'govstruct', surface: 'registry', manifest: checksum },
+    address,
     family: manifest.family,
     memberCount: manifest.memberCount,
     order: manifest.order,
     graph: manifest.order.map((id) => ({ id, needs: needs.get(id) ?? [], neededBy: dependents.get(id) ?? [] })),
-    members: manifest.members,
+    members,
+    byRole: countBy(manifest.members, 'role'),
+    byStatus: countBy(manifest.members, 'status'),
   }, null, 2) + '\n'
 }
 
+/**
+ * The canonical composed manifest (PRD 5.1): members + compliance blocks +
+ * meta. `registry.json` is one rendering of THIS. Carries the roll-up
+ * address/cache contract so a consumer pins the shape it knows.
+ */
+export function renderApps(manifest, compliance = {}) {
+  const checksum = manifestChecksum(manifest)
+  return JSON.stringify({
+    schemaVersion: 1,
+    generated: { by: 'govstruct', surface: 'apps', manifest: checksum },
+    address: rollupAddress(manifest),
+    family: manifest.family,
+    memberCount: manifest.memberCount,
+    order: manifest.order,
+    members: manifest.members,
+    compliance,
+  }, null, 2) + '\n'
+}
+
+function countBy(items, key) {
+  const out = {}
+  for (const i of items) out[i[key]] = (out[i[key]] ?? 0) + 1
+  return out
+}
+
 export const SURFACES = {
+  apps: renderApps,
   react: renderReact,
   partial: renderPartial,
   readme: renderReadme,

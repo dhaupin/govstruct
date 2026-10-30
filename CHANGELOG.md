@@ -92,6 +92,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Six new refusal codes** (55 total): `E_HISTORY_INVALID`,
   `E_HISTORY_BACKWARD`, `E_HISTORY_MISMATCH`, `E_RETIRE_UNKNOWN_MEMBER`,
   `E_RETIRE_ALREADY_TOMBSTONED`, `E_RETIRE_ALIAS_REQUIRED`.
+- **The roll-up address + cache contract (G12, PRD 5.1).** `registry.json` is a
+  build artifact many consumers read, so it gets a stable address and a cache
+  policy. `apps.json` is now the canonical composed source (members +
+  compliance + meta); `registry.json` is ONE rendering of it. The roll-up
+  serves at a versioned path (`registry.v1.json`) with an `ETag` keyed on the
+  manifest checksum and a `max-age`, so a consumer caches cheaply and
+  revalidates cheaply. The doctor refuses a versioned copy whose ETag disagrees
+  with a fresh render (`E_ROLLUP_ETAG_STALE`) and a rendering that diverged
+  from the manifest (`E_ROLLUP_NOT_CANONICAL`); an unrenderable payload schema
+  refuses `E_ADDRESS_VERSION_UNKNOWN`.
 - **The fleet drift meter (G13, the golden case).** The four proving cases are
   events; this is the steady state. `govstruct doctor --suite --fleet
   --fleet-root <dir>` reads each member's live surfaces (engines floor,
@@ -129,6 +139,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Five fleet-meter refusal codes** (66 total): `E_FLEET_FLOOR_DRIFT`,
   `E_FLEET_LOCK_MISSING`, `E_FLEET_PIN_STYLE_DRIFT`, `E_FLEET_CI_SHAPE_DRIFT`,
   `E_FLEET_VERSION_DRIFT`.
+- **Three roll-up-address refusal codes** (69 total): `E_ADDRESS_VERSION_UNKNOWN`,
+  `E_ROLLUP_ETAG_STALE`, `E_ROLLUP_NOT_CANONICAL`.
 
 ### Notes
 - The reference roster (23 members) is data, not code: member 24 is a block

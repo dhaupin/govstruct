@@ -30,7 +30,7 @@ and pin themselves is the product.
 
 ```
 govstruct lint                 # manifest grammar
-govstruct render <target>      # react | partial | readme | registry
+govstruct render <target>      # apps | react | partial | readme | registry
 govstruct doctor [--suite] [--fleet]  # adopter checksum gate, suite battery, or fleet drift meter
 govstruct check                # the source-consistency check packs
 govstruct registry             # the suite roll-up (env / pins / floors / versions)

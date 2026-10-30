@@ -386,9 +386,53 @@ function makeFleetHandler() {
   };
 }
 
+// The roll-up address + cache contract (G12, PRD 5.1): apps.json is the
+// canonical source, registry.json is one rendering, and the versioned copy at
+// its stable address carries an ETag that must match a fresh render. This
+// route materializes a family, writes the roll-up, tampers with it per shape,
+// and runs `govstruct doctor --json`. A roll-up that moved without a version
+// bump - or whose ETag lies about the manifest it serves - must refuse.
+async function rollupOne(shape) {
+  const root = mkdtempSync(join(tmpdir(), 'govstruct-ct-rollup-'));
+  try {
+    writeFamily(root, { 'a.json': goodMember('a') });
+    writeFileSync(join(root, 'compliance', 'a.json'), fleetComp('a'));
+    const w = spawnSync(process.execPath, [CLI, 'registry', '--write'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+    if (w.status !== 0) return { status: 500, body: JSON.stringify({ error: 'registry --write failed', stdout: w.stdout, stderr: w.stderr }) };
+
+    if (shape === 'rollup-stale-etag') {
+      const p = join(root, 'registry.v1.json');
+      const doc = JSON.parse(readFileSync(p, 'utf8'));
+      doc.address.etag = '"sha256:' + '0'.repeat(64) + '"';
+      writeFileSync(p, JSON.stringify(doc, null, 2) + '\n');
+    } else if (shape === 'rollup-divergent') {
+      // The plain rendering moved without the manifest moving: a divergent copy.
+      const p = join(root, 'registry.json');
+      writeFileSync(p, readFileSync(p, 'utf8').replace('"memberCount": 1', '"memberCount": 2'));
+    } else if (shape !== 'rollup-clean') {
+      return { status: 404, body: JSON.stringify({ error: `unknown shape ${shape}` }) };
+    }
+
+    const rec = spawnSync(process.execPath, [CLI, 'doctor', '--json'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+    return { status: 200, body: JSON.stringify({ exit: rec.status ?? 2, stdout: rec.stdout ?? '', stderr: rec.stderr ?? '' }) };
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function makeRollupHandler() {
+  return async ({ request }) => {
+    let shape;
+    try { shape = new URL(request.url).searchParams.get('shape'); } catch { shape = null; }
+    if (!shape) return new Response(JSON.stringify({ error: 'shape param required' }), { status: 400 });
+    const r = await rollupOne(shape);
+    return new Response(r.body, { status: r.status, headers: { 'content-type': 'application/json' } });
+  };
+}
+
 export default {
   baseUrl: 'https://govstruct.local',
-  routes: { lint: makeLintHandler(), verdict: makeVerdictHandler(), retire: makeRetireHandler(), a11y: makeA11yHandler(), impact: makeImpactHandler(), fleet: makeFleetHandler() },
+  routes: { lint: makeLintHandler(), verdict: makeVerdictHandler(), retire: makeRetireHandler(), a11y: makeA11yHandler(), impact: makeImpactHandler(), fleet: makeFleetHandler(), rollup: makeRollupHandler() },
   // Adopt only OUR scenario pack: the packs/public tree also carries the
   // check-profile packs (floor-shapes and friends), which are govstruct's
   // compliance packs, not crashtest scenarios. Pointing at the one pack dir

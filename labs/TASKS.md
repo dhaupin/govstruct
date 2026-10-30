@@ -87,12 +87,18 @@ gap list: G10 (refusal vocabulary) first, then G3 (the graph), then G1+G5
       `E_FLEET_CI_SHAPE_DRIFT`, `E_FLEET_VERSION_DRIFT`). Offline by default;
       a member with no checkout is UNCHECKED, never a silent pass. The meter
       warns where the doctor refuses - a lagging repo is a state, not a crime.
+- [x] **G12 - the roll-up address + cache contract** (PRD 5.1). `apps.json` is
+      the canonical composed source; `registry.json` is one rendering of it, so
+      one artifact has many readers and no divergent copies. The roll-up also
+      emits at a versioned path (`registry.v1.json`) with an `ETag` keyed on
+      the manifest checksum and a `max-age`, so a consumer caches and
+      revalidates cheaply. The doctor refuses a stale ETag
+      (`E_ROLLUP_ETAG_STALE`), a divergent rendering (`E_ROLLUP_NOT_CANONICAL`),
+      and an unrenderable payload schema (`E_ADDRESS_VERSION_UNKNOWN`).
 - [ ] **`compliance.yml`** - `govstruct doctor --suite` over every adopter at
       a pinned rev, refusing drift.
 - [ ] **`web/` + `docs/`** - the coreforge landing shell and the Jekyll rig,
       adopted from a checkout per the house rule.
-- [ ] **`apps.json`** - the composed manifest, if the block-file directory
-      proves insufficient (open question, PRD section 17).
 
 ## Laws this repo carries
 

@@ -1,0 +1,697 @@
+{
+  "schemaVersion": 1,
+  "generated": {
+    "by": "govstruct",
+    "surface": "apps",
+    "manifest": "sha256:5732d30be13c9cbab92e51dee285f6c97825ec459e8e86c7ef4e65b7730b8ae2"
+  },
+  "address": {
+    "schemaVersion": 1,
+    "path": "registry.v1.json",
+    "url": "/registry.v1.json",
+    "etag": "\"sha256:cbd8c2c38eef1af4a127eda43a6d748e35ec8557f5fb5dbd87e58fbbf3a6df14\"",
+    "maxAge": 300,
+    "cacheControl": "public, max-age=300, must-revalidate",
+    "checksum": "sha256:5732d30be13c9cbab92e51dee285f6c97825ec459e8e86c7ef4e65b7730b8ae2"
+  },
+  "family": {
+    "name": "dhaupin",
+    "title": "The dhaupin struct family"
+  },
+  "memberCount": 23,
+  "order": [
+    "audithole",
+    "creadev",
+    "creadev-qos",
+    "creadev-security",
+    "freestruct",
+    "gistory",
+    "migrare",
+    "monoforge",
+    "packstruct",
+    "crashtest",
+    "eyestruct",
+    "govstruct",
+    "poststruct",
+    "prestruct",
+    "coreforge",
+    "railyard",
+    "regarded",
+    "stegoframe",
+    "this",
+    "threadforge",
+    "vant",
+    "vibeflow",
+    "weisync"
+  ],
+  "members": [
+    {
+      "id": "govstruct",
+      "name": "Govstruct",
+      "role": "arm",
+      "url": null,
+      "repo": "dhaupin/govstruct",
+      "npm": "govstruct",
+      "aliases": [],
+      "home": null,
+      "blurb": "The controller layer: one manifest of members, one render surface per shape, one doctor that verifies suite truth.",
+      "icon": "govstruct",
+      "order": 1,
+      "status": "In Development",
+      "section": "open-source",
+      "needs": [
+        {
+          "id": "packstruct",
+          "floor": ">=1"
+        }
+      ],
+      "grants": []
+    },
+    {
+      "id": "packstruct",
+      "name": "Packstruct",
+      "role": "arm",
+      "url": "https://packstruct.creadev.org",
+      "repo": "dhaupin/packstruct",
+      "npm": "packstruct",
+      "aliases": [],
+      "home": null,
+      "blurb": "The shared /packs spec and its zero-dependency lint CLI; one manifest, entry, and lifecycle contract.",
+      "icon": "packstruct",
+      "order": 2,
+      "status": "Live",
+      "section": "open-source",
+      "needs": [],
+      "grants": []
+    },
+    {
+      "id": "crashtest",
+      "name": "Crashtest",
+      "role": "arm",
+      "url": "https://crashtest.creadev.org",
+      "repo": "dhaupin/crashtest",
+      "npm": "crashtest",
+      "aliases": [],
+      "home": null,
+      "blurb": "Adversarial in-process QA: seeded campaigns whose verdicts refuse new exploits by name.",
+      "icon": "crashtest",
+      "order": 3,
+      "status": "Live",
+      "section": "open-source",
+      "needs": [
+        {
+          "id": "packstruct",
+          "floor": ">=1"
+        }
+      ],
+      "grants": []
+    },
+    {
+      "id": "eyestruct",
+      "name": "Eyestruct",
+      "role": "arm",
+      "url": "https://eyestruct.creadev.org",
+      "repo": "dhaupin/eyestruct",
+      "npm": "eyestruct",
+      "aliases": [],
+      "home": null,
+      "blurb": "Deterministic look and diff over the rendered surface, with committed visual memory in labs/.eyes/.",
+      "icon": "eyestruct",
+      "order": 4,
+      "status": "Live",
+      "section": "open-source",
+      "needs": [
+        {
+          "id": "packstruct",
+          "floor": ">=1"
+        }
+      ],
+      "grants": []
+    },
+    {
+      "id": "poststruct",
+      "name": "Poststruct",
+      "role": "arm",
+      "url": "https://poststruct.creadev.org",
+      "repo": "dhaupin/poststruct",
+      "npm": "poststruct",
+      "aliases": [],
+      "home": null,
+      "blurb": "Audit over what actually shipped: baked HTML, links, i18n, and feeds, plus the family voice module.",
+      "icon": "poststruct",
+      "order": 5,
+      "status": "Live",
+      "section": "open-source",
+      "needs": [
+        {
+          "id": "packstruct",
+          "floor": ">=1"
+        }
+      ],
+      "grants": []
+    },
+    {
+      "id": "monoforge",
+      "name": "Monoforge",
+      "role": "forge",
+      "url": "https://monoforge.creadev.org",
+      "repo": "dhaupin/monoforge",
+      "npm": null,
+      "aliases": [],
+      "home": null,
+      "blurb": "The stamp: new, cut, doctor, and lock, so a repo is born from proven blocks with its truth slots filled.",
+      "icon": "monoforge",
+      "order": 6,
+      "status": "Live",
+      "section": "open-source",
+      "needs": [],
+      "grants": []
+    },
+    {
+      "id": "coreforge",
+      "name": "Coreforge",
+      "role": "forge",
+      "url": "https://coreforge.creadev.org",
+      "repo": "dhaupin/coreforge",
+      "npm": "coreforge",
+      "aliases": [
+        "flowforge"
+      ],
+      "home": null,
+      "blurb": "The site rig: one config file, four verbs, two surfaces, zero hand-editing of brand data.",
+      "icon": "coreforge",
+      "order": 7,
+      "status": "Live",
+      "section": "open-source",
+      "needs": [
+        {
+          "id": "prestruct",
+          "floor": ">=1"
+        },
+        {
+          "id": "poststruct",
+          "floor": ">=0.9"
+        }
+      ],
+      "grants": []
+    },
+    {
+      "id": "gistory",
+      "name": "Gistory",
+      "role": "factory",
+      "url": "https://gistory.creadev.org",
+      "repo": "dhaupin/gistory",
+      "npm": "gistory-sync",
+      "aliases": [],
+      "home": "railyard",
+      "blurb": "The prompt keeper and the prototype factory: staging trees plus the ferry that lands proven blocks.",
+      "icon": "gistory",
+      "order": 8,
+      "status": "Live",
+      "section": "proprietary",
+      "needs": [],
+      "grants": []
+    },
+    {
+      "id": "railyard",
+      "name": "Railyard",
+      "role": "composer",
+      "url": "https://railyard.creadev.org",
+      "repo": "dhaupin/railyard",
+      "npm": null,
+      "aliases": [],
+      "home": null,
+      "blurb": "The composer and the real factory: declares the suite, holds the mount registry, dispatches work across it.",
+      "icon": "railyard",
+      "order": 9,
+      "status": "In Development",
+      "section": "proprietary",
+      "needs": [],
+      "grants": []
+    },
+    {
+      "id": "prestruct",
+      "name": "Prestruct",
+      "role": "product",
+      "url": "https://prestruct.creadev.org",
+      "repo": "dhaupin/prestruct",
+      "npm": "prestruct",
+      "aliases": [],
+      "home": null,
+      "blurb": "Build-time prerendering and structured-data injection: one index.html per route, one sitemap.",
+      "icon": "prestruct",
+      "order": 10,
+      "status": "Live",
+      "section": "open-source",
+      "needs": [],
+      "grants": []
+    },
+    {
+      "id": "freestruct",
+      "name": "Freestruct",
+      "role": "product",
+      "url": "https://freestruct.creadev.org",
+      "repo": "dhaupin/freestruct",
+      "npm": "freestruct",
+      "aliases": [],
+      "home": null,
+      "blurb": "The after-build SEO layer: runs and injects over the baked output, basePath aware.",
+      "icon": "freestruct",
+      "order": 11,
+      "status": "Live",
+      "section": "open-source",
+      "needs": [],
+      "grants": []
+    },
+    {
+      "id": "vant",
+      "name": "Vant",
+      "role": "product",
+      "url": "https://vant.creadev.org",
+      "repo": "dhaupin/vant",
+      "npm": "vant-os",
+      "aliases": [],
+      "home": null,
+      "blurb": "The agent OS that remembers its own work: a git-backed brain served over MCP, governed like any member.",
+      "icon": "vant",
+      "order": 12,
+      "status": "Live",
+      "section": "open-source",
+      "needs": [],
+      "grants": []
+    },
+    {
+      "id": "migrare",
+      "name": "Migrare",
+      "role": "product",
+      "url": "https://migrare.creadev.org",
+      "repo": "dhaupin/migrare",
+      "npm": "migrare",
+      "aliases": [],
+      "home": null,
+      "blurb": "A migration tool, parked: the work is on hold and the rebrand is deferred, so it stays a status, not a removal.",
+      "icon": "migrare",
+      "order": 13,
+      "status": "Backburner",
+      "section": "open-source",
+      "needs": [],
+      "grants": []
+    },
+    {
+      "id": "stegoframe",
+      "name": "Stegoframe",
+      "role": "product",
+      "url": "https://stegoframe.creadev.org",
+      "repo": "dhaupin/stegoframe",
+      "npm": null,
+      "aliases": [],
+      "home": null,
+      "blurb": "A steganography frame for carrying payloads inside images.",
+      "icon": "stegoframe",
+      "order": 14,
+      "status": "Live",
+      "section": "open-source",
+      "needs": [],
+      "grants": []
+    },
+    {
+      "id": "audithole",
+      "name": "Audithole",
+      "role": "product",
+      "url": "https://audithole.creadev.org",
+      "repo": "dhaupin/audithole",
+      "npm": null,
+      "aliases": [],
+      "home": null,
+      "blurb": "A hole to drop an audit through: inspect what a build actually shipped.",
+      "icon": "audithole",
+      "order": 15,
+      "status": "Live",
+      "section": "open-source",
+      "needs": [],
+      "grants": []
+    },
+    {
+      "id": "threadforge",
+      "name": "Threadforge",
+      "role": "product",
+      "url": "https://threadforge.creadev.org",
+      "repo": null,
+      "npm": null,
+      "aliases": [],
+      "home": null,
+      "blurb": "A thread shaping tool, in beta, with a private repository.",
+      "icon": "threadforge",
+      "order": 16,
+      "status": "Beta",
+      "section": "proprietary",
+      "needs": [],
+      "grants": []
+    },
+    {
+      "id": "weisync",
+      "name": "Weisync",
+      "role": "product",
+      "url": "https://weisync.com",
+      "repo": null,
+      "npm": null,
+      "aliases": [],
+      "home": null,
+      "blurb": "A sync product running on its own domain, with a private repository.",
+      "icon": "weisync",
+      "order": 17,
+      "status": "Live",
+      "section": "proprietary",
+      "needs": [],
+      "grants": []
+    },
+    {
+      "id": "regarded",
+      "name": "Regarded",
+      "role": "product",
+      "url": "https://github.com/dhaupin/regarded",
+      "repo": "dhaupin/regarded",
+      "npm": null,
+      "aliases": [],
+      "home": null,
+      "blurb": "A product on the backburner, living as a repository until the owner revives it.",
+      "icon": "regarded",
+      "order": 18,
+      "status": "Backburner",
+      "section": "open-source",
+      "needs": [],
+      "grants": []
+    },
+    {
+      "id": "this",
+      "name": "This",
+      "role": "product",
+      "url": "https://github.com/dhaupin/this",
+      "repo": "dhaupin/this",
+      "npm": null,
+      "aliases": [],
+      "home": null,
+      "blurb": "A repository-only product, live but not yet a site.",
+      "icon": "this",
+      "order": 19,
+      "status": "Live",
+      "section": "open-source",
+      "needs": [],
+      "grants": []
+    },
+    {
+      "id": "vibeflow",
+      "name": "Vibe Flow Festival",
+      "role": "product",
+      "url": "https://vibeflowfestival.com",
+      "repo": null,
+      "npm": null,
+      "aliases": [],
+      "home": null,
+      "blurb": "A festival site, shipped on its own domain.",
+      "icon": "vibeflow",
+      "order": 20,
+      "status": "Live",
+      "section": "other",
+      "needs": [],
+      "grants": []
+    },
+    {
+      "id": "creadev",
+      "name": "Creadev.org",
+      "role": "product",
+      "url": "https://creadev.org",
+      "repo": "dhaupin/creadev",
+      "npm": null,
+      "aliases": [],
+      "home": null,
+      "blurb": "The shop and the home site: the reference deployment every other member is proven against.",
+      "icon": "creadev",
+      "order": 21,
+      "status": "Live",
+      "section": "proprietary",
+      "needs": [],
+      "grants": []
+    },
+    {
+      "id": "creadev-security",
+      "name": "Creadev Security",
+      "role": "component",
+      "url": "https://www.npmjs.com/package/@creadev.org/security",
+      "repo": null,
+      "npm": "@creadev.org/security",
+      "aliases": [],
+      "home": null,
+      "blurb": "A published security library carved from a product.",
+      "icon": "creadev-security",
+      "order": 22,
+      "status": "Live",
+      "section": "proprietary",
+      "needs": [],
+      "grants": []
+    },
+    {
+      "id": "creadev-qos",
+      "name": "Creadev QoS",
+      "role": "component",
+      "url": "https://www.npmjs.com/package/@creadev.org/qos",
+      "repo": null,
+      "npm": "@creadev.org/qos",
+      "aliases": [],
+      "home": null,
+      "blurb": "A published quality-of-service library carved from a product.",
+      "icon": "creadev-qos",
+      "order": 23,
+      "status": "Live",
+      "section": "proprietary",
+      "needs": [],
+      "grants": []
+    }
+  ],
+  "compliance": {
+    "compliance": {
+      "audithole": {
+        "id": "audithole",
+        "floors": {
+          "consumer": ">=18.0.0",
+          "battery": ">=18.0.0"
+        },
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "coreforge": {
+        "id": "coreforge",
+        "floors": {
+          "consumer": ">=18",
+          "battery": ">=18"
+        },
+        "version": {
+          "repo": "0.9.0"
+        },
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "crashtest": {
+        "id": "crashtest",
+        "floors": {
+          "consumer": ">=18.17",
+          "battery": ">=18.17"
+        },
+        "version": {
+          "repo": "1.2.0"
+        },
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "creadev-qos": {
+        "id": "creadev-qos",
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "creadev-security": {
+        "id": "creadev-security",
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "creadev": {
+        "id": "creadev",
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "eyestruct": {
+        "id": "eyestruct",
+        "floors": {
+          "consumer": ">=18",
+          "battery": ">=18"
+        },
+        "version": {
+          "repo": "1.1.0"
+        },
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "freestruct": {
+        "id": "freestruct",
+        "floors": {
+          "consumer": ">=20",
+          "battery": ">=20"
+        },
+        "version": {
+          "repo": "1.2.0"
+        },
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "gistory": {
+        "id": "gistory",
+        "floors": {
+          "consumer": ">=18",
+          "battery": ">=18"
+        },
+        "version": {
+          "repo": "0.9.0"
+        },
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "govstruct": {
+        "id": "govstruct",
+        "floors": {
+          "consumer": ">=20",
+          "battery": ">=20"
+        },
+        "version": {
+          "repo": "0.9.0"
+        },
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "migrare": {
+        "id": "migrare",
+        "floors": {
+          "consumer": ">=18.0.0",
+          "battery": ">=18.0.0"
+        },
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "monoforge": {
+        "id": "monoforge",
+        "version": {
+          "repo": "0.9.0"
+        },
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "packstruct": {
+        "id": "packstruct",
+        "floors": {
+          "consumer": ">=20",
+          "battery": ">=20"
+        },
+        "version": {
+          "repo": "1.1.0"
+        },
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "poststruct": {
+        "id": "poststruct",
+        "floors": {
+          "consumer": ">=20",
+          "battery": ">=20"
+        },
+        "version": {
+          "repo": "0.9.0"
+        },
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "prestruct": {
+        "id": "prestruct",
+        "floors": {
+          "consumer": ">=20",
+          "battery": ">=20"
+        },
+        "version": {
+          "repo": "1.2.0"
+        },
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "railyard": {
+        "id": "railyard",
+        "version": {
+          "repo": "0.9.0"
+        },
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "regarded": {
+        "id": "regarded",
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "stegoframe": {
+        "id": "stegoframe",
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "this": {
+        "id": "this",
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "threadforge": {
+        "id": "threadforge",
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "vant": {
+        "id": "vant",
+        "floors": {
+          "consumer": ">=18",
+          "battery": ">=18"
+        },
+        "version": {
+          "repo": "0.9.0"
+        },
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "vibeflow": {
+        "id": "vibeflow",
+        "env": [],
+        "pins": [],
+        "clause": {}
+      },
+      "weisync": {
+        "id": "weisync",
+        "env": [],
+        "pins": [],
+        "clause": {}
+      }
+    }
+  }
+}

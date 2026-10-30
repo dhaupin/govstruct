@@ -103,6 +103,16 @@
   `E_FLEET_CI_SHAPE_DRIFT`, `E_FLEET_VERSION_DRIFT`). Offline by default:
   `--fleet-root <dir>` points at a directory of `<member-id>/` checkouts; a
   member with no checkout is reported UNCHECKED, never a silent pass.
+- The roll-up has a stable address and a cache contract (G12, PRD 5.1).
+  `apps.json` is the canonical composed source (members + compliance + meta);
+  `registry.json` is ONE rendering of it, so one artifact has many readers and
+  no divergent copies. The roll-up also emits at a versioned path
+  (`registry.v1.json`) carrying an `ETag` keyed on the manifest checksum and a
+  `max-age`. The doctor refuses a versioned copy whose ETag disagrees with a
+  fresh render (`E_ROLLUP_ETAG_STALE`), a rendering that diverged from the
+  manifest (`E_ROLLUP_NOT_CANONICAL`), and an unrenderable payload schema
+  (`E_ADDRESS_VERSION_UNKNOWN`). The ETag is keyed on the checksum, not the
+  rendered bytes, so it is not self-referential.
 - The audit address canonicalizes RECURSIVELY (keys sorted at every depth).
   A shallow key sort drops nested keys from the hash, so a rewritten verdict
   row or actor id would not break the chain - tamper-evidence would be a lie.
