@@ -16,6 +16,7 @@ import { loadConfig, resolveIn } from './config.mjs'
 import { loadManifest } from './manifest.mjs'
 import { RefusalBag } from './refusals.mjs'
 import { surfaceDrift, versionedRollupDrift } from './surfaces.mjs'
+import { verifySurfaces } from './surface.mjs'
 
 /**
  * Adopter doctor: this tree against its own manifest. Returns
@@ -60,6 +61,13 @@ export function doctor(target = '.', { network = false } = {}) {
   } else {
     report.checks.push({ name: 'surface-rollup-address', ok: true, detail: 'not emitted yet (a state)' })
   }
+
+  // Check 2c: the emitted surfaces honor the stability contract (PRD 5.1).
+  // A promised field that is absent, or carries the wrong type, is a breaking
+  // change an integrator would feel; the doctor refuses it by name.
+  const sv = verifySurfaces(root)
+  for (const f of sv.findings) bag.add(f.code, f.message)
+  report.checks.push({ name: 'surface-contract', ok: sv.ok, detail: sv.ok ? 'promised fields honored' : `${sv.findings.length} finding(s)` })
 
   // Check 3: compliance blocks present for each member (M1.5).
   const compDir = resolveIn(root, config.compliance.dir)

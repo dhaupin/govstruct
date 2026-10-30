@@ -6,7 +6,7 @@
 
 ## Findings
 
-### 🛡 REFUSED (64)
+### 🛡 REFUSED (65)
 - auth/identity-spoof-headers: route "admin" not declared on this target - spoof matrix skipped (declare it for coverage)
 - auth/secret-watermark: no fake secrets planted in env - declare CRASHTEST_SECRET to arm this probe
 - auth/privilege-escalation: route "device" not declared on this target - escalation skipped (declare it for coverage)
@@ -38,6 +38,7 @@
 - govstruct-manifest-shapes/fleet-meter-names-drift: a drifted member is named by its exact refusal (floor + lockfile + version + pin style) on one page, a clean member passes, and a member with no checkout is unchecked - never a silent pass
 - govstruct-manifest-shapes/clean-family-canary: clean family exits 0 with an empty refusals list (the happy wire holds)
 - govstruct-manifest-shapes/iso-profile-stays-honest: the shipped ISO profile is complete (coverage + check green); a profile that resolves nothing (E_ISO_RESOLUTION_MISSING), points at a dangling clause (E_ISO_CLAUSE_UNKNOWN), or claims a clause with no gate each refuses by name - an evidence map, not a certificate (G15)
+- govstruct-manifest-shapes/surface-contract-holds: the shipped surfaces honor the contract (verify + doctor green); a dropped promised field refuses E_SURFACE_FIELD_MISSING and a retyped one refuses E_SURFACE_TYPE_DRIFT, under both `surface --verify` and `doctor` - a consumer can pin a schemaVersion and upgrade consciously (issue #23)
 - guards/hygiene-no-store: route "enroll" not declared on this target - attack skipped (declare it for coverage)
 - guards/burst-wall: route "burst" not declared on this target - attack skipped (declare it for coverage)
 - input/proto-pollution-body: route "enroll" not declared on this target - attack skipped (declare it for coverage)
@@ -52,8 +53,8 @@
 - memory/identity-merge-collision: vocabulary knob(s) "writeRoute", "readRoute" not declared on this target - memory skipped (export moduleCtx['memory'].writeRoute/readRoute for coverage)
 - memory/resolution-order-stability: vocabulary knob(s) "writeRoute", "readRoute" not declared on this target - memory skipped (export moduleCtx['memory'].writeRoute/readRoute for coverage)
 - memory/delete-is-loud: vocabulary knob(s) "writeRoute", "readRoute", "deleteRoute" not declared on this target - delete skip (export moduleCtx['memory'].writeRoute/readRoute/deleteRoute for coverage)
-- proto-hygiene/head-get-parity: 10 route(s): HEAD mirrors GET (no throws, no status drift beyond honest 405) + 10 info note(s)
-- proto-hygiene/request-shape-flood: 10 route(s) x 18 bare shapes (query chaos, path shapes, header casings) all landed 4xx-or-cleaner with case-parity intact
+- proto-hygiene/head-get-parity: 11 route(s): HEAD mirrors GET (no throws, no status drift beyond honest 405) + 11 info note(s)
+- proto-hygiene/request-shape-flood: 11 route(s) x 18 bare shapes (query chaos, path shapes, header casings) all landed 4xx-or-cleaner with case-parity intact
 - race/double-submit-idempotency: route "charge" not declared on this target - race skipped (declare it for coverage)
 - race/concurrent-write-lost-update: route "profile" not declared on this target - race skipped (declare it for coverage)
 - recursion/deep-nest-stack-overflow: route "enroll" not declared on this target - recursion skipped (declare it for coverage)
@@ -77,7 +78,7 @@
 ### 🔒 BOUNDED (0)
 
 ## Cost economics
-- total: 263 backend ops across 862 in-process requests from 64 attacks
+- total: 286 backend ops across 950 in-process requests from 65 attacks
   - auth/identity-spoof-headers: 0 ops / 0 requests
   - auth/secret-watermark: 0 ops / 0 requests
   - auth/privilege-escalation: 0 ops / 0 requests
@@ -109,6 +110,7 @@
   - govstruct-manifest-shapes/fleet-meter-names-drift: 3 ops / 58 requests
   - govstruct-manifest-shapes/clean-family-canary: 1 ops / 59 requests
   - govstruct-manifest-shapes/iso-profile-stays-honest: 4 ops / 63 requests
+  - govstruct-manifest-shapes/surface-contract-holds: 3 ops / 66 requests
   - guards/hygiene-no-store: 0 ops / 0 requests
   - guards/burst-wall: 0 ops / 0 requests
   - input/proto-pollution-body: 0 ops / 0 requests
@@ -123,8 +125,8 @@
   - memory/identity-merge-collision: 0 ops / 0 requests
   - memory/resolution-order-stability: 0 ops / 0 requests
   - memory/delete-is-loud: 0 ops / 0 requests
-  - proto-hygiene/head-get-parity: 20 ops / 20 requests
-  - proto-hygiene/request-shape-flood: 180 ops / 200 requests
+  - proto-hygiene/head-get-parity: 22 ops / 22 requests
+  - proto-hygiene/request-shape-flood: 198 ops / 220 requests
   - race/double-submit-idempotency: 0 ops / 0 requests
   - race/concurrent-write-lost-update: 0 ops / 0 requests
   - recursion/deep-nest-stack-overflow: 0 ops / 0 requests

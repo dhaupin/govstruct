@@ -8,6 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **The surface stability contract (issue #23, PRD section 5.1).** A consumer
+  of the roll-up (creadev.org's forge lane, vant's connector, railyard) needs to
+  know which fields are safe to bind to, at what type, so it can pin a
+  `schemaVersion` and upgrade consciously rather than guessing and breaking
+  generically. `spec/surface-contract.json` is the promise in data: for each
+  emitted surface (`registry`, `registry-member`, `member`, `apps`), every field
+  is marked promised (stable, retyping it needs a `schemaVersion` bump),
+  optional (may be absent, but carries the stated type when present), or
+  free-form (may change without notice). `govstruct surface` prints the
+  contract; `govstruct surface --verify` refuses a dropped promised field
+  (`E_SURFACE_FIELD_MISSING`) or a retyped one (`E_SURFACE_TYPE_DRIFT`) by name.
+  The `surface-shapes` check pack runs the same honesty checks under `govstruct
+  check`, and the doctor folds it in as the `surface-contract` check.
 - **The ISO evidence orientation (PRD section 10, G15).** govstruct now ships
   an ISO 9001:2015 / ISO 27001:2022 evidence map, drop-in and on by default.
   `spec/iso-profile.json` is the data: a clause catalog where every clause names

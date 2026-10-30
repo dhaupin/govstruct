@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "description": "The surface stability contract (govstruct PRD section 5.1). It says which fields of each emitted surface a consumer may rely on, so an integrator pins a schemaVersion and upgrades consciously, and refuses nameably rather than generically. A field marked contract:true is promised: its type is fixed, and removing or retyping it is a breaking change that needs a schemaVersion bump. optional:true means the field may be absent (a conditional spread), but when present it carries the stated type. contract:false means free-form: it may change without notice and a consumer must not depend on it.",
+  "surfaces": {
+    "registry": {
+      "address": "registry.v<version>.json",
+      "schemaVersion": 1,
+      "description": "The suite roll-up a consumer reads (creadev.org, vant's connector, railyard). A projection of apps.json.",
+      "fields": {
+        "schemaVersion": { "type": "number", "contract": true, "note": "the payload shape; a consumer pins it" },
+        "generated": { "type": "object", "contract": true, "note": "{ by, surface, manifest } - the producer and the manifest checksum the copy proves" },
+        "address": { "type": "object", "contract": true, "note": "the address and cache contract (path, url, etag, maxAge, cacheControl, checksum)" },
+        "family": { "type": "object", "contract": true, "note": "{ name, title }" },
+        "memberCount": { "type": "number", "contract": true },
+        "order": { "type": "array", "contract": true, "note": "the topo-sorted member ids" },
+        "graph": { "type": "array", "contract": true, "note": "one row per member: { id, needs[], neededBy[] }" },
+        "members": { "type": "array", "contract": true, "note": "the rendered member summary rows (see registry-member)" },
+        "byRole": { "type": "object", "contract": true },
+        "byStatus": { "type": "object", "contract": true }
+      }
+    },
+    "registry-member": {
+      "schemaVersion": 1,
+      "description": "One row of registry.members[]: the summary projection a consumer renders. Narrower than the full member record.",
+      "fields": {
+        "id": { "type": "string", "contract": true, "note": "kebab-case; the member's stable identity" },
+        "name": { "type": "string", "contract": true },
+        "role": { "type": "string", "contract": true, "note": "arm | forge | factory | composer | product | component" },
+        "status": { "type": "string", "contract": true, "note": "Live | Beta | In Development | Backburner | Archived | Tombstoned" },
+        "url": { "type": ["string", "null"], "contract": true, "note": "absolute https, or null" },
+        "blurb": { "type": "string", "contract": true },
+        "repo": { "type": ["string", "null"], "contract": true, "optional": true, "note": "owner/name, or null; absent when unset" },
+        "npm": { "type": ["string", "null"], "contract": true, "optional": true, "note": "the published name, or null; absent when unset" }
+      }
+    },
+    "member": {
+      "schemaVersion": 1,
+      "description": "One row of apps.members[]: the full member record an integrator binds to.",
+      "fields": {
+        "id": { "type": "string", "contract": true, "note": "kebab-case; the member's stable identity" },
+        "name": { "type": "string", "contract": true },
+        "role": { "type": "string", "contract": true, "note": "arm | forge | factory | composer | product | component" },
+        "status": { "type": "string", "contract": true, "note": "Live | Beta | In Development | Backburner | Archived | Tombstoned" },
+        "section": { "type": "string", "contract": true, "note": "open-source | proprietary | other" },
+        "order": { "type": "number", "contract": true },
+        "blurb": { "type": "string", "contract": true },
+        "icon": { "type": "string", "contract": true },
+        "url": { "type": ["string", "null"], "contract": true, "note": "absolute https, or null (declared-but-unknown-safe)" },
+        "repo": { "type": ["string", "null"], "contract": true, "note": "owner/name, or null" },
+        "npm": { "type": ["string", "null"], "contract": true, "note": "the published name, or null" },
+        "aliases": { "type": "array", "contract": true, "note": "former ids, for renames" },
+        "home": { "type": ["string", "null"], "contract": true },
+        "needs": { "type": "array", "contract": true, "note": "graph edges: [{ id, floor? }]" },
+        "grants": { "type": "array", "contract": true, "note": "scoped credentials: [{ kind, scope }]" },
+        "clause": { "type": "object", "contract": true, "optional": true, "note": "ISO clause annotations; absent when a member declares none" }
+      }
+    },
+    "apps": {
+      "address": "apps.json",
+      "schemaVersion": 1,
+      "description": "The canonical composed source (members + compliance + meta). registry.json is one rendering of it.",
+      "fields": {
+        "schemaVersion": { "type": "number", "contract": true },
+        "generated": { "type": "object", "contract": true },
+        "address": { "type": "object", "contract": true },
+        "family": { "type": "object", "contract": true },
+        "memberCount": { "type": "number", "contract": true },
+        "order": { "type": "array", "contract": true },
+        "members": { "type": "array", "contract": true },
+        "compliance": { "type": "object", "contract": false, "note": "the per-member compliance blocks; the shape is owned by the compliance contract, not this surface" }
+      }
+    }
+  }
+}

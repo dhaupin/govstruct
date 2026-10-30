@@ -598,9 +598,64 @@ function makeIsoHandler() {
   };
 }
 
+// The surface stability contract (issue #23, PRD section 5.1): an integrator
+// (creadev.org's forge lane, vant's connector) binds to the roll-up's fields.
+// This route materializes a family, renders the roll-up, tampers with a
+// promised field per shape, and runs `govstruct surface --verify --json` and
+// `govstruct doctor --json` - the wire a consumer's CI reads. A promised field
+// that is dropped or retyped must refuse by name; the shipped surfaces must be
+// honored.
+async function surfaceOne(shape) {
+  const root = mkdtempSync(join(tmpdir(), 'govstruct-ct-surface-'));
+  try {
+    writeFamily(root, { 'a.json': goodMember('a') });
+    writeFileSync(join(root, 'compliance', 'a.json'), fleetComp('a'));
+    const w = spawnSync(process.execPath, [CLI, 'registry', '--write'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+    if (w.status !== 0) return { status: 500, body: JSON.stringify({ error: 'registry --write failed', stdout: w.stdout, stderr: w.stderr }) };
+
+    if (shape === 'surface-clean') {
+      // untouched: the shipped surfaces honor the contract.
+    } else if (shape === 'surface-field-dropped') {
+      const p = join(root, 'registry.v1.json');
+      const doc = JSON.parse(readFileSync(p, 'utf8'));
+      delete doc.members[0].role; // drop a promised registry-member field
+      writeFileSync(p, JSON.stringify(doc, null, 2) + '\n');
+    } else if (shape === 'surface-type-retyped') {
+      const p = join(root, 'registry.v1.json');
+      const doc = JSON.parse(readFileSync(p, 'utf8'));
+      doc.memberCount = String(doc.memberCount); // number -> string
+      writeFileSync(p, JSON.stringify(doc, null, 2) + '\n');
+    } else {
+      return { status: 404, body: JSON.stringify({ error: `unknown shape ${shape}` }) };
+    }
+
+    const ver = spawnSync(process.execPath, [CLI, 'surface', '--verify', '--json'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+    const doc = spawnSync(process.execPath, [CLI, 'doctor', '--json'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+    return {
+      status: 200,
+      body: JSON.stringify({
+        verify: { exit: ver.status ?? 2, stdout: ver.stdout ?? '', stderr: ver.stderr ?? '' },
+        doctor: { exit: doc.status ?? 2, stdout: doc.stdout ?? '', stderr: doc.stderr ?? '' },
+      }),
+    };
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function makeSurfaceHandler() {
+  return async ({ request }) => {
+    let shape;
+    try { shape = new URL(request.url).searchParams.get('shape'); } catch { shape = null; }
+    if (!shape) return new Response(JSON.stringify({ error: 'shape param required' }), { status: 400 });
+    const r = await surfaceOne(shape);
+    return new Response(r.body, { status: r.status, headers: { 'content-type': 'application/json' } });
+  };
+}
+
 export default {
   baseUrl: 'https://govstruct.local',
-  routes: { lint: makeLintHandler(), verdict: makeVerdictHandler(), retire: makeRetireHandler(), a11y: makeA11yHandler(), impact: makeImpactHandler(), fleet: makeFleetHandler(), rollup: makeRollupHandler(), network: makeNetworkHandler(), adopters: makeAdoptersHandler(), iso: makeIsoHandler() },
+  routes: { lint: makeLintHandler(), verdict: makeVerdictHandler(), retire: makeRetireHandler(), a11y: makeA11yHandler(), impact: makeImpactHandler(), fleet: makeFleetHandler(), rollup: makeRollupHandler(), network: makeNetworkHandler(), adopters: makeAdoptersHandler(), iso: makeIsoHandler(), surface: makeSurfaceHandler() },
   // Adopt only OUR scenario pack: the packs/public tree also carries the
   // check-profile packs (floor-shapes and friends), which are govstruct's
   // compliance packs, not crashtest scenarios. Pointing at the one pack dir

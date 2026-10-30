@@ -93,6 +93,7 @@ resolutions. `govstruct iso --coverage` reports `0` unmapped and `0` dangling.
 | the honesty pack | `packs/public/iso-shapes/` | the map cannot rot silently (8.5.6) |
 | the ledger | `labs/audit-ledger.jsonl` | every governance action, chained (7.5.3, A.8.15) |
 | the roll-up | `apps.json` + `registry.json` + `registry.v1.json` | the composed suite truth (7.5.2) |
+| the surface contract | `spec/surface-contract.json` | the promised shape of the roll-up a consumer binds to (7.5.2, 8.5.2) |
 | the fleet meter | `govstruct doctor --suite --fleet` | the live drift page (9.1) |
 | the changelog | `CHANGELOG.md` | Keep-a-Changelog; every PR adds an Unreleased item (7.5.2) |
 | the dogfood | `crashtest.config.js` + `packs/public/govstruct-manifest-shapes` | the contracts attacked in-process (A.8.29) |

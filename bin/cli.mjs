@@ -36,6 +36,7 @@ import { retire } from '../src/lifecycle.mjs'
 import { emitReceipt, verifyReceipts, verdictRollup } from '../src/verdict.mjs'
 import { Refusal, loadRegistry } from '../src/refusals.mjs'
 import { loadIsoProfile, isoOrientation, isoCoverage, isoStatement, resolveCode, clauseById } from '../src/iso.mjs'
+import { loadSurfaceContract, surfaces, surfaceByName, verifySurfaces } from '../src/surface.mjs'
 import { impact } from '../src/graph.mjs'
 
 const argv = process.argv.slice(2)
@@ -54,6 +55,8 @@ const usage = () => {
   iso [--coverage]     the ISO 9001 / 27001 evidence orientation, coverage, or a code's resolution
   iso --resolve <code> the clause a refusal bears on and the action that clears it
   iso --statement <csv> the ISO statement for a run's refusal codes (or pipe them on stdin)
+  surface              the surface stability contract: which fields a consumer may rely on
+  surface --verify     check the emitted surfaces against the contract
   lock                 archive + sha256 receipt
   names <id>           check a candidate id against npm, GitHub, and the roster
   migrate --status     report migration state
@@ -456,6 +459,48 @@ async function main() {
                 if (!c.inScope) console.log(`    ${c.id}  [OUT OF SCOPE] ${c.title}`)
                 else console.log(`    ${c.id}  ${c.title}`)
               }
+            }
+          }
+        }
+        process.exit(0)
+      }
+
+      case 'surface': {
+        rejectUnknownFlags(rest, ['--json', '--verify', '--surface'])
+        const contract = loadSurfaceContract()
+        const verify = rest.includes('--verify')
+        const surfaceIdx = rest.indexOf('--surface')
+        const only = surfaceIdx !== -1 ? rest[surfaceIdx + 1] : null
+        const root = rest.find((a) => !a.startsWith('-') && !isFlagValue(rest, '--surface', a)) ?? '.'
+
+        if (verify) {
+          const r = verifySurfaces(root, contract)
+          if (json) {
+            console.log(JSON.stringify({ schema: 1, mode: 'surface', sub: 'verify', ok: r.ok, findings: r.findings }, null, 2))
+          } else {
+            console.log(`govstruct surface: verify over ${root}`)
+            if (r.ok) console.log('  ok   every promised field honored')
+            for (const f of r.findings) console.log(`  REFUSED [${f.code}]: ${f.message}`)
+          }
+          process.exit(r.ok ? 0 : 1)
+        }
+
+        // surface (default): print the contract - which fields a consumer may
+        // rely on. --surface <name> narrows it to one surface.
+        const rows = only ? [surfaceByName(only, contract)].filter(Boolean) : surfaces(contract)
+        if (only && !rows.length) {
+          usageError(`unknown surface "${only}" (have: ${surfaces(contract).map((s) => s.name).join(', ')})`)
+        }
+        if (json) {
+          console.log(JSON.stringify({ schema: 1, mode: 'surface', sub: 'contract', ok: true, surfaces: rows }, null, 2))
+        } else {
+          console.log('govstruct surface: the surface stability contract')
+          for (const s of rows) {
+            console.log(`\n${s.name}  (schemaVersion ${s.schemaVersion})`)
+            for (const [field, rule] of Object.entries(s.fields)) {
+              const tag = !rule.contract ? 'free-form' : rule.optional ? 'optional' : 'promised'
+              const type = Array.isArray(rule.type) ? rule.type.join(' | ') : rule.type
+              console.log(`  ${field}: ${type}  [${tag}]`)
             }
           }
         }

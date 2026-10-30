@@ -593,5 +593,49 @@ export default {
         return refused('the shipped ISO profile is complete (coverage + check green); a profile that resolves nothing (E_ISO_RESOLUTION_MISSING), points at a dangling clause (E_ISO_CLAUSE_UNKNOWN), or claims a clause with no gate each refuses by name - an evidence map, not a certificate (G15)');
       },
     },
+
+    {
+      name: 'surface-contract-holds',
+      description: 'the surface stability contract (issue #23): the shipped surfaces honor every promised field, but a dropped or retyped promised field refuses by name under both `surface --verify` and `doctor` - an integrator can pin a schemaVersion and upgrade consciously',
+      async run(harness, ctx = {}) {
+        const runSurface = async (shape) => {
+          const rec = await harness.run('surface', { method: 'GET', url: `/surface?shape=${shape}` });
+          if (rec.threw) return { threw: true };
+          let body = '';
+          try { body = await rec.response.text(); } catch { /* empty */ }
+          try { return { threw: false, ...JSON.parse(body) }; } catch { return { threw: false, parse: false }; }
+        };
+        const codes = (stdout) => { try { return (JSON.parse(stdout).findings ?? []).map((x) => x.code) } catch { return null } };
+        const fails = [];
+
+        // The shipped surfaces honor the contract: verify and doctor both exit 0.
+        const c = await runSurface('surface-clean');
+        if (c.threw || c.parse === false) return exhausted('the surface route crashed or returned an unparseable body');
+        if (c.verify.exit !== 0) fails.push(`surface-clean: verify exit ${c.verify.exit} (expected 0 - the shipped surfaces must be honored)`);
+        if (c.doctor.exit !== 0) fails.push(`surface-clean: doctor exit ${c.doctor.exit} (expected 0)`);
+
+        // A dropped promised field: verify names E_SURFACE_FIELD_MISSING, doctor refuses.
+        const d = await runSurface('surface-field-dropped');
+        if (d.threw || d.parse === false) fails.push('surface-field-dropped: unparseable body');
+        else {
+          if (d.verify.exit !== 1) fails.push(`surface-field-dropped: verify exit ${d.verify.exit} (expected 1)`);
+          const got = codes(d.verify.stdout);
+          if (!got || !got.includes('E_SURFACE_FIELD_MISSING')) fails.push(`surface-field-dropped: findings ${JSON.stringify(got)} missing E_SURFACE_FIELD_MISSING`);
+          if (d.doctor.exit !== 1) fails.push(`surface-field-dropped: doctor exit ${d.doctor.exit} (expected 1)`);
+        }
+
+        // A retyped promised field: verify names E_SURFACE_TYPE_DRIFT.
+        const t = await runSurface('surface-type-retyped');
+        if (t.threw || t.parse === false) fails.push('surface-type-retyped: unparseable body');
+        else {
+          if (t.verify.exit !== 1) fails.push(`surface-type-retyped: verify exit ${t.verify.exit} (expected 1)`);
+          const got = codes(t.verify.stdout);
+          if (!got || !got.includes('E_SURFACE_TYPE_DRIFT')) fails.push(`surface-type-retyped: findings ${JSON.stringify(got)} missing E_SURFACE_TYPE_DRIFT`);
+        }
+
+        if (fails.length) return exhausted(`the surface contract leaked: ${fails.join(' | ')}`);
+        return refused('the shipped surfaces honor the contract (verify + doctor green); a dropped promised field refuses E_SURFACE_FIELD_MISSING and a retyped one refuses E_SURFACE_TYPE_DRIFT, under both `surface --verify` and `doctor` - a consumer can pin a schemaVersion and upgrade consciously (issue #23)');
+      },
+    },
   ],
 };

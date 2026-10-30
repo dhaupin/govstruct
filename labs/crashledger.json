@@ -157,6 +157,11 @@
       "detail": "the shipped ISO profile is complete (coverage + check green); a profile that resolves nothing (E_ISO_RESOLUTION_MISSING), points at a dangling clause (E_ISO_CLAUSE_UNKNOWN), or claims a clause with no gate each refuses by name - an evidence map, not a certificate (G15)"
     },
     {
+      "id": "govstruct-manifest-shapes/surface-contract-holds",
+      "verdict": "REFUSED",
+      "detail": "the shipped surfaces honor the contract (verify + doctor green); a dropped promised field refuses E_SURFACE_FIELD_MISSING and a retyped one refuses E_SURFACE_TYPE_DRIFT, under both `surface --verify` and `doctor` - a consumer can pin a schemaVersion and upgrade consciously (issue #23)"
+    },
+    {
       "id": "guards/hygiene-no-store",
       "verdict": "REFUSED",
       "detail": "route \"enroll\" not declared on this target - attack skipped (declare it for coverage)"
@@ -229,12 +234,12 @@
     {
       "id": "proto-hygiene/head-get-parity",
       "verdict": "REFUSED",
-      "detail": "10 route(s): HEAD mirrors GET (no throws, no status drift beyond honest 405) + 10 info note(s)"
+      "detail": "11 route(s): HEAD mirrors GET (no throws, no status drift beyond honest 405) + 11 info note(s)"
     },
     {
       "id": "proto-hygiene/request-shape-flood",
       "verdict": "REFUSED",
-      "detail": "10 route(s) x 18 bare shapes (query chaos, path shapes, header casings) all landed 4xx-or-cleaner with case-parity intact"
+      "detail": "11 route(s) x 18 bare shapes (query chaos, path shapes, header casings) all landed 4xx-or-cleaner with case-parity intact"
     },
     {
       "id": "race/double-submit-idempotency",
@@ -355,6 +360,7 @@
     "govstruct-manifest-shapes/fleet-meter-names-drift",
     "govstruct-manifest-shapes/clean-family-canary",
     "govstruct-manifest-shapes/iso-profile-stays-honest",
+    "govstruct-manifest-shapes/surface-contract-holds",
     "guards/hygiene-no-store",
     "guards/burst-wall",
     "input/proto-pollution-body",

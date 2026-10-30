@@ -122,6 +122,16 @@ gap list: G10 (refusal vocabulary) first, then G3 (the graph), then G1+G5
       `iso.profile` at its own file. The family's canonical rider is
       `labs/prd-govstruct-compliance.md`. Out-of-scope clauses (27001 themes
       6 and 7) are named, never dropped.
+- [x] **The surface stability contract (issue #23, ask #1, PRD section 5.2).**
+      A consumer of the roll-up binds to field names and types, so the promise
+      is data: `spec/surface-contract.json` marks every field of each surface
+      (`registry`, `registry-member`, `member`, `apps`) promised, optional, or
+      free-form. `govstruct surface` prints it; `surface --verify` refuses a
+      dropped promised field (`E_SURFACE_FIELD_MISSING`) or a retyped one
+      (`E_SURFACE_TYPE_DRIFT`) by name. The `surface-shapes` check pack runs the
+      same checks under `govstruct check`; the doctor folds it in as the
+      `surface-contract` check. An integrator pins a `schemaVersion` and
+      upgrades consciously.
 - [ ] **`web/` + `docs/`** - the coreforge landing shell and the Jekyll rig,
       adopted from a checkout per the house rule.
 
