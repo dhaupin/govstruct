@@ -70,7 +70,8 @@ async function main() {
     switch (verb) {
       case 'lint': {
         rejectUnknownFlags(rest, ['--json'])
-        const r = lint('.')
+        const target = rest.find((a) => !a.startsWith('-')) ?? '.'
+        const r = lint(target)
         if (json) {
           console.log(JSON.stringify({ schema: 1, mode: 'lint', ok: r.ok, memberCount: r.memberCount, refusals: r.refusals.map(serializeRefusal) }, null, 2))
         } else if (r.ok) {
@@ -103,7 +104,8 @@ async function main() {
         rejectUnknownFlags(rest, ['--json', '--suite', '--network', '--fleet'])
         const useSuite = rest.includes('--suite') || rest.includes('--fleet')
         const network = rest.includes('--network')
-        const r = useSuite ? await doctorSuite('.', { network }) : doctor('.', { network })
+        const target = rest.find((a) => !a.startsWith('-')) ?? '.'
+        const r = useSuite ? await doctorSuite(target, { network }) : doctor(target, { network })
         if (json) {
           console.log(JSON.stringify({ schema: 1, mode: useSuite ? 'suite' : 'doctor', ok: r.ok, refusals: r.refusals.map(serializeRefusal), report: r.report }, null, 2))
         } else {
@@ -114,7 +116,8 @@ async function main() {
 
       case 'check': {
         rejectUnknownFlags(rest, ['--json'])
-        const r = await runChecks('.', { json })
+        const target = rest.find((a) => !a.startsWith('-')) ?? '.'
+        const r = await runChecks(target, { json })
         process.exit(r.ok ? 0 : 1)
       }
 

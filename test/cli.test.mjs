@@ -36,3 +36,17 @@ test('render registry prints JSON', () => {
   assert.equal(r.status, 0)
   assert.equal(JSON.parse(r.stdout).memberCount, 23)
 })
+test('lint honors a positional target: the clean fixture lints green', () => {
+  assert.equal(run(['lint', 'test/fixtures/clean']).status, 0)
+})
+test('lint honors a positional target: a broken fixture refuses', () => {
+  const r = run(['lint', 'test/fixtures/broken/id-mismatch'])
+  assert.equal(r.status, 1)
+  assert.match(r.stdout, /E_ID_MISMATCH/)
+})
+test('doctor honors a positional target', () => {
+  assert.equal(run(['doctor', 'test/fixtures/clean']).status, 0)
+})
+test('check honors a positional target', () => {
+  assert.equal(run(['check', 'test/fixtures/clean']).status, 0)
+})
