@@ -18,5 +18,9 @@
       "floor": ">=1"
     }
   ],
-  "grants": []
+  "grants": [],
+  "clause": {
+    "9001-7.5.3": "poststruct: the governed voice and docs surfaces",
+    "27001-A.8.25": "poststruct: the prose/voice gates in the build"
+  }
 }

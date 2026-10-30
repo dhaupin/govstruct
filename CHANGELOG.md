@@ -8,6 +8,77 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **The surface stability contract (issue #23, PRD section 5.1).** A consumer
+  of the roll-up (creadev.org's forge lane, vant's connector, railyard) needs to
+  know which fields are safe to bind to, at what type, so it can pin a
+  `schemaVersion` and upgrade consciously rather than guessing and breaking
+  generically. `spec/surface-contract.json` is the promise in data: for each
+  emitted surface (`registry`, `registry-member`, `member`, `apps`), every field
+  is marked promised (stable, retyping it needs a `schemaVersion` bump),
+  optional (may be absent, but carries the stated type when present), or
+  free-form (may change without notice). `govstruct surface` prints the
+  contract; `govstruct surface --verify` refuses a dropped promised field
+  (`E_SURFACE_FIELD_MISSING`) or a retyped one (`E_SURFACE_TYPE_DRIFT`) by name.
+  The `surface-shapes` check pack runs the same honesty checks under `govstruct
+  check`, and the doctor folds it in as the `surface-contract` check.
+- **Starter pin floors (issue #23, ask #2, PRD section 10 S3).** An integrator
+  that cuts a repo from a starter template needs to know the dependency floors
+  it may rely on, instead of guessing. A member's compliance block now carries
+  them as data (`templates: { file, floors: [{ name, floor }] }`), and the
+  `template-shapes` check pack verifies each pinned spec honors its floor,
+  refusing `E_TEMPLATE_FLOOR_DRIFT` by name when a pin has drifted below the
+  declared floor or names a dependency the template does not pin. The
+  comparison is honest about what it cannot prove: an unparseable spec or floor
+  is a state, not a refusal.
+- **The pending annotation (issue #23, ask #3).** A member may declare a
+  resource (repo, npm, url) that is promised but not yet live - the flowforge
+  → coreforge rename being the first case. `members/<id>.json` now accepts a
+  governed `pending` block (`{ resources, interim?, note? }`) that records the
+  state honestly and names the interim home, so a consumer reads a named state
+  instead of a phantom. The annotation rides the roll-up (`registry.v1.json`
+  member rows) and the `doctor --network` leg honors it: a declared-pending url
+  or npm is skipped as a named state rather than refused. A pending flag on a
+  resource the member does not declare, or a resource outside the governed
+  list, refuses `E_PENDING_UNKNOWN`; a malformed annotation refuses
+  `E_PENDING_INVALID`.
+- **The live surface, declared pending (issue #23, ask #4).** govstruct's own
+  member record now declares the landing `url` (PRD section 9:
+  `govstruct.creadev.org`) and the `npm` name as **pending** resources rather
+  than leaving them `null`. The record states the truth a consumer needs - the
+  surface is promised, the interim transport is `raw.githubusercontent` at a
+  pinned commit - so a reader sees a named state, not a phantom. `doctor
+  --network` skips a declared-pending resource by name instead of failing it.
+- **Adopter enrollment, the interim commit pin (issue #23, ask #5).** While
+  govstruct is not npm-published, an adopter cannot pin an exact version. The
+  adopter gate now accepts a governed `mode`: `npm` (an exact devDependency, the
+  default) or `commit` (a full 40-hex git sha in a `pinFile`, default
+  `govstruct.lock`). An unknown mode refuses `E_ADOPTER_MODE_UNKNOWN`; an absent
+  or short sha refuses `E_ADOPTER_SHA_INVALID`; a commit-mode adopter is
+  verified when its pin is a full sha. creadev-site is declared as the first
+  adopter (mode `commit`); with no reachable checkout the gate reports it
+  UNCHECKED - a named state, never a silent pass. `compliance.yml` checks out
+  each declared adopter at its pinned `rev` and tolerates an unreachable repo
+  (private, renamed, or not yet pushed): it stays UNCHECKED and the gate names
+  it, the same posture as an adopter with no checkout at all.
+- **Refusals, not warnings (issue #23, ask #6).** The adopter gate and the
+  pending annotation both refuse drift by name rather than warn and pass: a
+  drifted pin, an unknown mode, an invalid sha, or a pending flag on an
+  undeclared resource is a `refusals[]` entry with a registered code, not a
+  line a consumer may ignore. The doctor treats a declared-pending resource as a
+  named state (skipped, counted), never a silent success.
+- **The ISO evidence orientation (PRD section 10, G15).** govstruct now ships
+  an ISO 9001:2015 / ISO 27001:2022 evidence map, drop-in and on by default.
+  `spec/iso-profile.json` is the data: a clause catalog where every clause names
+  the govstruct surface that can evidence it and the gate that proves it, plus a
+  resolution for every registered refusal code (the clause it bears on and the
+  action that clears it). `govstruct iso` prints the orientation; `govstruct iso
+  --resolve <code>` turns a refusal into an ISO statement; `govstruct iso
+  --statement` maps a whole run; `govstruct iso --coverage` refuses when a
+  refusal has no resolution. The `iso-shapes` check pack runs the same honesty
+  checks under `govstruct check`. The law is stated in the data and printed on
+  every run: **an evidence map, not a certificate** - govstruct certifies
+  nothing, and a clause with no surface is named out of scope, never faked. A
+  host may point `iso.profile` at its own file; unset uses the shipped profile.
 - **The coreforge rig, adopted (PRD section 9).** govstruct's landing and docs
   now ship the family shell verbatim, with the identity swapped: one
   `site.config.js` is the single identity file, and `npm run sync` fans it out

@@ -16,6 +16,7 @@ import { loadConfig, resolveIn } from './config.mjs'
 import { loadManifest } from './manifest.mjs'
 import { RefusalBag } from './refusals.mjs'
 import { surfaceDrift, versionedRollupDrift } from './surfaces.mjs'
+import { verifySurfaces } from './surface.mjs'
 
 /**
  * Adopter doctor: this tree against its own manifest. Returns
@@ -60,6 +61,13 @@ export function doctor(target = '.', { network = false } = {}) {
   } else {
     report.checks.push({ name: 'surface-rollup-address', ok: true, detail: 'not emitted yet (a state)' })
   }
+
+  // Check 2c: the emitted surfaces honor the stability contract (PRD 5.1).
+  // A promised field that is absent, or carries the wrong type, is a breaking
+  // change an integrator would feel; the doctor refuses it by name.
+  const sv = verifySurfaces(root)
+  for (const f of sv.findings) bag.add(f.code, f.message)
+  report.checks.push({ name: 'surface-contract', ok: sv.ok, detail: sv.ok ? 'promised fields honored' : `${sv.findings.length} finding(s)` })
 
   // Check 3: compliance blocks present for each member (M1.5).
   const compDir = resolveIn(root, config.compliance.dir)
@@ -161,30 +169,44 @@ export async function doctorOnline(target = '.', { probe = defaultProbe } = {}) 
 
   let urlsChecked = 0
   let npmChecked = 0
+  let pendingSkipped = 0
   for (const m of manifest.members) {
+    // Issue #23 ask #3: a resource the member declares `pending` is a named
+    // state, not a refusal - the record already says it is not live yet. The
+    // online leg honors the annotation instead of crying 404 at a promise.
+    const pending = new Set(Array.isArray(m.pending?.resources) ? m.pending.resources : [])
     if (typeof m.url === 'string' && m.url) {
-      const https = await probe(m.url)
-      const insecure = await probe(m.url.replace(/^https:/, 'http:'))
-      urlsChecked += 1
-      if (https < 200 || https >= 400) {
-        if (insecure >= 200 && insecure < 400) {
-          bag.add('E_URL_INSECURE', `member "${m.id}" resolves over http but not https: ${m.url}`, { id: m.id, url: m.url })
-        } else {
-          bag.add('E_URL_UNRESOLVABLE', `member "${m.id}" url does not resolve: ${m.url} (HTTP ${https})`, { id: m.id, url: m.url })
+      if (pending.has('url')) {
+        pendingSkipped += 1
+      } else {
+        const https = await probe(m.url)
+        const insecure = await probe(m.url.replace(/^https:/, 'http:'))
+        urlsChecked += 1
+        if (https < 200 || https >= 400) {
+          if (insecure >= 200 && insecure < 400) {
+            bag.add('E_URL_INSECURE', `member "${m.id}" resolves over http but not https: ${m.url}`, { id: m.id, url: m.url })
+          } else {
+            bag.add('E_URL_UNRESOLVABLE', `member "${m.id}" url does not resolve: ${m.url} (HTTP ${https})`, { id: m.id, url: m.url })
+          }
         }
       }
     }
     if (typeof m.npm === 'string' && m.npm) {
-      const st = await probe(`https://registry.npmjs.org/${m.npm}`)
-      npmChecked += 1
-      if (st < 200 || st >= 400) {
-        bag.add('E_NPM_MISSING', `member "${m.id}" declares npm "${m.npm}" which is not on the registry (HTTP ${st})`, { id: m.id, npm: m.npm })
+      if (pending.has('npm')) {
+        pendingSkipped += 1
+      } else {
+        const st = await probe(`https://registry.npmjs.org/${m.npm}`)
+        npmChecked += 1
+        if (st < 200 || st >= 400) {
+          bag.add('E_NPM_MISSING', `member "${m.id}" declares npm "${m.npm}" which is not on the registry (HTTP ${st})`, { id: m.id, npm: m.npm })
+        }
       }
     }
   }
 
   report.checks.push({ name: 'url-resolvability', ok: bag.ok, detail: `${urlsChecked} url(s) checked` })
   report.checks.push({ name: 'npm-existence', ok: bag.ok, detail: `${npmChecked} npm name(s) checked` })
+  report.checks.push({ name: 'pending-resources', ok: true, detail: `${pendingSkipped} declared-pending resource(s) skipped (a named state)` })
 
   const refusals = bag.sorted()
   lines.push(`govstruct doctor --network: ${manifest.memberCount} member(s) in ${root}`)

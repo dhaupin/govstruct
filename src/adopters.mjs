@@ -20,6 +20,15 @@ import { RefusalBag } from './refusals.mjs'
 /** The rule of three: a suite claim needs at least two real adopters. */
 export const SUITE_CLAIM_MIN = 2
 
+/** The governed adopter pin modes (issue #23, ask #5). */
+export const ADOPTER_MODES = ['npm', 'commit']
+
+/** The conventional lock file a commit-mode adopter records its govstruct pin in. */
+export const DEFAULT_COMMIT_PIN_FILE = 'govstruct.lock'
+
+/** A full 40-hex git commit sha. */
+const FULL_SHA = /^[0-9a-f]{40}$/
+
 /** The version the suite serves: the tool's own package.json version. */
 export function readSuiteVersion(root) {
   const p = join(root, 'package.json')
@@ -73,15 +82,45 @@ function exactVersionOf(spec) {
 
 /**
  * Normalize an adopter entry. A bare id string is a declaration with no known
- * checkout source; an object carries { id, repo?, rev? } where repo is the
- * owner/name to check out and rev is the pinned commit the suite verifies.
+ * checkout source; an object carries { id, repo?, rev?, mode?, pinFile? }.
+ * `mode` names how the adopter pins govstruct: 'npm' (an exact devDependency,
+ * the default) or 'commit' (a pinned git sha, read from `pinFile`) - issue
+ * #23 ask #5, the interim transport while govstruct is not npm-published.
  */
 export function normalizeAdopter(entry) {
-  if (typeof entry === 'string') return { id: entry, repo: null, rev: null }
+  if (typeof entry === 'string') return { id: entry, repo: null, rev: null, mode: 'npm', pinFile: null }
   if (entry && typeof entry === 'object' && typeof entry.id === 'string') {
-    return { id: entry.id, repo: entry.repo ?? null, rev: entry.rev ?? null }
+    return {
+      id: entry.id,
+      repo: entry.repo ?? null,
+      rev: entry.rev ?? null,
+      mode: entry.mode ?? 'npm',
+      pinFile: entry.pinFile ?? null,
+    }
   }
   return null
+}
+
+/**
+ * Read how a commit-mode adopter pins govstruct: the full sha in `pinFile`
+ * (a repo-relative path), best-effort. Returns { present, sha }; absent facts
+ * are `null`, never guessed.
+ */
+export function readCommitPin(knownRoot, pinFile) {
+  const out = { present: false, sha: null }
+  if (!knownRoot || !pinFile || !existsSync(knownRoot)) return out
+  const p = join(knownRoot, pinFile)
+  if (!existsSync(p)) return out
+  out.present = true
+  let text
+  try {
+    text = readFileSync(p, 'utf8')
+  } catch {
+    return out
+  }
+  const m = text.match(/[0-9a-f]{40}/i)
+  out.sha = m ? m[0].toLowerCase() : null
+  return out
 }
 
 /**
@@ -91,9 +130,12 @@ export function normalizeAdopter(entry) {
  *
  * A declared adopter with no checkout is UNCHECKED - a named state, never a
  * silent pass. A checked-out adopter that does not pin govstruct, pins a
- * range, or pins the wrong version refuses by name. The suite CLAIM is earned
- * only at >= 2 VERIFIED adopters; below that the gate reports a pilot state
- * and does not claim suite - it never passes silently over an empty set.
+ * range, or pins the wrong version refuses by name. A commit-mode adopter
+ * (issue #23 ask #5, the interim transport while govstruct is not
+ * npm-published) pins a full 40-hex git sha in `pinFile` instead; an absent or
+ * short sha refuses. The suite CLAIM is earned only at >= 2 VERIFIED adopters;
+ * below that the gate reports a pilot state and does not claim suite - it
+ * never passes silently over an empty set.
  */
 export function adopterGate(target = '.', { roots = {}, suiteVersion: servedOverride } = {}) {
   const { root, config } = loadConfig(target)
@@ -104,12 +146,40 @@ export function adopterGate(target = '.', { roots = {}, suiteVersion: servedOver
   const rows = []
   const unchecked = []
   let verified = 0
+  let npmVerified = 0
+  let commitVerified = 0
 
   for (const entry of declared) {
     const id = entry.id
     const knownRoot = roots[id] ?? null
+    if (!ADOPTER_MODES.includes(entry.mode)) {
+      bag.add('E_ADOPTER_MODE_UNKNOWN', `adopter "${id}" declares mode "${entry.mode}" outside the governed list (${ADOPTER_MODES.join(' | ')})`, { id, mode: entry.mode })
+      rows.push({ id, repo: entry.repo, rev: entry.rev, mode: entry.mode, read: false, spec: null, style: null, version: null, sha: null })
+      continue
+    }
+
+    // A commit-mode adopter pins a git sha in `pinFile` (issue #23 ask #5): the
+    // interim transport while govstruct is not npm-published. The sha must be
+    // present and a full 40-hex value; a floating or short pin refuses.
+    if (entry.mode === 'commit') {
+      const pinFile = entry.pinFile ?? DEFAULT_COMMIT_PIN_FILE
+      const cp = readCommitPin(knownRoot, pinFile)
+      rows.push({ id, repo: entry.repo, rev: entry.rev, mode: 'commit', read: cp.present, spec: pinFile, style: cp.sha ? 'commit' : null, version: cp.sha, sha: cp.sha })
+      if (!cp.present) {
+        unchecked.push(id)
+        continue
+      }
+      if (cp.sha === null || !FULL_SHA.test(cp.sha)) {
+        bag.add('E_ADOPTER_SHA_INVALID', `adopter "${id}" pins a commit that is not a full 40-hex sha in ${pinFile}`, { id, pinFile })
+        continue
+      }
+      verified += 1
+      commitVerified += 1
+      continue
+    }
+
     const pin = readAdopterPin(knownRoot)
-    rows.push({ id, repo: entry.repo, rev: entry.rev, read: pin.present, spec: pin.spec, style: pin.style, version: pin.version })
+    rows.push({ id, repo: entry.repo, rev: entry.rev, mode: 'npm', read: pin.present, spec: pin.spec, style: pin.style, version: pin.version, sha: null })
 
     if (!pin.present) {
       // No checkout: the gate cannot see the pin. Name it, never pass silently.
@@ -121,6 +191,7 @@ export function adopterGate(target = '.', { roots = {}, suiteVersion: servedOver
       continue
     }
     verified += 1
+    npmVerified += 1
     if (pin.style !== 'exact') {
       bag.add('E_ADOPTER_PIN_STYLE_DRIFT', `adopter "${id}" pins govstruct as "${pin.style}", not exact`, { id, style: pin.style })
     }
@@ -132,9 +203,13 @@ export function adopterGate(target = '.', { roots = {}, suiteVersion: servedOver
   }
 
   const claim = verified >= SUITE_CLAIM_MIN
-  const report = { declared: declared.length, verified, unchecked: unchecked.length, claim, suiteVersion, rows }
+  const modes = [...new Set(declared.map((d) => d.mode))]
+  const report = { declared: declared.length, verified, unchecked: unchecked.length, claim, suiteVersion, modes, npmVerified, commitVerified, rows }
 
-  lines.push(`govstruct doctor --adopters: ${declared.length} adopter(s) declared, ${verified} verified to pin govstruct@${suiteVersion ?? '?'}`)
+  lines.push(`govstruct doctor --adopters: ${declared.length} adopter(s) declared, ${verified} verified`)
+  if (npmVerified) lines.push(`  npm    ${npmVerified} pin govstruct@${suiteVersion ?? '?'} exactly`)
+  if (commitVerified) lines.push(`  commit ${commitVerified} pin a full git sha (the interim transport)`)
+  if (modes.length) lines.push(`  modes  ${modes.join(', ')}`)
   if (claim) {
     lines.push(`  claim  suite (>= ${SUITE_CLAIM_MIN} adopters)`)
   } else {

@@ -26,7 +26,13 @@
     "poststruct": false
   },
   "adopters": {
-    "list": []
+    "list": [
+      {
+        "id": "creadev-site",
+        "mode": "commit",
+        "note": "issue #23 ask #5: the first outside integrator (the creadev.org forge lane). Declared, mode commit (the interim transport until govstruct is npm-published). No public checkout is reachable yet, so the gate reports it UNCHECKED - a named state, never a silent pass."
+      }
+    ]
   },
   "names": {
     "reserved": [

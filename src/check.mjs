@@ -16,7 +16,10 @@ import { pathToFileURL } from 'node:url'
 import { spawnSync } from 'node:child_process'
 import { loadConfig, resolveIn } from './config.mjs'
 import { loadManifest } from './manifest.mjs'
-import { RefusalBag } from './refusals.mjs'
+import { RefusalBag, loadRegistry } from './refusals.mjs'
+import { loadIsoProfile, isoCoverage } from './iso.mjs'
+import { loadSurfaceContract, verifySurfaces } from './surface.mjs'
+import { honorsFloor } from './templates.mjs'
 
 /**
  * Load every check pack under `<root>/packs/public/<name>/`. Returns
@@ -99,6 +102,12 @@ export async function runChecks(target = '.', { json = false, packsDir } = {}) {
       const p = join(root, config.compliance.dir, `${id}.json`)
       return existsSync(p) ? JSON.parse(readFileSync(p, 'utf8')) : null
     },
+    loadIsoProfile: () => loadIsoProfile(root),
+    loadRegistry: () => loadRegistry(),
+    isoCoverage: () => isoCoverage(loadRegistry(), { profile: loadIsoProfile(root) }),
+    loadSurfaceContract: () => loadSurfaceContract(),
+    verifySurfaces: () => verifySurfaces(root, loadSurfaceContract()),
+    honorsFloor,
   }
 
   lines.push(`govstruct check: ${packs.length} pack(s) over ${root}`)

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "family": { "name": "corpus" },
+  "members": { "dir": "members" },
+  "compliance": { "dir": "compliance" },
+  "adopters": {
+    "list": [
+      { "id": "zeta", "mode": "commit", "repo": "dhaupin/zeta" },
+      { "id": "eta", "mode": "commit", "pinFile": "custom.lock", "repo": "dhaupin/eta" },
+      { "id": "kappa", "mode": "commit", "repo": "dhaupin/kappa" },
+      { "id": "lambda", "mode": "carrier-pigeon", "repo": "dhaupin/lambda" }
+    ]
+  }
+}

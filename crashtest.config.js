@@ -95,6 +95,11 @@ const HOSTILE = {
     }),
   },
   'history-invalid': { 'a.json': goodMember('a', { status: 'Live', history: 'not-an-array' }) },
+  // Issue #23 ask #3: a declared-but-not-live resource is annotated, never a
+  // phantom. A pending flag on a resource the member does not declare, or a
+  // resource outside the governed list, refuses by name.
+  'pending-unknown': { 'a.json': goodMember('a', { pending: { resources: ['repo'] } }) },
+  'pending-invalid': { 'a.json': goodMember('a', { pending: { resources: [] } }) },
 };
 
 // Spec-ALLOWED shapes: the lint MUST NOT flag these (tolerance canary).
@@ -116,6 +121,14 @@ const TOLERANT = {
         { status: 'In Development', at: '2026-03-01T00:00:00Z' },
         { status: 'Backburner', at: '2026-04-01T00:00:00Z' },
       ],
+    }),
+  },
+  // Issue #23 ask #3: a well-formed pending annotation on a declared resource
+  // is spec-ALLOWED - it records a real state, not a lint fault.
+  'pending-valid': {
+    'a.json': goodMember('a', {
+      repo: 'dhaupin/a',
+      pending: { resources: ['repo'], interim: 'x/src/forge', note: 'rename pending' },
     }),
   },
 };
@@ -521,9 +534,141 @@ function makeAdoptersHandler() {
   };
 }
 
+// The ISO evidence profile (G15, PRD section 10): the orientation is data, and
+// the data must stay honest. This route materializes a family, plants a chosen
+// profile, and runs `govstruct iso --coverage --json` then `govstruct check
+// --json` - the wire a company (or a hobbyist) reads. A profile that drops a
+// clause, leaves a refusal unresolved, or points a resolution at a clause that
+// is not in the catalog must refuse by name; the shipped profile must be
+// complete.
+async function isoOne(shape) {
+  const root = mkdtempSync(join(tmpdir(), 'govstruct-ct-iso-'));
+  try {
+    writeFamily(root, { 'a.json': goodMember('a') });
+    mkdirSync(join(root, 'spec'), { recursive: true });
+    try { symlinkSync(join(REPO_ROOT, 'packs'), join(root, 'packs'), 'dir'); } catch { /* best effort */ }
+
+    if (shape === 'iso-shipped') {
+      // No planted profile: the shipped one is used (the drop-in default).
+    } else if (shape === 'iso-unresolved') {
+      // A profile that resolves nothing: every registered code is a gap.
+      writeFileSync(join(root, 'spec', 'iso-profile.json'), JSON.stringify({
+        schemaVersion: 1, standards: [{ id: '9001', title: 'x' }], themes: {},
+        clauses: [{ id: '9001-1.1', standard: '9001', title: 't', requires: 'r', surface: 's', gate: 'g' }],
+        resolutions: {},
+      }));
+      writeFileSync(join(root, 'govstruct.config.json'), JSON.stringify({
+        schemaVersion: 1, family: { name: 'corpus' }, members: { dir: 'members' },
+        compliance: { dir: 'compliance' }, iso: { profile: 'spec/iso-profile.json' },
+      }));
+    } else if (shape === 'iso-dangling-clause') {
+      // A resolution that points at a clause the catalog does not hold.
+      writeFileSync(join(root, 'spec', 'iso-profile.json'), JSON.stringify({
+        schemaVersion: 1, standards: [{ id: '9001', title: 'x' }], themes: {},
+        clauses: [{ id: '9001-1.1', standard: '9001', title: 't', requires: 'r', surface: 's', gate: 'g' }],
+        resolutions: { E_SUITE_DRIFT: { clause: '9001-99.9', action: 'x' } },
+      }));
+      writeFileSync(join(root, 'govstruct.config.json'), JSON.stringify({
+        schemaVersion: 1, family: { name: 'corpus' }, members: { dir: 'members' },
+        compliance: { dir: 'compliance' }, iso: { profile: 'spec/iso-profile.json' },
+      }));
+    } else if (shape === 'iso-surface-half') {
+      // A clause with a surface but no gate: an in-scope claim with no proof.
+      writeFileSync(join(root, 'spec', 'iso-profile.json'), JSON.stringify({
+        schemaVersion: 1, standards: [{ id: '9001', title: 'x' }], themes: {},
+        clauses: [{ id: '9001-1.1', standard: '9001', title: 't', requires: 'r', surface: 'a surface', gate: null }],
+        resolutions: {},
+      }));
+      writeFileSync(join(root, 'govstruct.config.json'), JSON.stringify({
+        schemaVersion: 1, family: { name: 'corpus' }, members: { dir: 'members' },
+        compliance: { dir: 'compliance' }, iso: { profile: 'spec/iso-profile.json' },
+      }));
+    } else {
+      return { status: 404, body: JSON.stringify({ error: `unknown shape ${shape}` }) };
+    }
+
+    const cov = spawnSync(process.execPath, [CLI, 'iso', '--coverage', '--json'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+    const chk = spawnSync(process.execPath, [CLI, 'check', '--json'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+    return {
+      status: 200,
+      body: JSON.stringify({
+        coverage: { exit: cov.status ?? 2, stdout: cov.stdout ?? '', stderr: cov.stderr ?? '' },
+        check: { exit: chk.status ?? 2, stdout: chk.stdout ?? '', stderr: chk.stderr ?? '' },
+      }),
+    };
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function makeIsoHandler() {
+  return async ({ request }) => {
+    let shape;
+    try { shape = new URL(request.url).searchParams.get('shape'); } catch { shape = null; }
+    if (!shape) return new Response(JSON.stringify({ error: 'shape param required' }), { status: 400 });
+    const r = await isoOne(shape);
+    return new Response(r.body, { status: r.status, headers: { 'content-type': 'application/json' } });
+  };
+}
+
+// The surface stability contract (issue #23, PRD section 5.1): an integrator
+// (creadev.org's forge lane, vant's connector) binds to the roll-up's fields.
+// This route materializes a family, renders the roll-up, tampers with a
+// promised field per shape, and runs `govstruct surface --verify --json` and
+// `govstruct doctor --json` - the wire a consumer's CI reads. A promised field
+// that is dropped or retyped must refuse by name; the shipped surfaces must be
+// honored.
+async function surfaceOne(shape) {
+  const root = mkdtempSync(join(tmpdir(), 'govstruct-ct-surface-'));
+  try {
+    writeFamily(root, { 'a.json': goodMember('a') });
+    writeFileSync(join(root, 'compliance', 'a.json'), fleetComp('a'));
+    const w = spawnSync(process.execPath, [CLI, 'registry', '--write'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+    if (w.status !== 0) return { status: 500, body: JSON.stringify({ error: 'registry --write failed', stdout: w.stdout, stderr: w.stderr }) };
+
+    if (shape === 'surface-clean') {
+      // untouched: the shipped surfaces honor the contract.
+    } else if (shape === 'surface-field-dropped') {
+      const p = join(root, 'registry.v1.json');
+      const doc = JSON.parse(readFileSync(p, 'utf8'));
+      delete doc.members[0].role; // drop a promised registry-member field
+      writeFileSync(p, JSON.stringify(doc, null, 2) + '\n');
+    } else if (shape === 'surface-type-retyped') {
+      const p = join(root, 'registry.v1.json');
+      const doc = JSON.parse(readFileSync(p, 'utf8'));
+      doc.memberCount = String(doc.memberCount); // number -> string
+      writeFileSync(p, JSON.stringify(doc, null, 2) + '\n');
+    } else {
+      return { status: 404, body: JSON.stringify({ error: `unknown shape ${shape}` }) };
+    }
+
+    const ver = spawnSync(process.execPath, [CLI, 'surface', '--verify', '--json'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+    const doc = spawnSync(process.execPath, [CLI, 'doctor', '--json'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+    return {
+      status: 200,
+      body: JSON.stringify({
+        verify: { exit: ver.status ?? 2, stdout: ver.stdout ?? '', stderr: ver.stderr ?? '' },
+        doctor: { exit: doc.status ?? 2, stdout: doc.stdout ?? '', stderr: doc.stderr ?? '' },
+      }),
+    };
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function makeSurfaceHandler() {
+  return async ({ request }) => {
+    let shape;
+    try { shape = new URL(request.url).searchParams.get('shape'); } catch { shape = null; }
+    if (!shape) return new Response(JSON.stringify({ error: 'shape param required' }), { status: 400 });
+    const r = await surfaceOne(shape);
+    return new Response(r.body, { status: r.status, headers: { 'content-type': 'application/json' } });
+  };
+}
+
 export default {
   baseUrl: 'https://govstruct.local',
-  routes: { lint: makeLintHandler(), verdict: makeVerdictHandler(), retire: makeRetireHandler(), a11y: makeA11yHandler(), impact: makeImpactHandler(), fleet: makeFleetHandler(), rollup: makeRollupHandler(), network: makeNetworkHandler(), adopters: makeAdoptersHandler() },
+  routes: { lint: makeLintHandler(), verdict: makeVerdictHandler(), retire: makeRetireHandler(), a11y: makeA11yHandler(), impact: makeImpactHandler(), fleet: makeFleetHandler(), rollup: makeRollupHandler(), network: makeNetworkHandler(), adopters: makeAdoptersHandler(), iso: makeIsoHandler(), surface: makeSurfaceHandler() },
   // Adopt only OUR scenario pack: the packs/public tree also carries the
   // check-profile packs (floor-shapes and friends), which are govstruct's
   // compliance packs, not crashtest scenarios. Pointing at the one pack dir

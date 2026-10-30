@@ -150,6 +150,9 @@ export function renderRegistry(manifest) {
     status: m.status,
     ...(m.npm ? { npm: m.npm } : {}),
     ...(m.repo ? { repo: m.repo } : {}),
+    // Issue #23 ask #3: a declared-but-not-live resource rides the summary so
+    // a consumer reads a named state instead of a phantom repo/npm/url.
+    ...(m.pending ? { pending: m.pending } : {}),
   }))
   return JSON.stringify({
     schemaVersion: 1,
