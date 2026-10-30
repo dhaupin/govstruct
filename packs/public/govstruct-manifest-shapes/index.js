@@ -1,0 +1,173 @@
+// packs/public/govstruct-manifest-shapes/index.js - the govstruct lint lane.
+//
+// The real component under attack: govstruct lint's contract (PRD section 6)
+// - "refusal instant and nameable... never a deep stack trace, never silent
+// success." The transport is an in-process double (crashtest.config.js) that
+// materializes one hostile family root per request into a temp dir and runs
+// `node bin/cli.mjs lint --json` as a subprocess - the same wire a user and
+// CI consume.
+//
+// Cross-repo pack doctrine (packstruct-lint-shapes precedent): NO imports
+// from crashtest internals. Plain verdict records, honest skips - a shape
+// the run root cannot support is a REFUSED posture note, never a fake
+// verdict.
+//
+// Four attacks, one contract each:
+//
+//   hostile-manifest-fuzz     every malformed member block answers
+//                             in-bounds: JSON verdict body, refusals[] with
+//                             {code,message}, exit 0 or 1 - never 5xx, never
+//                             a throw, never a deep stack trace.
+//   refusal-codes-registered  every refusal code the lint emits is a
+//                             registered code (the G10 vocabulary) - a
+//                             refusal the next tool cannot read is not
+//                             portable.
+//   over-strict-drift-canary  spec-ALLOWED shapes (null url/repo, extra
+//                             keys, retired aliases) exit 0 with zero
+//                             refusals - a lint that flags minimum-spec
+//                             shapes is itself a regression.
+//   clean-family-canary       the conforming family exits 0 with an empty
+//                             refusals list - the happy wire holds.
+const DEFAULT_ROUTE = 'lint';
+
+const REGISTERED = /^(E_[A-Z0-9_]+|[a-z][a-z0-9-]*)$/;
+
+const exhausted = (detail, extra = {}) => ({ verdict: 'EXPLOITED', detail, ...extra });
+const refused = (detail, extra = {}) => ({ verdict: 'REFUSED', detail, ...extra });
+
+function routeOf(ctx) { return (ctx && ctx.route) || DEFAULT_ROUTE; }
+
+async function runLint(harness, route, shape) {
+  const rec = await harness.run(route, { method: 'GET', url: `/lint?shape=${shape}` });
+  if (rec.threw) return { threw: true, error: rec.error };
+  let body = '';
+  try { body = await rec.response.text(); } catch { /* empty */ }
+  return { threw: false, status: rec.status, body };
+}
+
+function parseVerdict(body) {
+  try {
+    const r = JSON.parse(body);          // {exit, stdout, stderr}
+    const out = JSON.parse(r.stdout);    // {schema, ok, refusals}
+    if (!Array.isArray(out.refusals)) return null;
+    return { exit: r.exit, stderr: r.stderr ?? '', refusals: out.refusals };
+  } catch { return null; }
+}
+
+const isNameable = (v) => v && typeof v.code === 'string' && v.code.length > 0 &&
+  typeof v.message === 'string' && v.message.length > 0;
+
+const STACK_MARKERS = /(^|\n)\s*at .*\(|^\s*ReferenceError|^\s*TypeError|Uncaught/;
+
+export default {
+  name: 'govstruct-manifest-shapes',
+  description: 'hostile-manifest wire truths for govstruct lint: in-bounds refusals under malformed member blocks (never crash, never silent success), registered refusal codes, minimum-spec tolerance (zero dependencies, zero sockets)',
+
+  attacks: [
+    {
+      name: 'hostile-manifest-fuzz',
+      description: 'every malformed family answers in-bounds: parseable verdict JSON, refusals carried with {code,message}, exit 0/1 - never 5xx, never a deep stack trace',
+      async run(harness, ctx = {}) {
+        const route = routeOf(ctx);
+        const shapes = [
+          'invalid-json', 'id-mismatch', 'id-duplicate', 'url-not-https',
+          'url-duplicate', 'order-collision', 'role-unknown', 'status-unknown',
+          'needs-cycle', 'needs-self', 'tombstone-empty', 'field-missing',
+          'wrongtypes',
+        ];
+        const crashes = [];
+        const bad = [];
+        for (const shape of shapes) {
+          const r = await runLint(harness, route, shape);
+          if (r.threw) { crashes.push(`${shape}: harness throw`); continue; }
+          if (r.status >= 500) { crashes.push(`${shape}: status ${r.status}`); continue; }
+          const v = parseVerdict(r.body);
+          if (!v) { crashes.push(`${shape}: body is not a parseable JSON verdict`); continue; }
+          if (v.exit !== 0 && v.exit !== 1) crashes.push(`${shape}: exit ${v.exit}`);
+          if (v.stderr && STACK_MARKERS.test(v.stderr)) crashes.push(`${shape}: deep stack trace in stderr`);
+          if (v.refusals.length === 0) bad.push(`${shape}: refused shape produced zero refusals`);
+          if (!v.refusals.every(isNameable)) bad.push(`${shape}: a refusal is not nameable`);
+        }
+        const fails = [...crashes, ...bad];
+        if (fails.length) return exhausted(`lint contract broken under hostile family corpus: ${fails.join(' | ')}`);
+        return refused(`${shapes.length} hostile family shapes held: in-bounds verdicts, nameable refusals, no crash, no deep stack (PRD section 6)`, { shapes: shapes.length });
+      },
+    },
+
+    {
+      name: 'oversize-in-bounds',
+      description: 'a deep-nested extra key and a half-megabyte string are spec-ALLOWED: the lint must answer in-bounds (exit 0/1, parseable verdict) without crashing',
+      async run(harness, ctx = {}) {
+        const route = routeOf(ctx);
+        const fails = [];
+        for (const shape of ['deep-nest', 'huge-string']) {
+          const r = await runLint(harness, route, shape);
+          if (r.threw) { fails.push(`${shape}: harness throw`); continue; }
+          if (r.status >= 500) { fails.push(`${shape}: status ${r.status}`); continue; }
+          const v = parseVerdict(r.body);
+          if (!v) { fails.push(`${shape}: unparseable verdict`); continue; }
+          if (v.exit !== 0 && v.exit !== 1) fails.push(`${shape}: exit ${v.exit}`);
+          if (v.stderr && STACK_MARKERS.test(v.stderr)) fails.push(`${shape}: deep stack trace`);
+        }
+        if (fails.length) return exhausted(`oversize shapes broke the lint: ${fails.join(' | ')}`);
+        return refused('oversize but spec-allowed shapes (deep extra nesting, half-megabyte string) answered in-bounds');
+      },
+    },
+
+    {
+      name: 'refusal-codes-registered',
+      description: 'every refusal code the lint emits is a registered code (the shared vocabulary, G10)',
+      async run(harness, ctx = {}) {
+        const route = routeOf(ctx);
+        const unregistered = [];
+        const shapes = ['id-mismatch', 'url-not-https', 'needs-cycle', 'field-missing', 'wrongtypes'];
+        for (const shape of shapes) {
+          const r = await runLint(harness, route, shape);
+          if (r.threw) continue;
+          const v = parseVerdict(r.body);
+          if (!v) continue;
+          for (const ref of v.refusals) {
+            if (!REGISTERED.test(ref.code)) unregistered.push(`${shape}: unregistered code "${ref.code}"`);
+          }
+        }
+        if (unregistered.length) return exhausted(`unregistered refusal codes: ${unregistered.join(' | ')}`);
+        return refused('every emitted refusal code is registered (the G10 vocabulary holds)');
+      },
+    },
+
+    {
+      name: 'over-strict-drift-canary',
+      description: 'spec-ALLOWED shapes (null url/repo, extra keys, retired aliases) exit 0 with zero refusals - over-strict linting of minimum-spec shapes is a lint-side regression',
+      async run(harness, ctx = {}) {
+        const route = routeOf(ctx);
+        const overStrict = [];
+        for (const shape of ['clean', 'null-url-repo', 'extra-keys', 'alias-retired']) {
+          const r = await runLint(harness, route, shape);
+          if (r.threw) { overStrict.push(`${shape}: harness throw`); continue; }
+          const v = parseVerdict(r.body);
+          if (!v) { overStrict.push(`${shape}: unparseable verdict`); continue; }
+          if (v.exit !== 0 || v.refusals.length > 0) {
+            overStrict.push(`${shape}: exit ${v.exit}, ${v.refusals.length} refusal(s)`);
+          }
+        }
+        if (overStrict.length) return exhausted(`spec tolerance broken: ${overStrict.join(' | ')}`);
+        return refused('minimum-spec shapes held: null url/repo, extra keys, and retired aliases all exit 0, zero refusals');
+      },
+    },
+
+    {
+      name: 'clean-family-canary',
+      description: 'the conforming family exits 0 with an empty refusals list - the happy wire holds',
+      async run(harness, ctx = {}) {
+        const route = routeOf(ctx);
+        const r = await runLint(harness, route, 'clean');
+        if (r.threw) return exhausted('clean family canary crashed the lint double');
+        const v = parseVerdict(r.body);
+        if (!v) return exhausted('clean family canary: unparseable verdict body');
+        if (v.exit !== 0) return exhausted(`clean family canary: exit ${v.exit} - conforming family refused`);
+        if (v.refusals.length > 0) return exhausted(`clean family canary flagged: ${JSON.stringify(v.refusals.slice(0, 4))}`);
+        return refused('clean family exits 0 with an empty refusals list (the happy wire holds)');
+      },
+    },
+  ],
+};

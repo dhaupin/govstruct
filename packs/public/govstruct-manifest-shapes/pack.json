@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "name": "govstruct-manifest-shapes",
+  "description": "Hostile-manifest wire truths for govstruct lint: malformed member blocks never crash the CLI (refuse, never fail), every refusal carries a registered code, and spec-allowed shapes are never over-strictly flagged. Zero dependencies, zero sockets.",
+  "version": "0.1.0",
+  "entry": "index.js"
+}

@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "name": "version-shapes",
+  "description": "The version-shapes compliance check pack (govstruct PRD section 11). A packstruct SPEC v1 check-profile pack: pure-reading verifiers over files on disk, no transport.",
+  "version": "0.1.0",
+  "entry": "index.mjs"
+}
