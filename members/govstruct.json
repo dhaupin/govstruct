@@ -2,7 +2,7 @@
   "id": "govstruct",
   "name": "Govstruct",
   "role": "arm",
-  "url": null,
+  "url": "https://govstruct.creadev.org",
   "repo": "dhaupin/govstruct",
   "npm": "govstruct",
   "aliases": [],
@@ -23,5 +23,12 @@
     "9001-8.5.2": "govstruct audit: the append-only chained ledger",
     "27001-A.8.15": "govstruct audit verify: the hash-chained event log",
     "9001-9.1": "govstruct doctor --suite --fleet: the live suite meter"
+  },
+  "pending": {
+    "resources": [
+      "url",
+      "npm"
+    ],
+    "note": "the landing (PRD section 9: govstruct.creadev.org on Cloudflare Pages) and the npm name are declared but not yet live; raw.githubusercontent at a pinned commit is the interim transport for consumers (issue #23 asks #4/#5)"
   }
 }

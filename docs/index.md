@@ -41,6 +41,44 @@ member roster and verifies the suite truth against it:
   member's live surfaces against its compliance block; **`--adopters`** watches
   who consumes govstruct, and how.
 
+## Adopters, pinned by mode
+
+An adopter consumes the roll-up and pins govstruct so drift is caught. The gate
+accepts two governed pin **modes**:
+
+- **`npm`** (the default) - an exact `devDependency`, `govstruct@x.y.z`. The
+  gate refuses a range (`E_ADOPTER_PIN_STYLE_DRIFT`) or a stale version
+  (`E_ADOPTER_VERSION_DRIFT`).
+- **`commit`** - a full 40-hex git sha in a `pinFile` (default
+  `govstruct.lock`). This is the interim transport while govstruct is not
+  npm-published: an integrator reads the roll-up from `raw.githubusercontent`
+  at a pinned commit. An unknown mode refuses `E_ADOPTER_MODE_UNKNOWN`; an
+  absent or short sha refuses `E_ADOPTER_SHA_INVALID`.
+
+A declared adopter with no reachable checkout is **UNCHECKED** - a named state,
+never a silent pass. The **rule of three** is the claim, not the gate: drift
+refuses from the first adopter, but the *suite claim* waits for ≥2 verified
+adopters.
+
+## A declared-but-not-live resource is pending, never a phantom
+
+A member may promise a resource (`repo`, `npm`, `url`) that is not live yet. The
+member record carries a governed `pending` block (`{ resources, interim?, note? }`)
+naming the state and the interim home. `doctor --network` skips a
+declared-pending resource by name (counted, not failed), and the annotation
+rides the roll-up so a consumer reads a named state instead of a phantom. A
+pending flag on a resource the member does not declare, or one outside the
+governed list, refuses `E_PENDING_UNKNOWN`; a malformed annotation refuses
+`E_PENDING_INVALID`.
+
+## Refusals, not warnings
+
+Every gate above refuses drift by name rather than warning and passing. A
+drifted pin, an unknown mode, an invalid sha, a pending flag on an undeclared
+resource, or a broken surface promise is a `refusals[]` entry with a registered
+code - a machine-readable verdict a consumer may act on, never a line it may
+ignore.
+
 ## Highlighting works out of the box
 
 ```js

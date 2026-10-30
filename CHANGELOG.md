@@ -41,6 +41,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   resource the member does not declare, or a resource outside the governed
   list, refuses `E_PENDING_UNKNOWN`; a malformed annotation refuses
   `E_PENDING_INVALID`.
+- **The live surface, declared pending (issue #23, ask #4).** govstruct's own
+  member record now declares the landing `url` (PRD section 9:
+  `govstruct.creadev.org`) and the `npm` name as **pending** resources rather
+  than leaving them `null`. The record states the truth a consumer needs - the
+  surface is promised, the interim transport is `raw.githubusercontent` at a
+  pinned commit - so a reader sees a named state, not a phantom. `doctor
+  --network` skips a declared-pending resource by name instead of failing it.
+- **Adopter enrollment, the interim commit pin (issue #23, ask #5).** While
+  govstruct is not npm-published, an adopter cannot pin an exact version. The
+  adopter gate now accepts a governed `mode`: `npm` (an exact devDependency, the
+  default) or `commit` (a full 40-hex git sha in a `pinFile`, default
+  `govstruct.lock`). An unknown mode refuses `E_ADOPTER_MODE_UNKNOWN`; an absent
+  or short sha refuses `E_ADOPTER_SHA_INVALID`; a commit-mode adopter is
+  verified when its pin is a full sha. creadev-site is declared as the first
+  adopter (mode `commit`); with no reachable checkout the gate reports it
+  UNCHECKED - a named state, never a silent pass.
+- **Refusals, not warnings (issue #23, ask #6).** The adopter gate and the
+  pending annotation both refuse drift by name rather than warn and pass: a
+  drifted pin, an unknown mode, an invalid sha, or a pending flag on an
+  undeclared resource is a `refusals[]` entry with a registered code, not a
+  line a consumer may ignore. The doctor treats a declared-pending resource as a
+  named state (skipped, counted), never a silent success.
 - **The ISO evidence orientation (PRD section 10, G15).** govstruct now ships
   an ISO 9001:2015 / ISO 27001:2022 evidence map, drop-in and on by default.
   `spec/iso-profile.json` is the data: a clause catalog where every clause names

@@ -3,16 +3,16 @@
   "generated": {
     "by": "govstruct",
     "surface": "registry",
-    "manifest": "sha256:5732d30be13c9cbab92e51dee285f6c97825ec459e8e86c7ef4e65b7730b8ae2"
+    "manifest": "sha256:1c53cca5c6935c73cfa2a338705c19b99e14fee4b3a92cb6b0dd9c110384b721"
   },
   "address": {
     "schemaVersion": 1,
     "path": "registry.v1.json",
     "url": "/registry.v1.json",
-    "etag": "\"sha256:cbd8c2c38eef1af4a127eda43a6d748e35ec8557f5fb5dbd87e58fbbf3a6df14\"",
+    "etag": "\"sha256:bb2d27f5727f42301572cb854137f8c9dff25f41902bd22db1b262b40f607a74\"",
     "maxAge": 300,
     "cacheControl": "public, max-age=300, must-revalidate",
-    "checksum": "sha256:5732d30be13c9cbab92e51dee285f6c97825ec459e8e86c7ef4e65b7730b8ae2"
+    "checksum": "sha256:1c53cca5c6935c73cfa2a338705c19b99e14fee4b3a92cb6b0dd9c110384b721"
   },
   "family": {
     "name": "dhaupin",
@@ -186,11 +186,18 @@
       "id": "govstruct",
       "name": "Govstruct",
       "role": "arm",
-      "url": null,
+      "url": "https://govstruct.creadev.org",
       "blurb": "The controller layer: one manifest of members, one render surface per shape, one doctor that verifies suite truth.",
       "status": "In Development",
       "npm": "govstruct",
-      "repo": "dhaupin/govstruct"
+      "repo": "dhaupin/govstruct",
+      "pending": {
+        "resources": [
+          "url",
+          "npm"
+        ],
+        "note": "the landing (PRD section 9: govstruct.creadev.org on Cloudflare Pages) and the npm name are declared but not yet live; raw.githubusercontent at a pinned commit is the interim transport for consumers (issue #23 asks #4/#5)"
+      }
     },
     {
       "id": "packstruct",
