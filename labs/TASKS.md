@@ -109,6 +109,19 @@ gap list: G10 (refusal vocabulary) first, then G3 (the graph), then G1+G5
       *suite claim* until ≥2 verified adopters, reporting a pilot state instead
       of assuming the claim. govstruct declares zero adopters today (M2 has not
       happened), so its own run is an honest pilot, not a fabricated green.
+- [x] **G15 - the ISO evidence orientation (PRD section 10).** An evidence
+      map, not a certificate: `spec/iso-profile.json` holds 36 clauses (15
+      ISO 9001, 21 ISO 27001 Annex A) and 90 resolutions, each clause naming
+      the govstruct surface that evidences it and the gate that proves it.
+      `govstruct iso` prints the orientation; `iso --resolve <code>` turns a
+      refusal into an ISO statement; `iso --statement` maps a whole run;
+      `iso --coverage` refuses when a refusal has no resolution. The
+      `iso-shapes` check pack keeps the map honest (a clause with no surface,
+      a refusal with no resolution, or a member clause annotation outside the
+      catalog refuses by name). Drop-in and on by default; a host may point
+      `iso.profile` at its own file. The family's canonical rider is
+      `labs/prd-govstruct-compliance.md`. Out-of-scope clauses (27001 themes
+      6 and 7) are named, never dropped.
 - [ ] **`web/` + `docs/`** - the coreforge landing shell and the Jekyll rig,
       adopted from a checkout per the house rule.
 
