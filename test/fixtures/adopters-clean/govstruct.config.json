@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "family": { "name": "corpus" },
+  "members": { "dir": "members" },
+  "compliance": { "dir": "compliance" },
+  "adopters": { "list": ["alpha", "beta"] }
+}

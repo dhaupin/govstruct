@@ -97,8 +97,18 @@ gap list: G10 (refusal vocabulary) first, then G3 (the graph), then G1+G5
       revalidates cheaply. The doctor refuses a stale ETag
       (`E_ROLLUP_ETAG_STALE`), a divergent rendering (`E_ROLLUP_NOT_CANONICAL`),
       and an unrenderable payload schema (`E_ADDRESS_VERSION_UNKNOWN`).
-- [ ] **`compliance.yml`** - `govstruct doctor --suite` over every adopter at
-      a pinned rev, refusing drift.
+- [x] **`compliance.yml`** - `govstruct doctor --adopters` over every declared
+      adopter at a pinned rev, refusing pin drift (`E_ADOPTER_MISSING`,
+      `E_ADOPTER_PIN_STYLE_DRIFT`, `E_ADOPTER_VERSION_DRIFT`) and then emitting
+      the roll-up and refusing a drifted rendering. The gate is
+      `doctor --adopters`: it reads each declared adopter's `govstruct` pin
+      against the version the suite serves, in an offline checkout
+      (`--fleet-root`). A declared adopter with no checkout is UNCHECKED - a
+      named state, never a silent pass. The **rule of three** is the claim, not
+      the gate: the gate refuses drift from the first adopter, but withholds the
+      *suite claim* until ≥2 verified adopters, reporting a pilot state instead
+      of assuming the claim. govstruct declares zero adopters today (M2 has not
+      happened), so its own run is an honest pilot, not a fabricated green.
 - [ ] **`web/` + `docs/`** - the coreforge landing shell and the Jekyll rig,
       adopted from a checkout per the house rule.
 

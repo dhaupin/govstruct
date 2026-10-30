@@ -21,6 +21,9 @@ const DEFAULTS = {
     registry: 'registry.json',
   },
   gates: { packstruct: true, crashtest: true, poststruct: false },
+  // PRD M2.5: the members that consume the roll-up (the compliance.yml leg).
+  // Empty by default - the suite CLAIM is earned at >= 2 verified adopters.
+  adopters: { list: [] },
   names: { reserved: [] },
   lock: { out: 'horcrux', name: 'govstruct' },
 }

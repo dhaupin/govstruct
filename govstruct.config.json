@@ -25,6 +25,9 @@
     "crashtest": true,
     "poststruct": false
   },
+  "adopters": {
+    "list": []
+  },
   "names": {
     "reserved": [
       "govstruct",

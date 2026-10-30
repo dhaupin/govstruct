@@ -463,9 +463,67 @@ function makeNetworkHandler() {
   };
 }
 
+// The adopter gate (M2.5, the compliance.yml leg): the suite roll-up is only
+// real when the members that CONSUME it adopt it, pinned exactly, at the
+// version the suite serves. This route materializes a family that declares
+// adopters, a repos/ tree carrying their checkouts, and runs `govstruct
+// doctor --adopters --fleet-root repos --json` - the wire compliance.yml
+// reads. Drift refuses by name; the suite CLAIM is earned only at >= 2
+// verified adopters, and a declared adopter with no checkout is unchecked.
+async function adoptersOne(shape) {
+  const root = mkdtempSync(join(tmpdir(), 'govstruct-ct-adopt-'));
+  try {
+    const cfg = (list) => JSON.stringify({
+      schemaVersion: 1, family: { name: 'corpus' },
+      members: { dir: 'members' }, compliance: { dir: 'compliance' },
+      adopters: { list },
+    });
+    const writePkg = (base, id, pkg) => {
+      const dir = join(base, id);
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(join(dir, 'package.json'), JSON.stringify(pkg));
+    };
+    writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'govstruct', version: '1.0.0' }));
+
+    if (shape === 'adopters-clean') {
+      writeFamily(root, { 'a.json': goodMember('a') });
+      writeFileSync(join(root, 'govstruct.config.json'), cfg(['alpha', 'beta']));
+      writePkg(join(root, 'repos'), 'alpha', { name: 'alpha', devDependencies: { govstruct: '1.0.0' } });
+      writePkg(join(root, 'repos'), 'beta', { name: 'beta', dependencies: { govstruct: '1.0.0' } });
+    } else if (shape === 'adopters-drift') {
+      writeFamily(root, { 'a.json': goodMember('a') });
+      writeFileSync(join(root, 'govstruct.config.json'), cfg(['alpha', 'beta', 'gamma']));
+      writePkg(join(root, 'repos'), 'alpha', { name: 'alpha', devDependencies: { govstruct: '^1.0.0' } }); // range
+      writePkg(join(root, 'repos'), 'beta', { name: 'beta', devDependencies: { packstruct: '1.0.0' } });  // no govstruct pin
+      // gamma: declared, no checkout -> unchecked
+    } else if (shape === 'adopters-pilot') {
+      writeFamily(root, { 'a.json': goodMember('a') });
+      writeFileSync(join(root, 'govstruct.config.json'), cfg(['alpha']));
+      writePkg(join(root, 'repos'), 'alpha', { name: 'alpha', devDependencies: { govstruct: '1.0.0' } });
+    } else {
+      return { status: 404, body: JSON.stringify({ error: `unknown shape ${shape}` }) };
+    }
+
+    const rec = spawnSync(process.execPath, [CLI, 'doctor', '--adopters', '--fleet-root', 'repos', '--json'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+    return { status: 200, body: JSON.stringify({ exit: rec.status ?? 2, stdout: rec.stdout ?? '', stderr: rec.stderr ?? '' }) };
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function makeAdoptersHandler() {
+  return async ({ request }) => {
+    let shape;
+    try { shape = new URL(request.url).searchParams.get('shape'); } catch { shape = null; }
+    if (!shape) return new Response(JSON.stringify({ error: 'shape param required' }), { status: 400 });
+    const r = await adoptersOne(shape);
+    return new Response(r.body, { status: r.status, headers: { 'content-type': 'application/json' } });
+  };
+}
+
 export default {
   baseUrl: 'https://govstruct.local',
-  routes: { lint: makeLintHandler(), verdict: makeVerdictHandler(), retire: makeRetireHandler(), a11y: makeA11yHandler(), impact: makeImpactHandler(), fleet: makeFleetHandler(), rollup: makeRollupHandler(), network: makeNetworkHandler() },
+  routes: { lint: makeLintHandler(), verdict: makeVerdictHandler(), retire: makeRetireHandler(), a11y: makeA11yHandler(), impact: makeImpactHandler(), fleet: makeFleetHandler(), rollup: makeRollupHandler(), network: makeNetworkHandler(), adopters: makeAdoptersHandler() },
   // Adopt only OUR scenario pack: the packs/public tree also carries the
   // check-profile packs (floor-shapes and friends), which are govstruct's
   // compliance packs, not crashtest scenarios. Pointing at the one pack dir

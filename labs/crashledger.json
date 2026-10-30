@@ -132,6 +132,11 @@
       "detail": "a dead url refuses E_URL_UNRESOLVABLE by name (exit 1, never a crash) while the offline doctor stays socket-free"
     },
     {
+      "id": "govstruct-manifest-shapes/adopter-pins-refuse-by-name",
+      "verdict": "REFUSED",
+      "detail": "the adopter gate holds: a clean family claims suite at >= 2 exactly-pinned adopters; a range pin, a missing govstruct pin, and a declared-but-unchecked adopter each answer by name; a lone adopter is a pilot, never a claim (M2.5)"
+    },
+    {
       "id": "govstruct-manifest-shapes/rollup-address-holds",
       "verdict": "REFUSED",
       "detail": "a clean roll-up carries a versioned path, an ETag, and a max-age and passes; a stale ETag refuses E_ROLLUP_ETAG_STALE and a divergent rendering refuses E_CHECKSUM_DRIFT"
@@ -219,12 +224,12 @@
     {
       "id": "proto-hygiene/head-get-parity",
       "verdict": "REFUSED",
-      "detail": "8 route(s): HEAD mirrors GET (no throws, no status drift beyond honest 405) + 8 info note(s)"
+      "detail": "9 route(s): HEAD mirrors GET (no throws, no status drift beyond honest 405) + 9 info note(s)"
     },
     {
       "id": "proto-hygiene/request-shape-flood",
       "verdict": "REFUSED",
-      "detail": "8 route(s) x 18 bare shapes (query chaos, path shapes, header casings) all landed 4xx-or-cleaner with case-parity intact"
+      "detail": "9 route(s) x 18 bare shapes (query chaos, path shapes, header casings) all landed 4xx-or-cleaner with case-parity intact"
     },
     {
       "id": "race/double-submit-idempotency",
@@ -340,6 +345,7 @@
     "govstruct-manifest-shapes/a11y-pane-refuses",
     "govstruct-manifest-shapes/graph-propagation-walks",
     "govstruct-manifest-shapes/online-leg-refuses-by-name",
+    "govstruct-manifest-shapes/adopter-pins-refuse-by-name",
     "govstruct-manifest-shapes/rollup-address-holds",
     "govstruct-manifest-shapes/fleet-meter-names-drift",
     "govstruct-manifest-shapes/clean-family-canary",

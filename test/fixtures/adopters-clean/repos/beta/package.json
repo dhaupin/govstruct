@@ -1,0 +1,1 @@
+{ "name": "beta", "dependencies": { "govstruct": "0.9.0" } }

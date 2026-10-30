@@ -23,6 +23,7 @@ import { SURFACES, renderRegistry, manifestChecksum } from '../src/render.mjs'
 import { renderSurface, writeSurfaces, surfaceDrift, writeVersionedRollup } from '../src/surfaces.mjs'
 import { doctor, doctorSuite, doctorOnline } from '../src/doctor.mjs'
 import { fleetMeter } from '../src/fleet.mjs'
+import { adopterGate } from '../src/adopters.mjs'
 import { runChecks } from '../src/check.mjs'
 import { suiteRegistry } from '../src/registry.mjs'
 import { lock } from '../src/lock.mjs'
@@ -46,7 +47,7 @@ const usage = () => {
 
   lint                 validate the manifest grammar
   render <target>      emit react | partial | readme | registry
-  doctor [--suite] [--fleet]  adopter checksum gate, suite battery, or fleet drift meter
+  doctor [--suite] [--fleet] [--adopters] [--network]  adopter checksum gate, suite battery, fleet drift meter, adopter pin gate, or the online leg
   check                run the compliance shape packs
   registry             emit the suite roll-up (env / pins / floors / versions)
   lock                 archive + sha256 receipt
@@ -145,17 +146,21 @@ async function main() {
       }
 
       case 'doctor': {
-        rejectUnknownFlags(rest, ['--json', '--suite', '--network', '--fleet', '--fleet-root'])
+        rejectUnknownFlags(rest, ['--json', '--suite', '--network', '--fleet', '--fleet-root', '--adopters'])
         const useFleet = rest.includes('--fleet')
+        const useAdopters = rest.includes('--adopters')
         const useSuite = useFleet || rest.includes('--suite')
         const network = rest.includes('--network')
-        if (network && (rest.includes('--suite') || rest.includes('--fleet'))) {
-          usageError('--network is its own mode (the online leg); it cannot be combined with --suite or --fleet')
+        if (network && (useSuite || useAdopters)) {
+          usageError('--network is its own mode (the online leg); it cannot be combined with --suite, --adopters, or --fleet')
         }
         const target = rest.find((a) => !a.startsWith('-') && !isFlagValue(rest, '--fleet-root', a)) ?? '.'
         let r
         if (network) {
           r = await doctorOnline(target, {})
+        } else if (useAdopters) {
+          const fleetRoot = flagValue(rest, '--fleet-root')
+          r = adopterGate(target, { roots: fleetRoot ? fleetRoots(target, fleetRoot) : {} })
         } else if (useFleet) {
           const fleetRoot = flagValue(rest, '--fleet-root')
           r = fleetMeter(target, { roots: fleetRoot ? fleetRoots(target, fleetRoot) : {} })
@@ -163,7 +168,7 @@ async function main() {
           r = useSuite ? await doctorSuite(target, { network }) : doctor(target, { network })
         }
         if (json) {
-          const mode = network ? 'network' : useFleet ? 'fleet' : useSuite ? 'suite' : 'doctor'
+          const mode = network ? 'network' : useAdopters ? 'adopters' : useFleet ? 'fleet' : useSuite ? 'suite' : 'doctor'
           console.log(JSON.stringify({ schema: 1, mode, ok: r.ok, refusals: r.refusals.map(serializeRefusal), report: r.report }, null, 2))
         } else {
           for (const line of r.lines) console.log(line)

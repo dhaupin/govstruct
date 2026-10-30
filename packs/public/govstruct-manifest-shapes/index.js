@@ -376,6 +376,57 @@ export default {
     },
 
     {
+      name: 'adopter-pins-refuse-by-name',
+      description: 'the adopter gate (M2.5, the compliance.yml leg): a clean family of exactly-pinned adopters claims suite; a range pin, a missing govstruct pin, and a declared-but-unchecked adopter each answer by name - the claim is earned, never assumed',
+      async run(harness, ctx = {}) {
+        const runAdopt = async (shape) => {
+          const rec = await harness.run('adopters', { method: 'GET', url: `/adopters?shape=${shape}` });
+          if (rec.threw) return { threw: true };
+          let body = '';
+          try { body = await rec.response.text(); } catch { /* empty */ }
+          try { return { threw: false, ...JSON.parse(body) }; } catch { return { threw: false, parse: false }; }
+        };
+        const reportOf = (r) => { try { return JSON.parse(r.stdout) } catch { return null } };
+        const codes = (rep) => (rep?.refusals ?? []).map((x) => x.code);
+        const fails = [];
+
+        // Clean: two exactly-pinned adopters -> exit 0, the suite claim earned.
+        const c = await runAdopt('adopters-clean');
+        if (c.threw || c.parse === false) return exhausted('the adopters route crashed or returned an unparseable body');
+        const cr = reportOf(c);
+        if (!cr) return exhausted('the adopters route returned an unparseable report');
+        if (cr.mode !== 'adopters') return exhausted(`expected mode "adopters", got ${JSON.stringify(cr.mode)}`);
+        if (c.exit !== 0) fails.push(`adopters-clean: exit ${c.exit} (expected 0)`);
+        else if (cr.report.verified !== 2 || cr.report.claim !== true) fails.push(`adopters-clean: verified ${cr.report.verified}, claim ${cr.report.claim}`);
+
+        // Drift: a range pin, a missing govstruct pin, and one unchecked adopter.
+        const d = await runAdopt('adopters-drift');
+        if (d.threw || d.parse === false) fails.push('adopters-drift: unparseable body');
+        else {
+          if (d.exit !== 1) fails.push(`adopters-drift: exit ${d.exit} (expected 1)`);
+          const dr = reportOf(d);
+          const got = codes(dr);
+          for (const want of ['E_ADOPTER_PIN_STYLE_DRIFT', 'E_ADOPTER_MISSING']) {
+            if (!got.includes(want)) fails.push(`adopters-drift: missing ${want} in ${JSON.stringify(got)}`);
+          }
+          if (dr && dr.report.unchecked !== 1) fails.push(`adopters-drift: unchecked ${dr.report.unchecked} (expected 1 - a no-checkout adopter is a named state)`);
+        }
+
+        // Pilot: one adopter -> drift still refuses, but the claim is withheld.
+        const p = await runAdopt('adopters-pilot');
+        if (p.threw || p.parse === false) fails.push('adopters-pilot: unparseable body');
+        else {
+          const pr = reportOf(p);
+          if (p.exit !== 0) fails.push(`adopters-pilot: exit ${p.exit} (expected 0 - a clean pilot is not drift)`);
+          else if (pr && pr.report.claim !== false) fails.push(`adopters-pilot: claim ${pr.report.claim} (expected false - the claim needs >= 2)`);
+        }
+
+        if (fails.length) return exhausted(`the adopter gate leaked: ${fails.join(' | ')}`);
+        return refused('the adopter gate holds: a clean family claims suite at >= 2 exactly-pinned adopters; a range pin, a missing govstruct pin, and a declared-but-unchecked adopter each answer by name; a lone adopter is a pilot, never a claim (M2.5)');
+      },
+    },
+
+    {
       name: 'rollup-address-holds',
       description: 'the roll-up address + cache contract (G12): a clean roll-up carries a versioned path, an ETag, and a max-age and passes; a stale ETag refuses E_ROLLUP_ETAG_STALE and a divergent rendering refuses E_CHECKSUM_DRIFT',
       async run(harness, ctx = {}) {
