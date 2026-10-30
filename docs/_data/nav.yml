@@ -17,6 +17,8 @@
 # "Release posts" - pick one label and keep it (the layout comment says so).
 - title: Reference
   items:
+  - title: Packs
+    url: /packs/
   - title: Release Posts
     url: /discussions/
 

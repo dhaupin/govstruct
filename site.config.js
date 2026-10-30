@@ -62,6 +62,7 @@ export default {
   // renders the text link).
   nav: [
     { label: 'Home', to: '/', end: true, group: 'site' },
+    { label: 'Packs', to: '/packs', group: 'site' },
     { label: 'Status', to: '/status', group: 'site' },
     { label: 'GitHub', href: 'https://github.com/dhaupin/govstruct', group: 'out' },
   ],
@@ -85,6 +86,16 @@ export default {
         title: 'govstruct - the controller layer for a family of repos',
         description:
           'One manifest of members, one render surface per deployment shape, one doctor verb that verifies every adopter serves the same truth. Manifest frozen, refusal instant and nameable.',
+      },
+    },
+    {
+      path: '/packs',
+      priority: '0.7',
+      changefreq: 'weekly',
+      meta: {
+        title: 'Packs | govstruct',
+        description:
+          'The extension surface: ten SPEC v1 check-profile packs and one crashtest lane that attacks govstruct lint with a hostile member-block corpus, judged by the REFUSED / BOUNDED / PASSED / EXPLOITED verdict taxonomy.',
       },
     },
     {

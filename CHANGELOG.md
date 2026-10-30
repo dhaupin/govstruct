@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Release prep for the 0.9.0 manual ship.** The tree was already at 0.9.0 in
+  both `package.json` files (the 0.x manual ladder). This adds the two gates a
+  manual `npm publish` needs: `prepublishOnly` (`npm test && npm run check`) so
+  a red battery cannot mint a tarball, and `test/version-truth.test.mjs`, the
+  census leg that pins the README status line and `web/package.json` to the
+  root version. The README status line now names `0.9.0` and the DEPLOY ladder.
+- **The `/packs` surface.** The landing now carries a `/packs` route (nav +
+  `site.config.js` route + sitemap) that reads the family's extension surface
+  the way eyestruct's does: a hero, the shipped pack table, the four-bucket
+  verdict taxonomy, and the run-the-lane block. It names the ten check-profile
+  packs under `packs/public/` and the `govstruct-manifest-shapes` crashtest
+  lane, and crosslinks the family SPEC ([packstruct](https://github.com/dhaupin/packstruct)).
+  The docs tree grows the matching `docs/packs.md` (grammar, taxonomy,
+  authoring), reachable from the docs nav.
 - **The family status page (family-status@1).** govstruct now serves the
   family's shared status contract: `web/scripts/build-status.mjs` generates
   `web/public/status.json` from the committed `labs/crashledger.json` (63
