@@ -63,6 +63,6 @@ test('publicMembers excludes members with a null url', () => {
   assert.equal(publicMembers(m).length, 1)
 })
 
-test('SURFACES names exactly the four targets', () => {
-  assert.deepEqual(Object.keys(SURFACES).sort(), ['partial', 'react', 'readme', 'registry'])
+test('SURFACES names exactly the five targets', () => {
+  assert.deepEqual(Object.keys(SURFACES).sort(), ['apps', 'partial', 'react', 'readme', 'registry'])
 })

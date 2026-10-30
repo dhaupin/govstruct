@@ -20,7 +20,7 @@ import * as pathMod from 'node:path'
 import { loadConfig } from '../src/config.mjs'
 import { loadManifest } from '../src/manifest.mjs'
 import { SURFACES, renderRegistry, manifestChecksum } from '../src/render.mjs'
-import { renderSurface, writeSurfaces } from '../src/surfaces.mjs'
+import { renderSurface, writeSurfaces, surfaceDrift, writeVersionedRollup } from '../src/surfaces.mjs'
 import { doctor, doctorSuite } from '../src/doctor.mjs'
 import { fleetMeter } from '../src/fleet.mjs'
 import { runChecks } from '../src/check.mjs'
@@ -130,7 +130,7 @@ async function main() {
       case 'render': {
         const target = rest.find((a) => !a.startsWith('-'))
         rejectUnknownFlags(rest, ['--json', '--write', '--out'])
-        if (!target) usageError('render needs a target: react | partial | readme | registry')
+        if (!target) usageError('render needs a target: apps | react | partial | readme | registry')
         if (!(target in SURFACES)) usageError(`unknown render target "${target}" (have: ${Object.keys(SURFACES).join(', ')})`)
         const outIdx = rest.indexOf('--out')
         const out = outIdx !== -1 ? rest[outIdx + 1] : null
@@ -177,9 +177,13 @@ async function main() {
         rejectUnknownFlags(rest, ['--json', '--write'])
         const r = suiteRegistry('.')
         if (rest.includes('--write')) {
-          const written = writeSurfaces('.', ['registry'])
-          if (!json) console.log(`govstruct registry: wrote ${written.join(', ')}`)
-          else console.log(JSON.stringify({ schema: 1, mode: 'registry', written, registry: r }, null, 2))
+          // PRD 5.1: apps.json is the canonical source; registry.json is one
+          // rendering. Both emit, plus a versioned copy at the stable address.
+          const written = writeSurfaces('.', ['apps', 'registry'], {})
+          const versioned = writeVersionedRollup('.')
+          const all = [...written, ...versioned]
+          if (!json) console.log(`govstruct registry: wrote ${all.join(', ')}`)
+          else console.log(JSON.stringify({ schema: 1, mode: 'registry', written: all, registry: r }, null, 2))
           process.exit(0)
         }
         if (json) console.log(JSON.stringify({ schema: 1, mode: 'registry', registry: r }, null, 2))

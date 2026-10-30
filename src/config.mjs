@@ -14,6 +14,7 @@ const DEFAULTS = {
   compliance: { dir: 'compliance' },
   manifest: { out: 'apps.json' },
   surfaces: {
+    apps: 'apps.json',
     react: 'web/src/components/AppsMenu.jsx',
     partial: 'web/public/apps-menu.html',
     readme: 'labs/readme-members.md',

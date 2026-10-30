@@ -15,7 +15,7 @@ import { join } from 'node:path'
 import { loadConfig, resolveIn } from './config.mjs'
 import { loadManifest } from './manifest.mjs'
 import { RefusalBag } from './refusals.mjs'
-import { surfaceDrift } from './surfaces.mjs'
+import { surfaceDrift, versionedRollupDrift } from './surfaces.mjs'
 
 /**
  * Adopter doctor: this tree against its own manifest. Returns
@@ -35,7 +35,7 @@ export function doctor(target = '.', { network = false } = {}) {
   report.checks.push({ name: 'manifest-grammar', ok: loadBag.ok, detail: `${manifest.memberCount} member(s)` })
 
   // Check 2: emitted surfaces match a fresh render (the checksum gate).
-  for (const target of ['react', 'partial', 'readme', 'registry']) {
+  for (const target of ['apps', 'react', 'partial', 'readme', 'registry']) {
     const d = surfaceDrift(root, target)
     if (!d.present) {
       report.checks.push({ name: `surface-${target}`, ok: true, detail: 'not emitted yet (a state)' })
@@ -45,6 +45,20 @@ export function doctor(target = '.', { network = false } = {}) {
       bag.add('E_CHECKSUM_DRIFT', `emitted surface "${target}" does not match a fresh render: ${config.surfaces[target]}`)
     }
     report.checks.push({ name: `surface-${target}`, ok: !d.drift, detail: d.drift ? 'drift' : 'in sync' })
+  }
+
+  // Check 2b: the versioned roll-up at its stable address (PRD 5.1, G12).
+  const vdr = versionedRollupDrift(root)
+  if (vdr.present) {
+    if (vdr.etagStale) {
+      bag.add('E_ROLLUP_ETAG_STALE', `emitted roll-up ETag disagrees with a fresh render: ${config.surfaces.registry}`)
+    }
+    if (vdr.drift) {
+      bag.add('E_ROLLUP_NOT_CANONICAL', `emitted roll-up at ${vdr.path} does not match a fresh registry rendering`)
+    }
+    report.checks.push({ name: 'surface-rollup-address', ok: !vdr.drift && !vdr.etagStale, detail: vdr.drift ? 'drift' : vdr.etagStale ? 'stale etag' : 'in sync' })
+  } else {
+    report.checks.push({ name: 'surface-rollup-address', ok: true, detail: 'not emitted yet (a state)' })
   }
 
   // Check 3: compliance blocks present for each member (M1.5).
