@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **The adopter gate + `compliance.yml` (PRD M2.5).** `govstruct doctor
+  --adopters` reads each declared adopter's `govstruct` pin against the version
+  the suite serves and refuses pin drift by name (`E_ADOPTER_MISSING`,
+  `E_ADOPTER_PIN_STYLE_DRIFT`, `E_ADOPTER_VERSION_DRIFT`). A declared adopter
+  with no checkout is UNCHECKED - a named state, never a silent pass. The
+  **rule of three** is the claim, not the gate: the gate refuses drift from the
+  first adopter, but withholds the *suite claim* until ≥2 verified adopters,
+  reporting a pilot state instead of assuming the claim. `compliance.yml` checks
+  out each adopter at its pinned rev and gates it, then emits the roll-up and
+  refuses a drifted rendering.
 - **The controller layer, first build.** One manifest of members
   (`members/<id>.json`), one render surface per deployment shape, one doctor
   verb that verifies every adopter serves the same truth. Zero runtime

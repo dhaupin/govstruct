@@ -319,7 +319,7 @@ payoff:
 ```
 govstruct lint              # manifest fields, id==filename, https, unique urls, order collisions, copy voice
 govstruct render <target>   # emit react | partial | readme | registry from the manifest
-govstruct doctor [--suite]  # adopter-side checksum gate, or suite-wide truth battery
+govstruct doctor [--suite] [--fleet] [--adopters] [--network]  # adopter-side checksum gate, suite-wide truth battery, fleet drift meter, adopter pin gate, or the online leg
 govstruct check             # run the compliance shape packs over this tree
 govstruct registry          # emit the suite roll-up (env / pins / floors / versions)
 govstruct lock              # archive + sha256 receipt, monoforge-shaped
@@ -786,7 +786,7 @@ govstruct/
 |---|---|
 | `test.yml` | `node --test` spine + version-truth census + `npm run check` (docs gates + birth gate) |
 | `crashtest.yml` | the `govstruct-manifest-shapes` scenario pack (in-process, no sockets) |
-| `compliance.yml` | `govstruct doctor --suite` over every adopter at a pinned rev; refuses drift, emits the roll-up |
+| `compliance.yml` | `govstruct doctor --adopters` over every declared adopter at a pinned rev; refuses pin drift, then emits the roll-up and refuses a drifted rendering |
 | `docs.yml` | Jekyll + hardened pagefind + pinned freestruct layer + Pages |
 | `publish.yml` | OIDC trusted publishing, 0.x refused, tag == packaged version |
 
@@ -876,7 +876,13 @@ Part II actually honored.
 - **M2.5 - the suite roll-up is real.** `govstruct doctor --suite` green over the
   tool members; `registry` emits the env/pins/floors/versions pages;
   `compliance.yml` gates them. Rule-of-three: waits until ≥2 members adopt before
-  it claims "suite."
+  it claims "suite." The gate itself ships early (`doctor --adopters`): it reads
+  each declared adopter's `govstruct` pin against the version the suite serves
+  and refuses drift (`E_ADOPTER_MISSING`, `E_ADOPTER_PIN_STYLE_DRIFT`,
+  `E_ADOPTER_VERSION_DRIFT`) from the first adopter; a declared adopter with no
+  checkout is UNCHECKED (a named state, never a silent pass), and the *suite
+  claim* is withheld until ≥2 verified adopters - the gate reports a pilot state
+  rather than assuming the claim it has not earned.
 - **M3 - railyard integration.** Wire the composer: railyard's `mounts/state.json`
   and govstruct's `apps.json` meet at `repo` + `tier`/`role` (§3.3). Owner call on
   the interface (§17 Q4). The registry shape is verified; only the wiring is open.

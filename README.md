@@ -60,8 +60,10 @@ MIT.
 npm test          # the spine: node --test + the two-way fixtures
 npm run check     # the compliance check packs (S1-S7)
 npx crashtest run # the lint contract under a hostile member-block corpus
+govstruct doctor --adopters  # gate each declared adopter's govstruct pin
 ```
 
-`npm test` and the dogfood both run on every push to `main` and `staging`
-(`.github/workflows/`). Zero runtime dependencies; the only install surface is
-the dev tooling the dogfood lanes pull in.
+`npm test`, the dogfood, and the adopter gate (`compliance.yml`) all run on
+every push to `main` and `staging` (`.github/workflows/`). Zero runtime
+dependencies; the only install surface is the dev tooling the dogfood lanes pull
+in.

@@ -6,7 +6,7 @@
 
 ## Findings
 
-### 🛡 REFUSED (62)
+### 🛡 REFUSED (63)
 - auth/identity-spoof-headers: route "admin" not declared on this target - spoof matrix skipped (declare it for coverage)
 - auth/secret-watermark: no fake secrets planted in env - declare CRASHTEST_SECRET to arm this probe
 - auth/privilege-escalation: route "device" not declared on this target - escalation skipped (declare it for coverage)
@@ -33,6 +33,7 @@
 - govstruct-manifest-shapes/a11y-pane-refuses: the emitted pane passes a11y/i18n; no landmark, a click-handler row, no focus ring, and unkeyed chrome each refuse by name (S5/G8)
 - govstruct-manifest-shapes/graph-propagation-walks: a bump on a leaf walks to every transitive dependent by name (direct + transitive), and an unknown id refuses E_IMPACT_UNKNOWN_MEMBER (G3)
 - govstruct-manifest-shapes/online-leg-refuses-by-name: a dead url refuses E_URL_UNRESOLVABLE by name (exit 1, never a crash) while the offline doctor stays socket-free
+- govstruct-manifest-shapes/adopter-pins-refuse-by-name: the adopter gate holds: a clean family claims suite at >= 2 exactly-pinned adopters; a range pin, a missing govstruct pin, and a declared-but-unchecked adopter each answer by name; a lone adopter is a pilot, never a claim (M2.5)
 - govstruct-manifest-shapes/rollup-address-holds: a clean roll-up carries a versioned path, an ETag, and a max-age and passes; a stale ETag refuses E_ROLLUP_ETAG_STALE and a divergent rendering refuses E_CHECKSUM_DRIFT
 - govstruct-manifest-shapes/fleet-meter-names-drift: a drifted member is named by its exact refusal (floor + lockfile + version + pin style) on one page, a clean member passes, and a member with no checkout is unchecked - never a silent pass
 - govstruct-manifest-shapes/clean-family-canary: clean family exits 0 with an empty refusals list (the happy wire holds)
@@ -50,8 +51,8 @@
 - memory/identity-merge-collision: vocabulary knob(s) "writeRoute", "readRoute" not declared on this target - memory skipped (export moduleCtx['memory'].writeRoute/readRoute for coverage)
 - memory/resolution-order-stability: vocabulary knob(s) "writeRoute", "readRoute" not declared on this target - memory skipped (export moduleCtx['memory'].writeRoute/readRoute for coverage)
 - memory/delete-is-loud: vocabulary knob(s) "writeRoute", "readRoute", "deleteRoute" not declared on this target - delete skip (export moduleCtx['memory'].writeRoute/readRoute/deleteRoute for coverage)
-- proto-hygiene/head-get-parity: 8 route(s): HEAD mirrors GET (no throws, no status drift beyond honest 405) + 8 info note(s)
-- proto-hygiene/request-shape-flood: 8 route(s) x 18 bare shapes (query chaos, path shapes, header casings) all landed 4xx-or-cleaner with case-parity intact
+- proto-hygiene/head-get-parity: 9 route(s): HEAD mirrors GET (no throws, no status drift beyond honest 405) + 9 info note(s)
+- proto-hygiene/request-shape-flood: 9 route(s) x 18 bare shapes (query chaos, path shapes, header casings) all landed 4xx-or-cleaner with case-parity intact
 - race/double-submit-idempotency: route "charge" not declared on this target - race skipped (declare it for coverage)
 - race/concurrent-write-lost-update: route "profile" not declared on this target - race skipped (declare it for coverage)
 - recursion/deep-nest-stack-overflow: route "enroll" not declared on this target - recursion skipped (declare it for coverage)
@@ -75,7 +76,7 @@
 ### 🔒 BOUNDED (0)
 
 ## Cost economics
-- total: 216 backend ops across 694 in-process requests from 62 attacks
+- total: 239 backend ops across 777 in-process requests from 63 attacks
   - auth/identity-spoof-headers: 0 ops / 0 requests
   - auth/secret-watermark: 0 ops / 0 requests
   - auth/privilege-escalation: 0 ops / 0 requests
@@ -102,9 +103,10 @@
   - govstruct-manifest-shapes/a11y-pane-refuses: 5 ops / 46 requests
   - govstruct-manifest-shapes/graph-propagation-walks: 2 ops / 48 requests
   - govstruct-manifest-shapes/online-leg-refuses-by-name: 1 ops / 49 requests
-  - govstruct-manifest-shapes/rollup-address-holds: 3 ops / 52 requests
-  - govstruct-manifest-shapes/fleet-meter-names-drift: 3 ops / 55 requests
-  - govstruct-manifest-shapes/clean-family-canary: 1 ops / 56 requests
+  - govstruct-manifest-shapes/adopter-pins-refuse-by-name: 3 ops / 52 requests
+  - govstruct-manifest-shapes/rollup-address-holds: 3 ops / 55 requests
+  - govstruct-manifest-shapes/fleet-meter-names-drift: 3 ops / 58 requests
+  - govstruct-manifest-shapes/clean-family-canary: 1 ops / 59 requests
   - guards/hygiene-no-store: 0 ops / 0 requests
   - guards/burst-wall: 0 ops / 0 requests
   - input/proto-pollution-body: 0 ops / 0 requests
@@ -119,8 +121,8 @@
   - memory/identity-merge-collision: 0 ops / 0 requests
   - memory/resolution-order-stability: 0 ops / 0 requests
   - memory/delete-is-loud: 0 ops / 0 requests
-  - proto-hygiene/head-get-parity: 16 ops / 16 requests
-  - proto-hygiene/request-shape-flood: 144 ops / 160 requests
+  - proto-hygiene/head-get-parity: 18 ops / 18 requests
+  - proto-hygiene/request-shape-flood: 162 ops / 180 requests
   - race/double-submit-idempotency: 0 ops / 0 requests
   - race/concurrent-write-lost-update: 0 ops / 0 requests
   - recursion/deep-nest-stack-overflow: 0 ops / 0 requests

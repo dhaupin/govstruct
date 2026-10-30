@@ -1,0 +1,61 @@
+name: compliance
+# PRD section 13 / M2.5: `govstruct doctor --adopters` over every declared
+# adopter at a pinned rev; refuses pin drift, then emits the suite roll-up.
+#
+# Rule of three (PRD M2.5): the suite CLAIM waits until >= 2 members adopt.
+# Below that the gate reports a pilot state and still refuses drift - it never
+# passes silently over an empty set. The workflow is the gate; the claim is
+# what the gate earns, not what it assumes.
+on:
+  push: { branches: [main, staging] }
+  pull_request: { branches: [main, staging] }
+  workflow_dispatch:
+  schedule:
+    # Weekly drift check: an adopter that floats off its pin is caught here
+    # even when nothing in govstruct moved.
+    - cron: '0 6 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  compliance:
+    # Bounded: a stalled runner dies HERE (10 min) with its phase markers in
+    # the log instead of hanging silently.
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm install --no-fund --no-audit
+
+      # The adopter gate. Each declared adopter carrying a `repo` is checked
+      # out at its pinned `rev`, then the gate reads its govstruct pin and
+      # refuses drift. A declared adopter with no checkout is UNCHECKED (a
+      # named state), never a silent pass. Adopters are public family repos,
+      # so the checkout needs no token; a private adopter would need its own.
+      - name: Check out declared adopters at their pinned revs
+        run: |
+          mkdir -p .adopters
+          node bin/cli.mjs doctor --adopters --json \
+            | jq -c '.report.rows[] | select(.repo != null)' \
+            | while read -r row; do
+                id=$(echo "$row" | jq -r .id)
+                repo=$(echo "$row" | jq -r .repo)
+                rev=$(echo "$row" | jq -r .rev)
+                echo "checkout $id <- $repo@$rev"
+                git clone --quiet --no-tags "https://github.com/${repo}.git" ".adopters/${id}"
+                git -C ".adopters/${id}" checkout --quiet "$rev"
+              done
+
+      - name: Gate the adopter pins (refuses drift, names the pilot state)
+        run: node bin/cli.mjs doctor --adopters --fleet-root .adopters
+
+      # The roll-up is real: apps.json is canonical, registry.json renders it,
+      # and the versioned address is emitted. A drifted rendering refuses.
+      - name: Emit the roll-up and refuse drift
+        run: |
+          node bin/cli.mjs registry --write
+          git diff --exit-code -- apps.json registry.json registry.v1.json \
+            || { echo "roll-up drifted from the committed rendering"; exit 1; }

@@ -14,6 +14,10 @@ Thumbs.db
 # `lint --local` reads them; they never travel.
 packs/local/
 
+# The adopter checkouts compliance.yml clones at their pinned revs. They are
+# CI working copies of OTHER repos - never part of this tree.
+.adopters/
+
 # The sidecar cut stamp is the ONE churn-by-design surface (AGENTS.md's
 # determinism ritual): the committed ledger + report are byte-stable, the
 # stamp moves with every run.

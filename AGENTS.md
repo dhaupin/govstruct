@@ -56,9 +56,9 @@
   (`doctor --network`), the only arm that opens a socket: it checks each
   member's url resolvability (refusing `E_URL_UNRESOLVABLE`, or
   `E_URL_INSECURE` when only the http twin answers) and each declared npm
-  name's existence (`E_NPM_MISSING`). It cannot be combined with `--suite` or
-  `--fleet`; the online probe is injectable so its tests never touch the
-  network.
+  name's existence (`E_NPM_MISSING`). It cannot be combined with `--suite`,
+  `--adopters`, or `--fleet`; the online probe is injectable so its tests never
+  touch the network.
 
 ## Companion pins & receipts
 - Never pin to a line npm does not serve. `npm view <pkg> versions` before
@@ -109,6 +109,20 @@
   `E_FLEET_CI_SHAPE_DRIFT`, `E_FLEET_VERSION_DRIFT`). Offline by default:
   `--fleet-root <dir>` points at a directory of `<member-id>/` checkouts; a
   member with no checkout is reported UNCHECKED, never a silent pass.
+- The adopter gate (M2.5, the `compliance.yml` leg) is the low end of the
+  fleet meter: the meter watches what a member SHIPS; the gate watches who
+  CONSUMES govstruct, and how. `src/adopters.mjs` reads each declared adopter's
+  `govstruct` pin (in a checkout named by `--fleet-root`) against the version
+  the suite serves (the tool's own `package.json`) and refuses pin drift
+  (`E_ADOPTER_MISSING`, `E_ADOPTER_PIN_STYLE_DRIFT`, `E_ADOPTER_VERSION_DRIFT`).
+  A declared adopter with no checkout is UNCHECKED - a named state, never a
+  silent pass. The **rule of three** gates the *claim*, not the gate: the gate
+  refuses drift from the first adopter, but withholds the suite claim until >= 2
+  verified adopters, reporting a pilot state instead of assuming the claim.
+  Adopters are declared in `govstruct.config.json` as `adopters.list` (a bare id
+  string, or `{ id, repo, rev }` where `compliance.yml` checks out `repo` at the
+  pinned `rev`). govstruct declares none today, so its own run is an honest
+  pilot, not a fabricated green.
 - The roll-up has a stable address and a cache contract (G12, PRD 5.1).
   `apps.json` is the canonical composed source (members + compliance + meta);
   `registry.json` is ONE rendering of it, so one artifact has many readers and
