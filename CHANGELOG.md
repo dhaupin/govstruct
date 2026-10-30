@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **`prepublishOnly` gate (the family release convention).** The publish ladder
+  now runs `npm test && npm run lint:docs && npm run check:rig` before a tarball
+  can be minted, matching packstruct's `prepublishOnly` (packstruct#33): the
+  registry cut cannot happen without the test suite and every rig gate green.
+  This is the last prep item before the manual 0.9.0 bootstrap publish.
+- **Re-pull the Jekyll-filters gate from the rig.** govstruct's vendored
+  `scripts/check-jekyll-filters.cjs` predated the unknown-Liquid-tag rule
+  (`{% seo %}` in prose kills the docs build) that coreforge's gate just gained.
+  The vendored copy now carries the same rule (raw-region aware, line-count
+  preserving), so the adopter and the rig agree. The rig-side detector is
+  `coreforge lib/gate-drift.mjs --adopter <dir>` - run against govstruct it
+  now reports all 11 gates current.
+
 ### Added
 - **The coreforge rig, adopted (PRD section 9).** govstruct's landing and docs
   now ship the family shell verbatim, with the identity swapped: one

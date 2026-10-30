@@ -29,7 +29,8 @@
     "sync:check": "node scripts/sync.mjs --check",
     "lint:docs": "node scripts/check-docs-frontmatter.cjs && node scripts/check-docs-links.cjs && node scripts/check-docs-style.cjs && node scripts/check-fiction-signatures.cjs && node scripts/check-jekyll-filters.cjs && node scripts/check-theme-parity.cjs",
     "check:rig": "node scripts/check-birth-gate.cjs && node scripts/check-brand-census.mjs && node scripts/check-theme-parity.cjs && node scripts/sync.mjs --check",
-    "build:web": "npm run build --prefix web"
+    "build:web": "npm run build --prefix web",
+    "prepublishOnly": "npm test && npm run lint:docs && npm run check:rig"
   },
   "engines": {
     "node": ">=20"
