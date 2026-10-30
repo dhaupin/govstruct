@@ -56,7 +56,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   or short sha refuses `E_ADOPTER_SHA_INVALID`; a commit-mode adopter is
   verified when its pin is a full sha. creadev-site is declared as the first
   adopter (mode `commit`); with no reachable checkout the gate reports it
-  UNCHECKED - a named state, never a silent pass.
+  UNCHECKED - a named state, never a silent pass. `compliance.yml` checks out
+  each declared adopter at its pinned `rev` and tolerates an unreachable repo
+  (private, renamed, or not yet pushed): it stays UNCHECKED and the gate names
+  it, the same posture as an adopter with no checkout at all.
 - **Refusals, not warnings (issue #23, ask #6).** The adopter gate and the
   pending annotation both refuse drift by name rather than warn and pass: a
   drifted pin, an unknown mode, an invalid sha, or a pending flag on an
