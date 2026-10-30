@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **The `/api/health` canary (the fleet CF contract).** `web/functions/api/health.js`
+  ships the house Pages Function - `GET /api/health` returns honest JSON
+  (`{ ok, name, service, ts }`), the same schema poststruct / monoforge / packstruct
+  serve. The landing already deploys from the `web/` root directory, so
+  `functions/` resolves there and the canary serves at the site origin; a
+  root-level `functions/` would fall outside the Pages project and 404. This
+  closes the gap between govstruct's PRD section 9 (which names the canary as the
+  fleet shape) and the tree.
 - **The coreforge rig, adopted (PRD section 9).** govstruct's landing and docs
   now ship the family shell verbatim, with the identity swapped: one
   `site.config.js` is the single identity file, and `npm run sync` fans it out
