@@ -350,6 +350,32 @@ export default {
     },
 
     {
+      name: 'online-leg-refuses-by-name',
+      description: 'the online leg (G11): `doctor --network` is the only socket arm - a dead url refuses E_URL_UNRESOLVABLE by name and the run never crashes; the offline doctor stays socket-free',
+      async run(harness, ctx = {}) {
+        const runNet = async (shape) => {
+          const rec = await harness.run('network', { method: 'GET', url: `/network?shape=${shape}` });
+          if (rec.threw) return { threw: true };
+          let body = '';
+          try { body = await rec.response.text(); } catch { /* empty */ }
+          try { return { threw: false, ...JSON.parse(body) }; } catch { return { threw: false, parse: false }; }
+        };
+        const reportOf = (r) => { try { return JSON.parse(r.stdout) } catch { return null } };
+        const codes = (rep) => (rep?.refusals ?? []).map((x) => x.code);
+
+        const d = await runNet('network-dead-url');
+        if (d.threw || d.parse === false) return exhausted('the network route crashed or returned an unparseable body');
+        const rep = reportOf(d);
+        if (!rep) return exhausted('the network route returned an unparseable report');
+        if (rep.mode !== 'network') return exhausted(`expected mode "network", got ${JSON.stringify(rep.mode)}`);
+        // A dead url is a refusal, not a crash: exit 1, the code named.
+        if (d.exit !== 1) return exhausted(`a dead url must refuse (exit 1), got exit ${d.exit}`);
+        if (!codes(rep).includes('E_URL_UNRESOLVABLE')) return exhausted(`a dead url must refuse E_URL_UNRESOLVABLE, got ${JSON.stringify(codes(rep))}`);
+        return refused('a dead url refuses E_URL_UNRESOLVABLE by name (exit 1, never a crash) while the offline doctor stays socket-free');
+      },
+    },
+
+    {
       name: 'rollup-address-holds',
       description: 'the roll-up address + cache contract (G12): a clean roll-up carries a versioned path, an ETag, and a max-age and passes; a stale ETag refuses E_ROLLUP_ETAG_STALE and a divergent rendering refuses E_CHECKSUM_DRIFT',
       async run(harness, ctx = {}) {

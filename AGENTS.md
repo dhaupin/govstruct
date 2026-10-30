@@ -52,7 +52,13 @@
   and `packs/local/` (the WIP lane) are in `.gitignore`.
 - All prose uses zero configured-voice words from poststruct's language pack.
 - The doctor is OFFLINE by default (G11): the default run is
-  byte-deterministic and never opens a socket. `--network` opts in.
+  byte-deterministic and never opens a socket. `--network` is its OWN mode
+  (`doctor --network`), the only arm that opens a socket: it checks each
+  member's url resolvability (refusing `E_URL_UNRESOLVABLE`, or
+  `E_URL_INSECURE` when only the http twin answers) and each declared npm
+  name's existence (`E_NPM_MISSING`). It cannot be combined with `--suite` or
+  `--fleet`; the online probe is injectable so its tests never touch the
+  network.
 
 ## Companion pins & receipts
 - Never pin to a line npm does not serve. `npm view <pkg> versions` before

@@ -430,9 +430,42 @@ function makeRollupHandler() {
   };
 }
 
+// The online leg (G11): `doctor --network` is the ONLY arm that opens a
+// socket; the offline doctor stays deterministic and socket-free. This route
+// materializes a family whose urls point at `.invalid` (RFC 2606 - guaranteed
+// never to resolve, so the probe is deterministic and offline) and runs
+// `govstruct doctor --network --json`. A dead url must refuse E_URL_UNRESOLVABLE
+// by name, never crash, never silent-pass.
+async function networkOne(shape) {
+  const root = mkdtempSync(join(tmpdir(), 'govstruct-ct-net-'));
+  try {
+    if (shape === 'network-dead-url' || shape === 'network-clean') {
+      writeFamily(root, {
+        'alpha.json': goodMember('alpha', { url: 'https://ghost.invalid' }),
+      });
+    } else {
+      return { status: 404, body: JSON.stringify({ error: `unknown shape ${shape}` }) };
+    }
+    const rec = spawnSync(process.execPath, [CLI, 'doctor', '--network', '--json'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+    return { status: 200, body: JSON.stringify({ exit: rec.status ?? 2, stdout: rec.stdout ?? '', stderr: rec.stderr ?? '' }) };
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function makeNetworkHandler() {
+  return async ({ request }) => {
+    let shape;
+    try { shape = new URL(request.url).searchParams.get('shape'); } catch { shape = null; }
+    if (!shape) return new Response(JSON.stringify({ error: 'shape param required' }), { status: 400 });
+    const r = await networkOne(shape);
+    return new Response(r.body, { status: r.status, headers: { 'content-type': 'application/json' } });
+  };
+}
+
 export default {
   baseUrl: 'https://govstruct.local',
-  routes: { lint: makeLintHandler(), verdict: makeVerdictHandler(), retire: makeRetireHandler(), a11y: makeA11yHandler(), impact: makeImpactHandler(), fleet: makeFleetHandler(), rollup: makeRollupHandler() },
+  routes: { lint: makeLintHandler(), verdict: makeVerdictHandler(), retire: makeRetireHandler(), a11y: makeA11yHandler(), impact: makeImpactHandler(), fleet: makeFleetHandler(), rollup: makeRollupHandler(), network: makeNetworkHandler() },
   // Adopt only OUR scenario pack: the packs/public tree also carries the
   // check-profile packs (floor-shapes and friends), which are govstruct's
   // compliance packs, not crashtest scenarios. Pointing at the one pack dir
