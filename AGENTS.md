@@ -139,6 +139,36 @@
   Any change to `entryAddress` re-addresses the committed ledger over
   unchanged bodies.
 
+## The site rig (landing + docs)
+- `site.config.js` is the ONE identity file (name, urls, repo, description,
+  accent, paint schemes, the apps-menu surface). `web/src/site.js` re-exports
+  it; `scripts/sync.mjs` fans it out to every surface that cannot import it
+  (`web/ssr.config.js`, `docs/_config.yml`, `docs/freestruct.config.yml`,
+  `web/public/robots.txt`, `web/public/site.webmanifest`). Edit the identity
+  in `site.config.js`, then `npm run sync`; hand edits to a synced file are
+  drift and fail `npm run sync:check`.
+- `web/src/islands.js`, `web/src/hooks/usePageMeta.js`, and
+  `web/scripts/{brand-mark.json,repair-404.cjs,og-image.mjs,adopt-icons.mjs}`
+  are engine files - copy once, never edit.
+- The landing's manifest pane is SERVER-RENDERED in `web/src/pages/Home.jsx`
+  from the `render react` surface (`web/src/components/AppsMenu.jsx`), NOT an
+  island: the doctrine (PRD 5) is that the pane exists in the served HTML as a
+  plain anchor, so the product dogfoods its own output on the page that
+  documents it. Regenerate the surface with `govstruct render react --write`.
+- Identity lives once. The brand-census gate refuses any identity literal
+  (`govstruct`, `creadev.org`, the repo url) outside `site.config.js`, and
+  refuses a filename that carries the brand (`web/public/brand/logo.jpg`, not
+  `govstruct-logo.jpg`).
+- Gates: `npm run lint:docs` (frontmatter, links, style, fiction signatures,
+  Jekyll filters) and `npm run check:rig` (birth gate, brand census, theme
+  parity, sync drift). `test.yml` runs both. The birth gate refuses a floating
+  `uses:` - every action is SHA-pinned with the human tag in a trailing
+  comment.
+- Docs deploy: `docs-build.yml` (reusable: Jekyll + pagefind + pinned
+  freestruct) is called by `docs-deploy.yml`, whose deploy job is gated to
+  `main`. Set the Pages custom domain to `docs.creadev.org` once in repo
+  settings; `baseurl: /govstruct` serves the project path.
+
 ## Branches
 - `staging` is the permanent integration branch: work branches off it, PRs
   target it, and promotion to `main` is the only path out. Never delete it.
