@@ -67,6 +67,16 @@
   by the member's `grants[]` (`E_GRANT_UNLISTED`), and `grants[]` is itself
   governed - a kind outside `GRANT_KINDS`, an empty scope, or a duplicate is
   a refusal.
+- The verdict bus (G4) is the push side of the self-proof: a member's CI
+  emits a status receipt (`govstruct verdict emit <receipt.json>`) into
+  `labs/receipts.jsonl`, append-only and chained like the audit ledger. A
+  receipt is portable only if its refusal codes are registered (G10);
+  `verdict rollup` reads fresh receipts and polls the rest.
+- The audit address canonicalizes RECURSIVELY (keys sorted at every depth).
+  A shallow key sort drops nested keys from the hash, so a rewritten verdict
+  row or actor id would not break the chain - tamper-evidence would be a lie.
+  Any change to `entryAddress` re-addresses the committed ledger over
+  unchanged bodies.
 
 ## Branches
 - `staging` is the permanent integration branch: work branches off it, PRs

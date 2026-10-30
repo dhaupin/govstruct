@@ -12,7 +12,7 @@
 //   npx crashtest run            (from the govstruct repo root)
 //
 // In CI the crashtest lane runs after `npm test`.
-import { mkdtempSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, mkdirSync, rmSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -122,9 +122,59 @@ function makeLintHandler() {
   };
 }
 
+// The verdict bus (G4): a member's CI pushes a receipt; the chain is
+// tamper-evident offline. This route materializes a one-member family,
+// emits one receipt through the CLI, optionally tampers with it, then runs
+// `verdict verify` - the same wire a member's CI and a roll-up consumer use.
+const RECEIPT = JSON.stringify({
+  member: 'corpus', rev: 'deadbee', verdicts: [{ name: 'lint', verdict: 'REFUSED' }], refusals: [],
+});
+
+async function verdictOne(shape) {
+  const root = mkdtempSync(join(tmpdir(), 'govstruct-ct-v-'));
+  try {
+    // init scaffolds the family (member id "hello"); rename to "corpus".
+    const init = spawnSync(process.execPath, [CLI, 'init', root], { encoding: 'utf8', timeout: 30_000 });
+    if (init.status !== 0) return { status: 200, body: JSON.stringify({ exit: 9, stdout: '', stderr: init.stderr ?? 'init failed' }) };
+    const member = JSON.parse(readFileSync(join(root, 'members', 'hello.json'), 'utf8'));
+    member.id = 'corpus';
+    writeFileSync(join(root, 'members', 'corpus.json'), JSON.stringify(member));
+    rmSync(join(root, 'members', 'hello.json'));
+
+    writeFileSync(join(root, 'receipt.json'), RECEIPT);
+    const emit = spawnSync(process.execPath, [CLI, 'verdict', 'emit', 'receipt.json'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+    if (emit.status !== 0) return { status: 200, body: JSON.stringify({ exit: emit.status ?? 2, stdout: emit.stdout ?? '', stderr: emit.stderr ?? '' }) };
+
+    if (shape === 'receipt-tamper-nested') {
+      const p = join(root, 'labs', 'receipts.jsonl');
+      const e = JSON.parse(readFileSync(p, 'utf8').trim());
+      e.verdicts[0].verdict = 'EXPLOITED'; // rewrite a nested verdict row
+      writeFileSync(p, JSON.stringify(e) + '\n');
+    } else if (shape === 'receipt-seq-gap') {
+      const p = join(root, 'labs', 'receipts.jsonl');
+      writeFileSync(p, readFileSync(p, 'utf8') + readFileSync(p, 'utf8')); // duplicate -> seq gap
+    }
+
+    const rec = spawnSync(process.execPath, [CLI, 'verdict', 'verify'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+    return { status: 200, body: JSON.stringify({ exit: rec.status ?? 2, stdout: rec.stdout ?? '', stderr: rec.stderr ?? '' }) };
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function makeVerdictHandler() {
+  return async ({ request }) => {
+    let shape;
+    try { shape = new URL(request.url).searchParams.get('shape'); } catch { shape = null; }
+    if (!shape) return new Response(JSON.stringify({ error: 'shape param required' }), { status: 400 });
+    const r = await verdictOne(shape);
+    return new Response(r.body, { status: r.status, headers: { 'content-type': 'application/json' } });
+  };
+}
+
 export default {
   baseUrl: 'https://govstruct.local',
-  routes: { lint: makeLintHandler() },
+  routes: { lint: makeLintHandler(), verdict: makeVerdictHandler() },
   // Adopt only OUR scenario pack: the packs/public tree also carries the
   // check-profile packs (floor-shapes and friends), which are govstruct's
   // compliance packs, not crashtest scenarios. Pointing at the one pack dir

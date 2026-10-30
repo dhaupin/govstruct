@@ -20,6 +20,10 @@ export { stamp, validateStamp } from './stamp.mjs'
 export { coversGrant, checkSpends } from './grants.mjs'
 export { appendEntry, auditVerify, readLedger, entryAddress, LEDGER_PATH } from './audit.mjs'
 export {
+  emitReceipt, verifyReceipts, verdictRollup, validateReceipt, readReceipts,
+  latestByMember, isGreen, PASS_VERDICTS, RECEIPT_PATH, DEFAULT_MAX_AGE_MS,
+} from './verdict.mjs'
+export {
   SURFACES, renderReact, renderPartial, renderReadme, renderRegistry,
   manifestChecksum, publicMembers,
 } from './render.mjs'

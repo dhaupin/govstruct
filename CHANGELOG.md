@@ -42,9 +42,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and the reserved block; `migrate --status/--dry-run` reports the migration
   ritual.
 - **The crashtest dogfood.** `crashtest.config.js` +
-  `packs/public/govstruct-manifest-shapes`: six attacks over a hostile
-  member-block corpus through an in-process double. All REFUSED, zero
-  exploited.
+  `packs/public/govstruct-manifest-shapes`: seven attacks over a hostile
+  member-block corpus and the verdict chain through an in-process double.
+  All REFUSED, zero exploited.
+- **The verdict bus (G4).** The self-proof the arms provide is a pull; this
+  adds the push. `govstruct verdict emit <receipt.json>` appends a member's
+  status receipt to `labs/receipts.jsonl` - append-only, content-addressed,
+  and chained, so it is tamper-evident and verifiable offline
+  (`verdict verify`). A receipt is portable only if its refusal codes are in
+  the shared vocabulary, so an unregistered code refuses
+  (`E_RECEIPT_INVALID`). `verdict rollup` reads receipts when fresh and
+  polls the manifest's declared state when not: "the suite is green right
+  now" is a fact, not a cache age.
+- **Tamper-evidence made deep.** The audit address was computed with a
+  shallow key sort, so a rewritten nested field (a verdict row, an actor id)
+  did not move the hash - tamper-evidence was a lie for exactly the fields
+  that matter. `entryAddress` now canonicalizes recursively; the committed
+  ledger is re-addressed over unchanged bodies.
+- **Four new refusal codes** (49 total): `E_RECEIPT_INVALID`,
+  `E_RECEIPT_UNKNOWN_MEMBER`, `E_RECEIPT_TAMPER`, `E_RECEIPT_CHAIN`.
 - **The write path (G1) + credential grants (G5).** `govstruct stamp
   <record.json>` registers a machine-minted member as a reviewable,
   refusable claim: it validates with the same grammar a hand-authored block

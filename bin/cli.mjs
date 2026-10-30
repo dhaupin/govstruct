@@ -28,6 +28,7 @@ import { migrateStatus, migrateDryRun } from '../src/migrate.mjs'
 import { init } from '../src/init.mjs'
 import { auditVerify, appendEntry } from '../src/audit.mjs'
 import { stamp } from '../src/stamp.mjs'
+import { emitReceipt, verifyReceipts, verdictRollup } from '../src/verdict.mjs'
 import { Refusal } from '../src/refusals.mjs'
 
 const argv = process.argv.slice(2)
@@ -50,6 +51,9 @@ const usage = () => {
   init [<dir>]         scaffold a one-member family
   stamp <record.json>  register a stamped member (write path, G1)
   audit verify         walk the audit ledger chain
+  verdict emit <file>  push a member's status receipt (verdict bus, G4)
+  verdict verify       walk the receipt chain offline
+  verdict rollup       read fresh receipts, poll the rest
 
 Global: --json for machine output; --network to allow socket checks.`)
 }
@@ -189,6 +193,40 @@ async function main() {
         if (json) console.log(JSON.stringify({ schema: 1, mode: 'stamp', ok: r.ok, wrote: r.wrote, entry: r.entry, refusals: r.refusals.map(serializeRefusal) }, null, 2))
         else for (const line of r.lines) console.log(line)
         process.exit(r.ok ? 0 : 1)
+      }
+
+      case 'verdict': {
+        const sub = rest[0]
+        rejectUnknownFlags(rest.slice(1), ['--json'])
+        if (sub === 'emit') {
+          const file = rest.slice(1).find((a) => !a.startsWith('-'))
+          if (!file) usageError('verdict emit needs a receipt file: govstruct verdict emit <receipt.json>')
+          const { readFileSync } = await import('node:fs')
+          let receipt
+          try {
+            receipt = JSON.parse(readFileSync(file, 'utf8'))
+          } catch (e) {
+            console.error(`  REFUSED [E_RECEIPT_INVALID]: ${file} is not valid JSON: ${e.message}`)
+            process.exit(1)
+          }
+          const r = emitReceipt('.', receipt)
+          if (json) console.log(JSON.stringify({ schema: 1, mode: 'verdict', sub, ok: r.ok, entry: r.entry, refusals: r.refusals.map(serializeRefusal) }, null, 2))
+          else for (const line of r.lines) console.log(line)
+          process.exit(r.ok ? 0 : 1)
+        }
+        if (sub === 'verify') {
+          const r = verifyReceipts('.')
+          if (json) console.log(JSON.stringify({ schema: 1, mode: 'verdict', sub, ...r }, null, 2))
+          else for (const line of r.lines) console.log(line)
+          process.exit(r.ok ? 0 : 1)
+        }
+        if (sub === 'rollup') {
+          const r = verdictRollup('.')
+          if (json) console.log(JSON.stringify({ schema: 1, mode: 'verdict', sub, ok: r.ok, fresh: r.fresh, polled: r.polled, red: r.red, members: r.members, refusals: r.refusals.map(serializeRefusal) }, null, 2))
+          else for (const line of r.lines) console.log(line)
+          process.exit(r.ok ? 0 : 1)
+        }
+        usageError('verdict needs a subcommand: emit | verify | rollup')
       }
 
       case 'audit': {

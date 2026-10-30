@@ -21,8 +21,20 @@ export function entryAddress(body) {
   return 'sha256:' + createHash('sha256').update(canonical(body)).digest('hex')
 }
 
-function canonical(obj) {
-  return JSON.stringify(obj, Object.keys(obj).sort())
+/**
+ * Canonical JSON: object keys sorted RECURSIVELY, array order preserved.
+ * A shallow key sort (JSON.stringify's replacer form) drops nested keys
+ * entirely - `{verdicts:[{verdict:'REFUSED'}]}` would hash as
+ * `{"verdicts":[{}]}`, so a rewritten verdict row or actor id would not
+ * move the address and tamper-evidence would be a lie. The deep form
+ * covers every byte of the body.
+ */
+function canonical(value) {
+  if (Array.isArray(value)) return '[' + value.map(canonical).join(',') + ']'
+  if (value && typeof value === 'object') {
+    return '{' + Object.keys(value).sort().map((k) => JSON.stringify(k) + ':' + canonical(value[k])).join(',') + '}'
+  }
+  return JSON.stringify(value) ?? 'null'
 }
 
 /** Read the ledger as an array of parsed entries (empty when absent). */

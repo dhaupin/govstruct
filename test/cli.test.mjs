@@ -68,3 +68,40 @@ test('stamp on a non-JSON record refuses E_STAMP_INVALID', () => {
     rmSync(dir, { recursive: true, force: true })
   }
 })
+
+test('verdict needs a subcommand (usage)', () => {
+  assert.equal(run(['verdict']).status, 2)
+})
+
+test('verdict emit -> verify -> rollup round-trips green', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'govstruct-cli-verdict-'))
+  try {
+    init(dir)
+    writeFileSync(join(dir, 'r.json'), JSON.stringify({
+      member: 'hello', rev: 'abc1234', verdicts: [{ name: 'lint', verdict: 'REFUSED' }],
+    }))
+    const emit = spawnSync(process.execPath, [CLI, 'verdict', 'emit', 'r.json'], { cwd: dir, encoding: 'utf8' })
+    assert.equal(emit.status, 0, emit.stderr)
+    assert.equal(spawnSync(process.execPath, [CLI, 'verdict', 'verify'], { cwd: dir, encoding: 'utf8' }).status, 0)
+    const roll = spawnSync(process.execPath, [CLI, 'verdict', 'rollup'], { cwd: dir, encoding: 'utf8' })
+    assert.equal(roll.status, 0, roll.stderr)
+    assert.match(roll.stdout, /1 fresh receipt/)
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})
+
+test('verdict emit of an unknown member refuses', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'govstruct-cli-verdict2-'))
+  try {
+    init(dir)
+    writeFileSync(join(dir, 'r.json'), JSON.stringify({
+      member: 'ghost', rev: 'x', verdicts: [{ name: 'lint', verdict: 'REFUSED' }],
+    }))
+    const r = spawnSync(process.execPath, [CLI, 'verdict', 'emit', 'r.json'], { cwd: dir, encoding: 'utf8' })
+    assert.equal(r.status, 1)
+    assert.match(r.stdout, /E_RECEIPT_UNKNOWN_MEMBER/)
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})

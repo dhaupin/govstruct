@@ -40,6 +40,7 @@ govstruct migrate --status     # report / preview a spec or field migration
 govstruct init [<dir>]         # scaffold a one-member family
 govstruct stamp <record.json>  # register a stamped member (the write path)
 govstruct audit verify         # walk the audit ledger chain (offline)
+govstruct verdict rollup       # read fresh receipts, poll the rest (the verdict bus)
 ```
 
 Exit codes are the family ladder: `0` all honored, `1` any refusal, `2` usage

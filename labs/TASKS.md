@@ -44,8 +44,14 @@ gap list: G10 (refusal vocabulary) first, then G3 (the graph), then G1+G5
 - [ ] **G1 + G5 - the write path + grants.** The stamp path and the scoped
       credential list (`grants[]`), so a stamp cannot spend a credential
       absent from a member's list.
-- [ ] **G4 - the verdict bus.** How the arms' verdicts (crashtest, eyestruct,
-      poststruct) land in one place.
+- [x] **G4 - the verdict bus.** The push side of the self-proof:
+      `govstruct verdict emit <receipt.json>` appends a chained, tamper-evident
+      receipt to `labs/receipts.jsonl`; `verdict verify` walks it offline;
+      `verdict rollup` reads fresh receipts and polls the rest. Receipts are
+      portable only through the shared vocabulary (G10).
+- [x] **Deep tamper-evidence.** `entryAddress` canonicalizes recursively (a
+      shallow key sort left nested fields - verdict rows, actor ids - outside
+      the hash); the committed ledger is re-addressed over unchanged bodies.
 - [ ] **G8 - accessibility + i18n** (PRD section 10 S5).
 - [ ] **`compliance.yml`** - `govstruct doctor --suite` over every adopter at
       a pinned rev, refusing drift.

@@ -107,6 +107,11 @@
       "detail": "the credential wall holds: unknown kind, empty scope, and duplicate grant each refuse by name (G5)"
     },
     {
+      "id": "govstruct-manifest-shapes/verdict-chain-tamper-refuses",
+      "verdict": "REFUSED",
+      "detail": "a fresh receipt verifies green; a nested verdict rewrite (E_RECEIPT_TAMPER) and a seq gap (E_RECEIPT_CHAIN) each break the chain by name (G4)"
+    },
+    {
       "id": "govstruct-manifest-shapes/clean-family-canary",
       "verdict": "REFUSED",
       "detail": "clean family exits 0 with an empty refusals list (the happy wire holds)"
@@ -184,12 +189,12 @@
     {
       "id": "proto-hygiene/head-get-parity",
       "verdict": "REFUSED",
-      "detail": "1 route(s): HEAD mirrors GET (no throws, no status drift beyond honest 405) + 1 info note(s)"
+      "detail": "2 route(s): HEAD mirrors GET (no throws, no status drift beyond honest 405) + 2 info note(s)"
     },
     {
       "id": "proto-hygiene/request-shape-flood",
       "verdict": "REFUSED",
-      "detail": "1 route(s) x 18 bare shapes (query chaos, path shapes, header casings) all landed 4xx-or-cleaner with case-parity intact"
+      "detail": "2 route(s) x 18 bare shapes (query chaos, path shapes, header casings) all landed 4xx-or-cleaner with case-parity intact"
     },
     {
       "id": "race/double-submit-idempotency",
@@ -300,6 +305,7 @@
     "govstruct-manifest-shapes/refusal-codes-registered",
     "govstruct-manifest-shapes/over-strict-drift-canary",
     "govstruct-manifest-shapes/grant-wall-refuses",
+    "govstruct-manifest-shapes/verdict-chain-tamper-refuses",
     "govstruct-manifest-shapes/clean-family-canary",
     "guards/hygiene-no-store",
     "guards/burst-wall",

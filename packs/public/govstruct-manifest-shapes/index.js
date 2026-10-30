@@ -181,6 +181,43 @@ export default {
     },
 
     {
+      name: 'verdict-chain-tamper-refuses',
+      description: 'the verdict bus (G4): a fresh receipt verifies green, but a rewritten NESTED verdict row and a seq gap each break the chain - tamper-evidence is real, not shallow',
+      async run(harness, ctx = {}) {
+        const runVerdict = async (shape) => {
+          const rec = await harness.run('verdict', { method: 'GET', url: `/verdict?shape=${shape}` });
+          if (rec.threw) return { threw: true, error: rec.error };
+          let body = '';
+          try { body = await rec.response.text(); } catch { /* empty */ }
+          return { threw: false, status: rec.status, body };
+        };
+        const parse = (body) => {
+          try { const r = JSON.parse(body); return { exit: r.exit, stderr: r.stderr ?? '', stdout: r.stdout ?? '' }; } catch { return null; }
+        };
+
+        // A fresh receipt verifies green (exit 0).
+        const ok = await runVerdict('receipt-fresh');
+        if (ok.threw) return exhausted('verdict route crashed');
+        const okv = parse(ok.body);
+        if (!okv) return exhausted('verdict fresh: unparseable verdict body');
+        if (okv.exit !== 0) return exhausted(`verdict fresh: exit ${okv.exit} - a clean chain was refused`);
+
+        // A nested-field rewrite and a seq gap must both refuse (exit 1).
+        const fails = [];
+        for (const [shape, marker] of [['receipt-tamper-nested', 'E_RECEIPT_TAMPER'], ['receipt-seq-gap', 'E_RECEIPT_CHAIN']]) {
+          const r = await runVerdict(shape);
+          if (r.threw) { fails.push(`${shape}: harness throw`); continue; }
+          const v = parse(r.body);
+          if (!v) { fails.push(`${shape}: unparseable verdict body`); continue; }
+          if (v.exit !== 1) { fails.push(`${shape}: exit ${v.exit} (expected 1 - the chain must refuse)`); continue; }
+          if (!v.stdout.includes(marker)) fails.push(`${shape}: expected ${marker} in output, got ${JSON.stringify(v.stdout.slice(0, 120))}`);
+        }
+        if (fails.length) return exhausted(`the verdict chain is not tamper-evident: ${fails.join(' | ')}`);
+        return refused('a fresh receipt verifies green; a nested verdict rewrite (E_RECEIPT_TAMPER) and a seq gap (E_RECEIPT_CHAIN) each break the chain by name (G4)');
+      },
+    },
+
+    {
       name: 'clean-family-canary',
       description: 'the conforming family exits 0 with an empty refusals list - the happy wire holds',
       async run(harness, ctx = {}) {

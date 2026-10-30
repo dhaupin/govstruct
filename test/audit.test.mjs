@@ -77,3 +77,32 @@ test('entryAddress is a pure function of the body', () => {
   const body = { seq: 1, prev: null, verb: 'x' }
   assert.equal(entryAddress(body), entryAddress({ ...body }))
 })
+
+test('a NESTED field rewrite breaks the address (deep canonicalization)', () => {
+  const root = scratch()
+  try {
+    appendEntry(root, {
+      verb: 'stamp',
+      subject: { member: 'alpha' },
+      actor: { kind: 'ci', id: 'govstruct' },
+      evidence: [{ code: 'E_GRANT_UNLISTED' }],
+    })
+    const p = join(root, LEDGER_PATH)
+    const lines = readFileSync(p, 'utf8').trim().split('\n').map((l) => JSON.parse(l))
+    // Rewrite a nested field only - a shallow key-sort would not cover it.
+    lines[0].actor.id = 'attacker'
+    lines[0].evidence[0].code = 'E_FORGED'
+    writeFileSync(p, lines.map((l) => JSON.stringify(l)).join('\n') + '\n')
+    const r = auditVerify(root)
+    assert.equal(r.ok, false, 'nested tampering must break the address')
+    assert.ok(r.refusals.some((x) => x.startsWith('E_LEDGER_TAMPER')))
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('entryAddress covers nested fields, not just top-level keys', () => {
+  const a = { verdicts: [{ name: 'lint', verdict: 'REFUSED' }] }
+  const b = { verdicts: [{ name: 'lint', verdict: 'EXPLOITED' }] }
+  assert.notEqual(entryAddress(a), entryAddress(b))
+})
