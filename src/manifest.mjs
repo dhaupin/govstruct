@@ -13,6 +13,10 @@ import { membersDir, complianceDir, resolveIn } from './config.mjs'
 export const ROLES = ['arm', 'forge', 'factory', 'composer', 'product', 'component']
 export const STATUSES = ['Live', 'Beta', 'In Development', 'Backburner', 'Archived', 'Tombstoned']
 export const SECTIONS = ['open-source', 'proprietary', 'other']
+// G5: the governed credential kinds a member's stamps may spend. A kind
+// outside this list is a refusal (a stamp cannot widen a wall by inventing
+// a credential class).
+export const GRANT_KINDS = ['github', 'npm', 'domain', 'registry', 'dns', 'cloud', 'secret']
 
 const KEBAB = /^[a-z0-9][a-z0-9-]*$/
 const REQUIRED = ['id', 'name', 'role', 'status', 'section', 'blurb', 'icon', 'order']
@@ -132,10 +136,24 @@ export function validateBlock(block, bag) {
   }
 
   if (block.grants !== undefined && Array.isArray(block.grants)) {
+    const seen = new Set()
     for (const g of block.grants) {
       if (!g || typeof g !== 'object' || typeof g.kind !== 'string' || !g.kind.trim()) {
         bag.add('E_FIELD_TYPE', `${file}: each grants entry must be { kind, scope } with a non-empty kind`, where)
+        continue
       }
+      if (!GRANT_KINDS.includes(g.kind)) {
+        bag.add('E_GRANT_UNKNOWN_KIND', `${file}: grant kind "${g.kind}" is outside the governed vocabulary (${GRANT_KINDS.join(' | ')})`, where)
+      }
+      if (typeof g.scope !== 'string' || !g.scope.trim()) {
+        bag.add('E_GRANT_SCOPE_EMPTY', `${file}: grant "${g.kind}" must carry a non-empty scope`, where)
+        continue
+      }
+      const key = `${g.kind}\u0000${g.scope}`
+      if (seen.has(key)) {
+        bag.add('E_GRANT_DUPLICATE', `${file}: grant ${g.kind}/${g.scope} is listed twice`, where)
+      }
+      seen.add(key)
     }
   }
 

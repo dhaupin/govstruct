@@ -38,6 +38,7 @@ govstruct lock                 # archive + sha256 receipt
 govstruct names <id>           # check a candidate id against npm, GitHub, the roster
 govstruct migrate --status     # report / preview a spec or field migration
 govstruct init [<dir>]         # scaffold a one-member family
+govstruct stamp <record.json>  # register a stamped member (the write path)
 govstruct audit verify         # walk the audit ledger chain (offline)
 ```
 

@@ -73,7 +73,7 @@ export default {
           'invalid-json', 'id-mismatch', 'id-duplicate', 'url-not-https',
           'url-duplicate', 'order-collision', 'role-unknown', 'status-unknown',
           'needs-cycle', 'needs-self', 'tombstone-empty', 'field-missing',
-          'wrongtypes',
+          'wrongtypes', 'grant-unknown-kind', 'grant-scope-empty', 'grant-duplicate',
         ];
         const crashes = [];
         const bad = [];
@@ -141,7 +141,7 @@ export default {
       async run(harness, ctx = {}) {
         const route = routeOf(ctx);
         const overStrict = [];
-        for (const shape of ['clean', 'null-url-repo', 'extra-keys', 'alias-retired']) {
+        for (const shape of ['clean', 'null-url-repo', 'extra-keys', 'alias-retired', 'grant-valid']) {
           const r = await runLint(harness, route, shape);
           if (r.threw) { overStrict.push(`${shape}: harness throw`); continue; }
           const v = parseVerdict(r.body);
@@ -151,7 +151,32 @@ export default {
           }
         }
         if (overStrict.length) return exhausted(`spec tolerance broken: ${overStrict.join(' | ')}`);
-        return refused('minimum-spec shapes held: null url/repo, extra keys, and retired aliases all exit 0, zero refusals');
+        return refused('minimum-spec shapes held: null url/repo, extra keys, retired aliases, and valid grants all exit 0, zero refusals');
+      },
+    },
+
+    {
+      name: 'grant-wall-refuses',
+      description: 'the credential wall (G5): an out-of-vocabulary grant kind, an empty scope, and a duplicate grant each refuse with their exact code - a stamp cannot widen a wall',
+      async run(harness, ctx = {}) {
+        const route = routeOf(ctx);
+        const expect = {
+          'grant-unknown-kind': 'E_GRANT_UNKNOWN_KIND',
+          'grant-scope-empty': 'E_GRANT_SCOPE_EMPTY',
+          'grant-duplicate': 'E_GRANT_DUPLICATE',
+        };
+        const fails = [];
+        for (const [shape, code] of Object.entries(expect)) {
+          const r = await runLint(harness, route, shape);
+          if (r.threw) { fails.push(`${shape}: harness throw`); continue; }
+          const v = parseVerdict(r.body);
+          if (!v) { fails.push(`${shape}: unparseable verdict`); continue; }
+          if (v.exit !== 1) fails.push(`${shape}: exit ${v.exit} (expected 1)`);
+          const codes = v.refusals.map((x) => x.code);
+          if (!codes.includes(code)) fails.push(`${shape}: expected ${code}, got [${codes.join(', ')}]`);
+        }
+        if (fails.length) return exhausted(`the credential wall leaked: ${fails.join(' | ')}`);
+        return refused('the credential wall holds: unknown kind, empty scope, and duplicate grant each refuse by name (G5)');
       },
     },
 

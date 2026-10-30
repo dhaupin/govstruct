@@ -58,6 +58,15 @@
   tamper-evident: every entry carries `seq`, `prev`, and an `addr` over its
   own body. `govstruct audit verify` walks the chain offline. Never hand-edit
   it; a rewrite is a refusal, not a repair.
+- The write path (G1) is `govstruct stamp <record.json>`, and it is
+  append-mostly: a stamp validates with the hand-authored grammar, never
+  overwrites an existing member file, and refuses a duplicate id. It writes
+  the block plus one ledger row and NEVER commits or pushes - the caller
+  opens the PR, and `doctor --suite` is the pre-merge check.
+- A stamp cannot widen a wall (G5): every spend in `spends[]` must be covered
+  by the member's `grants[]` (`E_GRANT_UNLISTED`), and `grants[]` is itself
+  governed - a kind outside `GRANT_KINDS`, an empty scope, or a duplicate is
+  a refusal.
 
 ## Branches
 - `staging` is the permanent integration branch: work branches off it, PRs

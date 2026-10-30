@@ -84,7 +84,7 @@
     {
       "id": "govstruct-manifest-shapes/hostile-manifest-fuzz",
       "verdict": "REFUSED",
-      "detail": "13 hostile family shapes held: in-bounds verdicts, nameable refusals, no crash, no deep stack (PRD section 6)"
+      "detail": "16 hostile family shapes held: in-bounds verdicts, nameable refusals, no crash, no deep stack (PRD section 6)"
     },
     {
       "id": "govstruct-manifest-shapes/oversize-in-bounds",
@@ -99,7 +99,12 @@
     {
       "id": "govstruct-manifest-shapes/over-strict-drift-canary",
       "verdict": "REFUSED",
-      "detail": "minimum-spec shapes held: null url/repo, extra keys, and retired aliases all exit 0, zero refusals"
+      "detail": "minimum-spec shapes held: null url/repo, extra keys, retired aliases, and valid grants all exit 0, zero refusals"
+    },
+    {
+      "id": "govstruct-manifest-shapes/grant-wall-refuses",
+      "verdict": "REFUSED",
+      "detail": "the credential wall holds: unknown kind, empty scope, and duplicate grant each refuse by name (G5)"
     },
     {
       "id": "govstruct-manifest-shapes/clean-family-canary",
@@ -294,6 +299,7 @@
     "govstruct-manifest-shapes/oversize-in-bounds",
     "govstruct-manifest-shapes/refusal-codes-registered",
     "govstruct-manifest-shapes/over-strict-drift-canary",
+    "govstruct-manifest-shapes/grant-wall-refuses",
     "govstruct-manifest-shapes/clean-family-canary",
     "guards/hygiene-no-store",
     "guards/burst-wall",

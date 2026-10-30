@@ -39,6 +39,9 @@ const CASES = [
   ['invalid-json', 'E_MEMBER_INVALID_JSON'],
   ['alias-duplicate', 'E_ALIAS_DUPLICATE'],
   ['alias-self', 'E_ALIAS_SELF'],
+  ['grant-unknown-kind', 'E_GRANT_UNKNOWN_KIND'],
+  ['grant-scope-empty', 'E_GRANT_SCOPE_EMPTY'],
+  ['grant-duplicate', 'E_GRANT_DUPLICATE'],
 ]
 
 for (const [fixture, code] of CASES) {

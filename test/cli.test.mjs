@@ -6,6 +6,9 @@ import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
+import { mkdtempSync, writeFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { init } from '../src/init.mjs'
 const HERE = dirname(fileURLToPath(import.meta.url))
 const CLI = join(HERE, '..', 'bin', 'cli.mjs')
 const ROOT = join(HERE, '..')
@@ -49,4 +52,19 @@ test('doctor honors a positional target', () => {
 })
 test('check honors a positional target', () => {
   assert.equal(run(['check', 'test/fixtures/clean']).status, 0)
+})
+test('stamp with no record file exits 2 (usage)', () => {
+  assert.equal(run(['stamp']).status, 2)
+})
+test('stamp on a non-JSON record refuses E_STAMP_INVALID', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'govstruct-cli-stamp-'))
+  try {
+    init(dir)
+    writeFileSync(join(dir, 'bad.json'), '{ not json')
+    const r = spawnSync(process.execPath, [CLI, 'stamp', 'bad.json'], { cwd: dir, encoding: 'utf8' })
+    assert.equal(r.status, 1)
+    assert.match(r.stderr, /E_STAMP_INVALID/)
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
 })

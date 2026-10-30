@@ -27,6 +27,7 @@ import { names } from '../src/names.mjs'
 import { migrateStatus, migrateDryRun } from '../src/migrate.mjs'
 import { init } from '../src/init.mjs'
 import { auditVerify, appendEntry } from '../src/audit.mjs'
+import { stamp } from '../src/stamp.mjs'
 import { Refusal } from '../src/refusals.mjs'
 
 const argv = process.argv.slice(2)
@@ -47,6 +48,7 @@ const usage = () => {
   migrate --status     report migration state
   migrate --dry-run    preview a migration
   init [<dir>]         scaffold a one-member family
+  stamp <record.json>  register a stamped member (write path, G1)
   audit verify         walk the audit ledger chain
 
 Global: --json for machine output; --network to allow socket checks.`)
@@ -167,6 +169,24 @@ async function main() {
         const dir = rest.find((a) => !a.startsWith('-')) ?? '.'
         const r = init(dir, { force: rest.includes('--force') })
         if (json) console.log(JSON.stringify({ schema: 1, mode: 'init', ...r }, null, 2))
+        else for (const line of r.lines) console.log(line)
+        process.exit(r.ok ? 0 : 1)
+      }
+
+      case 'stamp': {
+        rejectUnknownFlags(rest, ['--json', '--dry-run'])
+        const file = rest.find((a) => !a.startsWith('-'))
+        if (!file) usageError('stamp needs a record file: govstruct stamp <record.json>')
+        const { readFileSync } = await import('node:fs')
+        let record
+        try {
+          record = JSON.parse(readFileSync(file, 'utf8'))
+        } catch (e) {
+          console.error(`  REFUSED [E_STAMP_INVALID]: ${file} is not valid JSON: ${e.message}`)
+          process.exit(1)
+        }
+        const r = stamp('.', record, { dryRun: rest.includes('--dry-run') })
+        if (json) console.log(JSON.stringify({ schema: 1, mode: 'stamp', ok: r.ok, wrote: r.wrote, entry: r.entry, refusals: r.refusals.map(serializeRefusal) }, null, 2))
         else for (const line of r.lines) console.log(line)
         process.exit(r.ok ? 0 : 1)
       }

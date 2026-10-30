@@ -42,9 +42,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and the reserved block; `migrate --status/--dry-run` reports the migration
   ritual.
 - **The crashtest dogfood.** `crashtest.config.js` +
-  `packs/public/govstruct-manifest-shapes`: five attacks over a hostile
+  `packs/public/govstruct-manifest-shapes`: six attacks over a hostile
   member-block corpus through an in-process double. All REFUSED, zero
   exploited.
+- **The write path (G1) + credential grants (G5).** `govstruct stamp
+  <record.json>` registers a machine-minted member as a reviewable,
+  refusable claim: it validates with the same grammar a hand-authored block
+  does, never overwrites an existing member file
+  (`E_STAMP_TARGET_EXISTS`), and refuses a duplicate id
+  (`E_STAMP_DUPLICATE`). A stamp that spends a credential must declare it in
+  `spends[]`, and every spend must be covered by the member's `grants[]` -
+  a stamp cannot widen a wall (`E_GRANT_UNLISTED`). `grants[]` is itself
+  governed: a kind outside the vocabulary (`E_GRANT_UNKNOWN_KIND`), an empty
+  scope (`E_GRANT_SCOPE_EMPTY`), or a duplicate (`E_GRANT_DUPLICATE`) is a
+  refusal. The mint is a ledger row (G14), so it is auditable offline.
+- **Six new refusal codes** (45 total): `E_STAMP_INVALID`,
+  `E_STAMP_DUPLICATE`, `E_STAMP_TARGET_EXISTS`, `E_GRANT_SCOPE_EMPTY`,
+  `E_GRANT_DUPLICATE`, `E_GRANT_UNKNOWN_KIND`.
 
 ### Notes
 - The reference roster (23 members) is data, not code: member 24 is a block

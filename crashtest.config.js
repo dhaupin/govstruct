@@ -73,6 +73,13 @@ const HOSTILE = {
     'a.json': goodMember('a', { extra: (function deep(n) { return n ? [deep(n - 1)] : 'leaf'; })(256) }),
   },
   'huge-string': { 'a.json': goodMember('a', { blurb: 'y'.repeat(1024 * 512) }) },
+  // G5: a stamp cannot widen a wall. An out-of-vocabulary grant kind, an
+  // empty scope, or a duplicate grant is a refusal, not a warning.
+  'grant-unknown-kind': { 'a.json': goodMember('a', { grants: [{ kind: 'telepathy', scope: '*' }] }) },
+  'grant-scope-empty': { 'a.json': goodMember('a', { grants: [{ kind: 'npm', scope: '' }] }) },
+  'grant-duplicate': {
+    'a.json': goodMember('a', { grants: [{ kind: 'npm', scope: 'pkg:a' }, { kind: 'npm', scope: 'pkg:a' }] }),
+  },
 };
 
 // Spec-ALLOWED shapes: the lint MUST NOT flag these (tolerance canary).
@@ -81,6 +88,9 @@ const TOLERANT = {
   'null-url-repo': { 'a.json': goodMember('a', { url: null, repo: null }) },
   'extra-keys': { 'a.json': goodMember('a', { houseRule: 'advisory' }) },
   'alias-retired': { 'a.json': goodMember('a', { aliases: ['old-a'] }) },
+  'grant-valid': {
+    'a.json': goodMember('a', { grants: [{ kind: 'github', scope: 'repo:a/a' }, { kind: 'npm', scope: '*' }] }),
+  },
 };
 
 async function lintOne(shape) {

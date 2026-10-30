@@ -6,7 +6,7 @@
 
 ## Findings
 
-### 🛡 REFUSED (54)
+### 🛡 REFUSED (55)
 - auth/identity-spoof-headers: route "admin" not declared on this target - spoof matrix skipped (declare it for coverage)
 - auth/secret-watermark: no fake secrets planted in env - declare CRASHTEST_SECRET to arm this probe
 - auth/privilege-escalation: route "device" not declared on this target - escalation skipped (declare it for coverage)
@@ -23,10 +23,11 @@
 - governance/capability-no-sideways: vocabulary knob(s) "grantsRoute", "resolveRoute" not declared on this target - governance skipped (export moduleCtx['governance'].grantsRoute/resolveRoute for coverage)
 - governance/lock-ttl-honesty: governance knob(s) "locksRoute", "ttlMode" not declared on this target - lock-ttl-honesty skipped (declare locksRoute + the DOCUMENTED ttlMode for coverage)
 - governance/lock-owner-fencing: governance knob(s) "locksRoute", "staleToken" not declared on this target - fencing skipped (declare locksRoute + staleToken for coverage)
-- govstruct-manifest-shapes/hostile-manifest-fuzz: 13 hostile family shapes held: in-bounds verdicts, nameable refusals, no crash, no deep stack (PRD section 6)
+- govstruct-manifest-shapes/hostile-manifest-fuzz: 16 hostile family shapes held: in-bounds verdicts, nameable refusals, no crash, no deep stack (PRD section 6)
 - govstruct-manifest-shapes/oversize-in-bounds: oversize but spec-allowed shapes (deep extra nesting, half-megabyte string) answered in-bounds
 - govstruct-manifest-shapes/refusal-codes-registered: every emitted refusal code is registered (the G10 vocabulary holds)
-- govstruct-manifest-shapes/over-strict-drift-canary: minimum-spec shapes held: null url/repo, extra keys, and retired aliases all exit 0, zero refusals
+- govstruct-manifest-shapes/over-strict-drift-canary: minimum-spec shapes held: null url/repo, extra keys, retired aliases, and valid grants all exit 0, zero refusals
+- govstruct-manifest-shapes/grant-wall-refuses: the credential wall holds: unknown kind, empty scope, and duplicate grant each refuse by name (G5)
 - govstruct-manifest-shapes/clean-family-canary: clean family exits 0 with an empty refusals list (the happy wire holds)
 - guards/hygiene-no-store: route "enroll" not declared on this target - attack skipped (declare it for coverage)
 - guards/burst-wall: route "burst" not declared on this target - attack skipped (declare it for coverage)
@@ -67,7 +68,7 @@
 ### 🔒 BOUNDED (0)
 
 ## Cost economics
-- total: 45 backend ops across 119 in-process requests from 54 attacks
+- total: 52 backend ops across 170 in-process requests from 55 attacks
   - auth/identity-spoof-headers: 0 ops / 0 requests
   - auth/secret-watermark: 0 ops / 0 requests
   - auth/privilege-escalation: 0 ops / 0 requests
@@ -84,11 +85,12 @@
   - governance/capability-no-sideways: 0 ops / 0 requests
   - governance/lock-ttl-honesty: 0 ops / 0 requests
   - governance/lock-owner-fencing: 0 ops / 0 requests
-  - govstruct-manifest-shapes/hostile-manifest-fuzz: 13 ops / 13 requests
-  - govstruct-manifest-shapes/oversize-in-bounds: 2 ops / 15 requests
-  - govstruct-manifest-shapes/refusal-codes-registered: 5 ops / 20 requests
-  - govstruct-manifest-shapes/over-strict-drift-canary: 4 ops / 24 requests
-  - govstruct-manifest-shapes/clean-family-canary: 1 ops / 25 requests
+  - govstruct-manifest-shapes/hostile-manifest-fuzz: 16 ops / 16 requests
+  - govstruct-manifest-shapes/oversize-in-bounds: 2 ops / 18 requests
+  - govstruct-manifest-shapes/refusal-codes-registered: 5 ops / 23 requests
+  - govstruct-manifest-shapes/over-strict-drift-canary: 5 ops / 28 requests
+  - govstruct-manifest-shapes/grant-wall-refuses: 3 ops / 31 requests
+  - govstruct-manifest-shapes/clean-family-canary: 1 ops / 32 requests
   - guards/hygiene-no-store: 0 ops / 0 requests
   - guards/burst-wall: 0 ops / 0 requests
   - input/proto-pollution-body: 0 ops / 0 requests
