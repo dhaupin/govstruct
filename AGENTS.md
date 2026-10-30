@@ -93,6 +93,16 @@
   `graph[]` (`{ id, needs, neededBy }`), and `govstruct impact <id>` walks the
   reverse closure to every direct and transitive dependent - the propagation
   path a floor bump follows. An unknown id refuses `E_IMPACT_UNKNOWN_MEMBER`.
+- The fleet meter (G13, PRD 16.10, the golden case) is the steady-state job
+  the other cases are not: coreforge *prevents* (it stamps a new repo), the
+  meter *detects* (a repo that left the pattern, and how). `src/fleet.mjs`
+  reads each member's live surfaces - engines floor, lockfile presence, pin
+  style, repo version, workflow count - against the compliance block, and
+  reports every drift on one page as a typed refusal
+  (`E_FLEET_FLOOR_DRIFT`, `E_FLEET_LOCK_MISSING`, `E_FLEET_PIN_STYLE_DRIFT`,
+  `E_FLEET_CI_SHAPE_DRIFT`, `E_FLEET_VERSION_DRIFT`). Offline by default:
+  `--fleet-root <dir>` points at a directory of `<member-id>/` checkouts; a
+  member with no checkout is reported UNCHECKED, never a silent pass.
 - The audit address canonicalizes RECURSIVELY (keys sorted at every depth).
   A shallow key sort drops nested keys from the hash, so a rewritten verdict
   row or actor id would not break the chain - tamper-evidence would be a lie.

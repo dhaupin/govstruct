@@ -127,6 +127,11 @@
       "detail": "a bump on a leaf walks to every transitive dependent by name (direct + transitive), and an unknown id refuses E_IMPACT_UNKNOWN_MEMBER (G3)"
     },
     {
+      "id": "govstruct-manifest-shapes/fleet-meter-names-drift",
+      "verdict": "REFUSED",
+      "detail": "a drifted member is named by its exact refusal (floor + lockfile + version + pin style) on one page, a clean member passes, and a member with no checkout is unchecked - never a silent pass"
+    },
+    {
       "id": "govstruct-manifest-shapes/clean-family-canary",
       "verdict": "REFUSED",
       "detail": "clean family exits 0 with an empty refusals list (the happy wire holds)"
@@ -204,12 +209,12 @@
     {
       "id": "proto-hygiene/head-get-parity",
       "verdict": "REFUSED",
-      "detail": "5 route(s): HEAD mirrors GET (no throws, no status drift beyond honest 405) + 5 info note(s)"
+      "detail": "6 route(s): HEAD mirrors GET (no throws, no status drift beyond honest 405) + 6 info note(s)"
     },
     {
       "id": "proto-hygiene/request-shape-flood",
       "verdict": "REFUSED",
-      "detail": "5 route(s) x 18 bare shapes (query chaos, path shapes, header casings) all landed 4xx-or-cleaner with case-parity intact"
+      "detail": "6 route(s) x 18 bare shapes (query chaos, path shapes, header casings) all landed 4xx-or-cleaner with case-parity intact"
     },
     {
       "id": "race/double-submit-idempotency",
@@ -324,6 +329,7 @@
     "govstruct-manifest-shapes/lifecycle-retire-resolves",
     "govstruct-manifest-shapes/a11y-pane-refuses",
     "govstruct-manifest-shapes/graph-propagation-walks",
+    "govstruct-manifest-shapes/fleet-meter-names-drift",
     "govstruct-manifest-shapes/clean-family-canary",
     "guards/hygiene-no-store",
     "guards/burst-wall",

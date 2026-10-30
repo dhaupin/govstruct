@@ -3,7 +3,9 @@
 // coreforge's census leg already encodes the law: package.json is THE
 // single version source, and every living surface that names the current
 // version must match or the release commit fails. This generalizes it.
-const SKIP = /(^|\/)(labs|docs|node_modules|dist|_site|horcrux|\.git)\//
+// test/fixtures is a deliberately-broken corpus, not a living surface: the
+// norm governs what a repo serves, and a fixture serves nothing.
+const SKIP = /(^|\/)(labs|docs|node_modules|dist|_site|horcrux|\.git|test\/fixtures)\//
 const RANGE = /^[\^~]/
 
 export default {

@@ -1,0 +1,17 @@
+{
+  "id": "beta",
+  "name": "Beta",
+  "role": "arm",
+  "url": "https://beta.example.com",
+  "repo": "dhaupin/beta",
+  "npm": "beta",
+  "aliases": [],
+  "home": null,
+  "blurb": "Drifted.",
+  "icon": "beta",
+  "order": 2,
+  "status": "Live",
+  "section": "open-source",
+  "needs": [],
+  "grants": []
+}

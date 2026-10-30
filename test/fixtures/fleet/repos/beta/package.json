@@ -1,0 +1,10 @@
+{
+  "name": "beta",
+  "version": "0.9.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "packstruct": "^1.1.0"
+  }
+}

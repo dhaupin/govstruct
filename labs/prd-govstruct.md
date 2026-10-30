@@ -1433,6 +1433,18 @@ The loop is the product: **meter the fleet, refuse the drift, migrate the fix,
 record the receipt.** Coreforge births a repo correctly; govstruct keeps the
 fleet correct, forever.
 
+**Implemented (G13).** `src/fleet.mjs` is the meter.
+`govstruct doctor --suite --fleet --fleet-root <dir>` reads each member's live
+surfaces - the engines floor, lockfile presence, companion pin style, repo
+version, and workflow count - from a directory of `<member-id>/` checkouts, and
+compares each against the truth the compliance block declares. Every
+disagreement is a typed refusal with a clause and a fix:
+`E_FLEET_FLOOR_DRIFT` (S1), `E_FLEET_LOCK_MISSING`, `E_FLEET_PIN_STYLE_DRIFT`
+(S3), `E_FLEET_CI_SHAPE_DRIFT`, `E_FLEET_VERSION_DRIFT` (S4). It is offline by
+default and warns where the doctor refuses - a lagging repo is a state, not a
+crime - and a member with no checkout is reported UNCHECKED, never a silent
+pass. The migrate half (G6) and the ledger record (G14) complete the loop.
+
 ### The golden lesson
 
 A one-time governance event (a rename) proves the tool *works*. An **ongoing**

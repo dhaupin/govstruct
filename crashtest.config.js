@@ -326,9 +326,69 @@ function makeImpactHandler() {
   };
 }
 
+// The fleet meter (G13, PRD 16.10 - the golden case): an ongoing job, not a
+// one-time event. This route materializes a two-member fleet with real
+// checkout trees and runs `govstruct doctor --suite --fleet --fleet-root
+// repos --json` - the one page an operator reads. A drifted member must be
+// named by its exact refusal; a member with no checkout must be UNCHECKED,
+// never a silent pass.
+function fleetComp(id) {
+  return JSON.stringify({
+    id, floors: { consumer: '>=20', battery: '>=20' },
+    version: { repo: '1.0.0' },
+    pins: [{ kind: 'companion', name: 'packstruct', style: 'exact' }],
+    env: [], clause: {},
+  });
+}
+
+function writeRepo(base, id, pkg, { lock = false } = {}) {
+  const dir = join(base, id);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, 'package.json'), JSON.stringify(pkg));
+  if (lock) writeFileSync(join(dir, 'package-lock.json'), '{}');
+}
+
+async function fleetOne(shape) {
+  const root = mkdtempSync(join(tmpdir(), 'govstruct-ct-fleet-'));
+  try {
+    writeFamily(root, { 'alpha.json': goodMember('alpha'), 'beta.json': goodMember('beta', { order: 2 }) });
+    writeFileSync(join(root, 'compliance', 'alpha.json'), fleetComp('alpha'));
+    writeFileSync(join(root, 'compliance', 'beta.json'), fleetComp('beta'));
+    const base = join(root, 'repos');
+
+    if (shape === 'fleet-clean') {
+      writeRepo(base, 'alpha', { name: 'alpha', version: '1.0.0', engines: { node: '>=20' }, devDependencies: { packstruct: '1.1.0' } }, { lock: true });
+      writeRepo(base, 'beta', { name: 'beta', version: '1.0.0', engines: { node: '>=20' }, devDependencies: { packstruct: '1.1.0' } }, { lock: true });
+    } else if (shape === 'fleet-drift') {
+      // beta: floor >=18, range pin, no lockfile, version 0.9.0.
+      writeRepo(base, 'alpha', { name: 'alpha', version: '1.0.0', engines: { node: '>=20' }, devDependencies: { packstruct: '1.1.0' } }, { lock: true });
+      writeRepo(base, 'beta', { name: 'beta', version: '0.9.0', engines: { node: '>=18' }, devDependencies: { packstruct: '^1.1.0' } });
+    } else if (shape === 'fleet-unchecked') {
+      // No repos/ tree at all: every member is unchecked, never a silent pass.
+    } else {
+      return { status: 404, body: JSON.stringify({ error: `unknown shape ${shape}` }) };
+    }
+
+    const rec = spawnSync(process.execPath, [CLI, 'doctor', '--suite', '--fleet', '--fleet-root', 'repos', '--json'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+    return { status: 200, body: JSON.stringify({ exit: rec.status ?? 2, stdout: rec.stdout ?? '', stderr: rec.stderr ?? '' }) };
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function makeFleetHandler() {
+  return async ({ request }) => {
+    let shape;
+    try { shape = new URL(request.url).searchParams.get('shape'); } catch { shape = null; }
+    if (!shape) return new Response(JSON.stringify({ error: 'shape param required' }), { status: 400 });
+    const r = await fleetOne(shape);
+    return new Response(r.body, { status: r.status, headers: { 'content-type': 'application/json' } });
+  };
+}
+
 export default {
   baseUrl: 'https://govstruct.local',
-  routes: { lint: makeLintHandler(), verdict: makeVerdictHandler(), retire: makeRetireHandler(), a11y: makeA11yHandler(), impact: makeImpactHandler() },
+  routes: { lint: makeLintHandler(), verdict: makeVerdictHandler(), retire: makeRetireHandler(), a11y: makeA11yHandler(), impact: makeImpactHandler(), fleet: makeFleetHandler() },
   // Adopt only OUR scenario pack: the packs/public tree also carries the
   // check-profile packs (floor-shapes and friends), which are govstruct's
   // compliance packs, not crashtest scenarios. Pointing at the one pack dir

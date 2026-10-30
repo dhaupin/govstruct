@@ -45,9 +45,15 @@ gap list: G10 (refusal vocabulary) first, then G3 (the graph), then G1+G5
 
 ## Next
 
-- [ ] **G1 + G5 - the write path + grants.** The stamp path and the scoped
-      credential list (`grants[]`), so a stamp cannot spend a credential
-      absent from a member's list.
+- [x] **G1 + G5 - the write path + grants.** `govstruct stamp <record.json>`
+      registers a member as a governed write: it validates the block with the
+      same grammar a hand-authored one passes, refuses to overwrite an
+      existing file (append-mostly), and refuses a duplicate id. Every
+      declared spend must be covered by the member's `grants[]`
+      (`E_GRANT_UNLISTED`), and `grants[]` is itself governed - a kind outside
+      `GRANT_KINDS`, an empty scope, or a duplicate is a refusal. The stamp
+      writes the block and one ledger row; it never commits or pushes - the
+      caller opens the PR, so CI is the serializer.
 - [x] **G4 - the verdict bus.** The push side of the self-proof:
       `govstruct verdict emit <receipt.json>` appends a chained, tamper-evident
       receipt to `labs/receipts.jsonl`; `verdict verify` walks it offline;
@@ -71,6 +77,16 @@ gap list: G10 (refusal vocabulary) first, then G3 (the graph), then G1+G5
       DOM/contrast leg stays poststruct's (the interop law). The dogfood
       caught a real bug on the way: the check host renamed any code carrying
       a digit to `E_SUITE_DRIFT`, so the `E_A11Y_*` family never surfaced.
+- [x] **G13 - the fleet drift meter (the golden case, PRD 16.10).** The
+      steady-state job the proving cases are not: coreforge *prevents*, the
+      meter *detects*. `govstruct doctor --suite --fleet --fleet-root <dir>`
+      reads each member's live surfaces (engines floor, lockfile presence,
+      pin style, repo version, workflow count) against its compliance block,
+      and reports every drift on one page as a typed refusal
+      (`E_FLEET_FLOOR_DRIFT`, `E_FLEET_LOCK_MISSING`, `E_FLEET_PIN_STYLE_DRIFT`,
+      `E_FLEET_CI_SHAPE_DRIFT`, `E_FLEET_VERSION_DRIFT`). Offline by default;
+      a member with no checkout is UNCHECKED, never a silent pass. The meter
+      warns where the doctor refuses - a lagging repo is a state, not a crime.
 - [ ] **`compliance.yml`** - `govstruct doctor --suite` over every adopter at
       a pinned rev, refusing drift.
 - [ ] **`web/` + `docs/`** - the coreforge landing shell and the Jekyll rig,

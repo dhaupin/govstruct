@@ -1,0 +1,17 @@
+{
+  "id": "alpha",
+  "name": "Alpha",
+  "role": "product",
+  "url": "https://alpha.example.com",
+  "repo": "dhaupin/alpha",
+  "npm": "alpha",
+  "aliases": [],
+  "home": null,
+  "blurb": "Clean.",
+  "icon": "alpha",
+  "order": 1,
+  "status": "Live",
+  "section": "open-source",
+  "needs": [],
+  "grants": []
+}

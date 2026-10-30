@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "family": {
+    "name": "fixture",
+    "title": "Fleet fixture"
+  },
+  "members": {
+    "dir": "members"
+  },
+  "compliance": {
+    "dir": "compliance"
+  },
+  "surfaces": {},
+  "gates": {
+    "packstruct": false,
+    "crashtest": false,
+    "poststruct": false
+  }
+}

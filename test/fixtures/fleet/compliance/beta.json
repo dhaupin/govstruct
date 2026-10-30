@@ -1,0 +1,19 @@
+{
+  "id": "beta",
+  "floors": {
+    "consumer": ">=20",
+    "battery": ">=20"
+  },
+  "version": {
+    "repo": "1.0.0"
+  },
+  "pins": [
+    {
+      "kind": "companion",
+      "name": "packstruct",
+      "style": "exact"
+    }
+  ],
+  "env": [],
+  "clause": {}
+}
