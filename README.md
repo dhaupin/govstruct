@@ -42,6 +42,7 @@ govstruct stamp <record.json>  # register a stamped member (the write path)
 govstruct retire <id>          # tombstone a member, keeping its aliases (the lifecycle)
 govstruct audit verify         # walk the audit ledger chain (offline)
 govstruct verdict rollup       # read fresh receipts, poll the rest (the verdict bus)
+govstruct impact <id>          # the propagation path: who depends on <id>
 ```
 
 Exit codes are the family ladder: `0` all honored, `1` any refusal, `2` usage

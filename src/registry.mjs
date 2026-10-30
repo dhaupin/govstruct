@@ -12,6 +12,7 @@ import { join } from 'node:path'
 import { loadConfig, resolveIn } from './config.mjs'
 import { loadManifest } from './manifest.mjs'
 import { manifestChecksum } from './render.mjs'
+import { buildGraph } from './graph.mjs'
 
 /** Compose the suite roll-up from the manifest plus compliance blocks. */
 export function suiteRegistry(target = '.') {
@@ -33,10 +34,15 @@ export function suiteRegistry(target = '.') {
     if (comp.version) versions.push({ id: m.id, ...comp.version })
   }
 
+  const { needs, dependents } = buildGraph(manifest)
+  const graph = manifest.order.map((id) => ({ id, needs: needs.get(id) ?? [], neededBy: dependents.get(id) ?? [] }))
+
   return {
     family: manifest.family,
     manifest: manifestChecksum(manifest),
     memberCount: manifest.memberCount,
+    order: manifest.order,
+    graph,
     byRole: countBy(manifest.members, 'role'),
     byStatus: countBy(manifest.members, 'status'),
     floors,

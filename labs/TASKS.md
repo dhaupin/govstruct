@@ -17,7 +17,10 @@ gap list: G10 (refusal vocabulary) first, then G3 (the graph), then G1+G5
 - [x] **The manifest grammar (lint).** id==filename, https + unique urls,
       order collisions (global rule), role/status/section enums, alias and
       `needs`/`home` edges, tombstone discipline. 18 two-way fixtures.
-- [x] **G3 - the graph.** `needs[]` edges, topological sort, cycle refusal.
+- [x] **G3 - the graph, both halves.** `needs[]` edges, topological sort,
+      cycle refusal; the roll-up renders the graph, and `govstruct impact
+      <id>` walks the reverse closure to every transitive dependent (the
+      propagation path). Unknown id refuses `E_IMPACT_UNKNOWN_MEMBER`.
 - [x] **The render surfaces.** react | partial | readme | registry, emitted
       statically; `registry.json` carries the manifest checksum.
 - [x] **The doctor.** Offline by default (G11); `--suite` reports the

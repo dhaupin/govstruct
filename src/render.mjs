@@ -15,6 +15,7 @@
 // checksum, so a consumer can prove the copy it read is the copy the suite
 // emitted (PRD section 5.1).
 import { createHash } from 'node:crypto'
+import { buildGraph } from './graph.mjs'
 
 /** The manifest checksum: a stable sha256 over the canonical member list. */
 export function manifestChecksum(manifest) {
@@ -136,12 +137,14 @@ ${rows}
 /** 4. Registry surface: machine-readable manifest export. */
 export function renderRegistry(manifest) {
   const checksum = manifestChecksum(manifest)
+  const { needs, dependents } = buildGraph(manifest)
   return JSON.stringify({
     schemaVersion: 1,
     generated: { by: 'govstruct', surface: 'registry', manifest: checksum },
     family: manifest.family,
     memberCount: manifest.memberCount,
     order: manifest.order,
+    graph: manifest.order.map((id) => ({ id, needs: needs.get(id) ?? [], neededBy: dependents.get(id) ?? [] })),
     members: manifest.members,
   }, null, 2) + '\n'
 }

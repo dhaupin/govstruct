@@ -364,6 +364,13 @@ orders its checks by dependency, refuses a cycle, and the roll-up renders the
 graph. This is also the propagation path - a floor bump on a member is a diff the
 doctor walks to every dependent.
 
+**Implemented.** `src/graph.mjs` derives the adjacency from `needs[]` (forward
+and reverse). The roll-up (`registry.json`) carries `graph[]` - one
+`{ id, needs, neededBy }` row per member. `govstruct impact <id>` walks the
+reverse closure and reports every direct and transitive dependent: the "who
+does a bump here touch?" answer, derived from the manifest, never
+hand-maintained. An unknown id refuses by name (`E_IMPACT_UNKNOWN_MEMBER`).
+
 ### 6.4 One refusal vocabulary (G10)
 
 The family's core law is "refusal instant and nameable" - but each tool names its

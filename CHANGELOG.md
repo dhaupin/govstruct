@@ -92,6 +92,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Six new refusal codes** (55 total): `E_HISTORY_INVALID`,
   `E_HISTORY_BACKWARD`, `E_HISTORY_MISMATCH`, `E_RETIRE_UNKNOWN_MEMBER`,
   `E_RETIRE_ALREADY_TOMBSTONED`, `E_RETIRE_ALIAS_REQUIRED`.
+- **The dependency graph, both halves (G3).** `needs[]` edges were already
+  topo-sorted and cycle-refused; now the PRD's other two promises land. The
+  roll-up (`registry.json`) renders the graph (`{ id, needs, neededBy }` per
+  member), and `govstruct impact <id>` answers the maintainer's real
+  question - "who does a bump here touch?" - by walking the reverse closure
+  to every direct and transitive dependent. An unknown id refuses by name
+  (`E_IMPACT_UNKNOWN_MEMBER`).
 - **Accessibility and i18n (G8, S5).** The menu renders on every member site,
   so govstruct's own surface now states its floor: the emitted pane carries a
   named landmark, a real anchor per row (never a click-handler `div`), a
@@ -109,6 +116,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Five new refusal codes** (60 total): `E_A11Y_NO_LANDMARK`,
   `E_A11Y_FAKE_ANCHOR`, `E_A11Y_NO_FOCUS`, `E_I18N_UNKEYED`,
   `E_I18N_NO_FALLBACK`.
+- **One more refusal code** (61 total): `E_IMPACT_UNKNOWN_MEMBER`.
 
 ### Notes
 - The reference roster (23 members) is data, not code: member 24 is a block

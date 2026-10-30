@@ -88,6 +88,11 @@
   transition, and logs one ledger row. Retirement is terminal - a second
   retire refuses. A tombstone with neither an alias nor its history is a lie
   about a member that never existed (`E_TOMBSTONE_EMPTY`).
+- The dependency graph (G3) is derived, never hand-maintained. `src/graph.mjs`
+  reads `needs[]` into forward and reverse adjacency; the roll-up carries
+  `graph[]` (`{ id, needs, neededBy }`), and `govstruct impact <id>` walks the
+  reverse closure to every direct and transitive dependent - the propagation
+  path a floor bump follows. An unknown id refuses `E_IMPACT_UNKNOWN_MEMBER`.
 - The audit address canonicalizes RECURSIVELY (keys sorted at every depth).
   A shallow key sort drops nested keys from the hash, so a rewritten verdict
   row or actor id would not break the chain - tamper-evidence would be a lie.

@@ -296,9 +296,39 @@ function makeA11yHandler() {
   };
 }
 
+// The graph (G3): a bump on a member propagates to every dependent. This
+// route materializes a three-member chain (leaf <- mid <- top) and runs
+// `govstruct impact <id> --json` - the wire a maintainer's "who does this
+// touch?" actually travels. An unknown id must refuse by name.
+async function impactOne(shape) {
+  const root = mkdtempSync(join(tmpdir(), 'govstruct-ct-i-'));
+  try {
+    writeFamily(root, {
+      'leaf.json': goodMember('leaf', { order: 1 }),
+      'mid.json': goodMember('mid', { order: 2, needs: [{ id: 'leaf' }] }),
+      'top.json': goodMember('top', { order: 3, needs: [{ id: 'mid' }] }),
+    });
+    const id = shape === 'impact-unknown' ? 'ghost' : 'leaf';
+    const rec = spawnSync(process.execPath, [CLI, 'impact', id, '--json'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
+    return { status: 200, body: JSON.stringify({ exit: rec.status ?? 2, stdout: rec.stdout ?? '', stderr: rec.stderr ?? '' }) };
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function makeImpactHandler() {
+  return async ({ request }) => {
+    let shape;
+    try { shape = new URL(request.url).searchParams.get('shape'); } catch { shape = null; }
+    if (!shape) return new Response(JSON.stringify({ error: 'shape param required' }), { status: 400 });
+    const r = await impactOne(shape);
+    return new Response(r.body, { status: r.status, headers: { 'content-type': 'application/json' } });
+  };
+}
+
 export default {
   baseUrl: 'https://govstruct.local',
-  routes: { lint: makeLintHandler(), verdict: makeVerdictHandler(), retire: makeRetireHandler(), a11y: makeA11yHandler() },
+  routes: { lint: makeLintHandler(), verdict: makeVerdictHandler(), retire: makeRetireHandler(), a11y: makeA11yHandler(), impact: makeImpactHandler() },
   // Adopt only OUR scenario pack: the packs/public tree also carries the
   // check-profile packs (floor-shapes and friends), which are govstruct's
   // compliance packs, not crashtest scenarios. Pointing at the one pack dir

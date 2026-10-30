@@ -35,6 +35,143 @@
     "vibeflow",
     "weisync"
   ],
+  "graph": [
+    {
+      "id": "audithole",
+      "needs": [],
+      "neededBy": []
+    },
+    {
+      "id": "creadev",
+      "needs": [],
+      "neededBy": []
+    },
+    {
+      "id": "creadev-qos",
+      "needs": [],
+      "neededBy": []
+    },
+    {
+      "id": "creadev-security",
+      "needs": [],
+      "neededBy": []
+    },
+    {
+      "id": "freestruct",
+      "needs": [],
+      "neededBy": []
+    },
+    {
+      "id": "gistory",
+      "needs": [],
+      "neededBy": []
+    },
+    {
+      "id": "migrare",
+      "needs": [],
+      "neededBy": []
+    },
+    {
+      "id": "monoforge",
+      "needs": [],
+      "neededBy": []
+    },
+    {
+      "id": "packstruct",
+      "needs": [],
+      "neededBy": [
+        "crashtest",
+        "eyestruct",
+        "govstruct",
+        "poststruct"
+      ]
+    },
+    {
+      "id": "crashtest",
+      "needs": [
+        "packstruct"
+      ],
+      "neededBy": []
+    },
+    {
+      "id": "eyestruct",
+      "needs": [
+        "packstruct"
+      ],
+      "neededBy": []
+    },
+    {
+      "id": "govstruct",
+      "needs": [
+        "packstruct"
+      ],
+      "neededBy": []
+    },
+    {
+      "id": "poststruct",
+      "needs": [
+        "packstruct"
+      ],
+      "neededBy": [
+        "coreforge"
+      ]
+    },
+    {
+      "id": "prestruct",
+      "needs": [],
+      "neededBy": [
+        "coreforge"
+      ]
+    },
+    {
+      "id": "coreforge",
+      "needs": [
+        "poststruct",
+        "prestruct"
+      ],
+      "neededBy": []
+    },
+    {
+      "id": "railyard",
+      "needs": [],
+      "neededBy": []
+    },
+    {
+      "id": "regarded",
+      "needs": [],
+      "neededBy": []
+    },
+    {
+      "id": "stegoframe",
+      "needs": [],
+      "neededBy": []
+    },
+    {
+      "id": "this",
+      "needs": [],
+      "neededBy": []
+    },
+    {
+      "id": "threadforge",
+      "needs": [],
+      "neededBy": []
+    },
+    {
+      "id": "vant",
+      "needs": [],
+      "neededBy": []
+    },
+    {
+      "id": "vibeflow",
+      "needs": [],
+      "neededBy": []
+    },
+    {
+      "id": "weisync",
+      "needs": [],
+      "neededBy": []
+    }
+  ],
   "members": [
     {
       "id": "govstruct",

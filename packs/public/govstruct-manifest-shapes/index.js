@@ -311,6 +311,45 @@ export default {
     },
 
     {
+      name: 'graph-propagation-walks',
+      description: 'the dependency graph (G3): a bump on a leaf propagates to every transitive dependent by name, and an unknown id refuses E_IMPACT_UNKNOWN_MEMBER',
+      async run(harness, ctx = {}) {
+        const runImpact = async (shape) => {
+          const rec = await harness.run('impact', { method: 'GET', url: `/impact?shape=${shape}` });
+          if (rec.threw) return { threw: true };
+          let body = '';
+          try { body = await rec.response.text(); } catch { /* empty */ }
+          try { return { threw: false, ...JSON.parse(body) }; } catch { return { threw: false, parse: false }; }
+        };
+        const fails = [];
+
+        // leaf <- mid <- top: a bump on leaf must reach mid and top.
+        const r = await runImpact('impact-chain');
+        if (r.threw || r.parse === false) return exhausted('impact route crashed or returned an unparseable body');
+        if (r.exit !== 0) fails.push(`impact-chain: exit ${r.exit} (expected 0)`);
+        let v = null;
+        try { v = JSON.parse(r.stdout); } catch { /* leave null */ }
+        if (!v) fails.push('impact-chain: unparseable impact body');
+        else {
+          if (JSON.stringify(v.direct) !== JSON.stringify(['mid'])) fails.push(`impact-chain: direct ${JSON.stringify(v.direct)} (expected ["mid"])`);
+          if (JSON.stringify(v.transitive) !== JSON.stringify(['mid', 'top'])) fails.push(`impact-chain: transitive ${JSON.stringify(v.transitive)} (expected ["mid","top"])`);
+        }
+
+        // An unknown id must refuse by name.
+        const u = await runImpact('impact-unknown');
+        if (u.threw || u.parse === false) fails.push('impact-unknown: unparseable body');
+        else {
+          if (u.exit !== 1) fails.push(`impact-unknown: exit ${u.exit} (expected 1)`);
+          const blob = `${u.stdout}${u.stderr}`;
+          if (!blob.includes('E_IMPACT_UNKNOWN_MEMBER')) fails.push('impact-unknown: expected E_IMPACT_UNKNOWN_MEMBER');
+        }
+
+        if (fails.length) return exhausted(`the propagation path leaked: ${fails.join(' | ')}`);
+        return refused('a bump on a leaf walks to every transitive dependent by name (direct + transitive), and an unknown id refuses E_IMPACT_UNKNOWN_MEMBER (G3)');
+      },
+    },
+
+    {
       name: 'clean-family-canary',
       description: 'the conforming family exits 0 with an empty refusals list - the happy wire holds',
       async run(harness, ctx = {}) {

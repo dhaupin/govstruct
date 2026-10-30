@@ -31,6 +31,7 @@ import { stamp } from '../src/stamp.mjs'
 import { retire } from '../src/lifecycle.mjs'
 import { emitReceipt, verifyReceipts, verdictRollup } from '../src/verdict.mjs'
 import { Refusal } from '../src/refusals.mjs'
+import { impact } from '../src/graph.mjs'
 
 const argv = process.argv.slice(2)
 const verb = argv[0] ?? 'help'
@@ -56,6 +57,7 @@ const usage = () => {
   verdict emit <file>  push a member's status receipt (verdict bus, G4)
   verdict verify       walk the receipt chain offline
   verdict rollup       read fresh receipts, poll the rest
+  impact <id>          the propagation path: who depends on <id>
 
 Global: --json for machine output; --network to allow socket checks.`)
 }
@@ -267,6 +269,22 @@ async function main() {
           process.exit(0)
         }
         usageError('audit needs a subcommand: verify | record')
+      }
+
+      case 'impact': {
+        rejectUnknownFlags(rest, ['--json'])
+        const id = rest.find((a) => !a.startsWith('-'))
+        if (!id) usageError('impact needs a member id: govstruct impact <id>')
+        const { manifest } = loadManifest('.')
+        const r = impact(manifest, id)
+        if (json) {
+          console.log(JSON.stringify({ schema: 1, mode: 'impact', ...r }, null, 2))
+        } else {
+          console.log(`govstruct impact: ${r.id}`)
+          console.log(`  direct: ${r.direct.length ? r.direct.join(', ') : '(none)'}`)
+          console.log(`  transitive: ${r.transitive.length ? r.transitive.join(', ') : '(none)'}`)
+        }
+        process.exit(0)
       }
 
       case 'help':
