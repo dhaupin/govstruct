@@ -1,0 +1,100 @@
+name: publish
+# npm Trusted Publishing (OIDC) - the family pattern (prestruct, crashtest,
+# freestruct, packstruct): there is NO NPM_TOKEN secret anywhere. Provenance
+# is generated automatically for trusted-publisher runs; do not add
+# publishConfig.provenance to package.json. One-time npmjs.com setup is
+# REQUIRED before the first tag: govstruct -> Settings -> Trusted Publisher
+# (repo dhaupin/govstruct, workflow publish.yml). The manual bootstrap
+# publish (0.9.0) must create the package first, so the npm/cli#8544 limit
+# (OIDC cannot create a brand-new package) does not apply.
+#
+# Trusted publishing needs node >= 22.14 / npm >= 11.5.1.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - run: npm install --no-fund --no-audit
+      - run: npm test
+      - id: gate
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if [ "${GITHUB_REF_NAME#v}" != "$VERSION" ]; then
+            echo "ref '$GITHUB_REF_NAME' does not carry package version $VERSION (need v$VERSION) - refusing"
+            exit 1
+          fi
+          if [ "$(echo "$VERSION" | cut -d. -f1)" = "0" ]; then
+            echo "0.x versions publish manually per DEPLOY.md - refusing"
+            exit 1
+          fi
+          if npm view govstruct@$VERSION >/dev/null 2>&1; then
+            echo "govstruct@$VERSION already on npm - skipping"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+      - run: npm publish
+        if: steps.gate.outputs.skip != 'true'
+
+  github-release:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract version from the tag
+        run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+      - name: Pack the npm tarball as the release asset
+        run: |
+          set -euo pipefail
+          TARBALL="govstruct-${VERSION#v}.tgz"
+          npm pack
+          test -f "$TARBALL" || { echo "::error::expected asset $TARBALL not produced"; exit 1; }
+          tar -tzf "$TARBALL" > tarball-listing.txt
+          for required in bin/cli.mjs src/index.mjs src/lint.mjs src/audit.mjs spec/refusals.json; do
+            grep -q "^package/$required" tarball-listing.txt || { echo "::error::release tarball missing package/$required"; exit 1; }
+          done
+          if grep -Eq "^package/(web/|labs/|test/|\.github/|packs/)" tarball-listing.txt; then
+            echo "::error::release tarball contains repo-bound internals:"
+            grep -E "^package/(web/|labs/|test/|\.github/|packs/)" tarball-listing.txt
+            exit 1
+          fi
+          rm tarball-listing.txt
+          echo "TARBALL=$TARBALL" >> $GITHUB_ENV
+      - name: Create the GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "govstruct ${{ env.VERSION }}"
+          body: |
+            The controller layer for a family of repos: one manifest of members,
+            one render surface per deployment shape, one doctor verb that verifies
+            every adopter serves the same truth.
+
+            ```bash
+            npx govstruct lint
+            npx govstruct render registry
+            npx govstruct doctor --suite
+            ```
+
+            Zero runtime dependencies, Node ESM, exit codes 0/1/2. The
+            `govstruct-${{ env.VERSION }}.tgz` asset is the same tarball shape npm
+            published for this tag.
+          files: ${{ env.TARBALL }}
+          fail_on_unmatched_files: true
+          generate_release_notes: true

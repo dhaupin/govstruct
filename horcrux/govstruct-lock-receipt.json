@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "tool": "govstruct",
+  "name": "govstruct",
+  "version": "0.9.0",
+  "manifest": "sha256:6a2ef28d1a402f0d3ddcc34a1183180960ca4fa15dd3af3fb15ea66633068af5",
+  "at": "2026-10-30T00:33:51.732Z",
+  "archive": "horcrux/govstruct-0.9.0-lock-2026-10-30.tar.gz",
+  "sha256": "57601498c8271c4ca5fac40ea6e7d4a2ba97df8a265b916a64faba9dc088093b"
+}

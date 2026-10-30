@@ -29,14 +29,35 @@ and pin themselves is the product.
   govstruct composes them rather than re-implementing them.
 
 ```
-govstruct lint              # manifest grammar
-govstruct render <target>   # react | partial | readme | registry
-govstruct doctor [--suite]  # adopter checksum gate, or suite-wide truth battery
-govstruct check             # the compliance shape packs
-govstruct registry          # the suite roll-up (env / pins / floors / versions)
-govstruct lock              # archive + sha256 receipt
+govstruct lint                 # manifest grammar
+govstruct render <target>      # react | partial | readme | registry
+govstruct doctor [--suite]     # adopter checksum gate, or suite-wide truth battery
+govstruct check                # the source-consistency check packs
+govstruct registry             # the suite roll-up (env / pins / floors / versions)
+govstruct lock                 # archive + sha256 receipt
+govstruct names <id>           # check a candidate id against npm, GitHub, the roster
+govstruct migrate --status     # report / preview a spec or field migration
+govstruct init [<dir>]         # scaffold a one-member family
+govstruct audit verify         # walk the audit ledger chain (offline)
 ```
 
-**Status:** pre-alpha. The design lives in [`labs/prd-govstruct.md`](./labs/prd-govstruct.md).
+Exit codes are the family ladder: `0` all honored, `1` any refusal, `2` usage
+error. Every refusal carries a code from [`spec/refusals.json`](./spec/refusals.json)
+(the shared vocabulary); a code the vocabulary does not name is itself refused.
+
+**Status:** pre-alpha, first build complete (all verbs green). The design lives
+in [`labs/prd-govstruct.md`](./labs/prd-govstruct.md).
 
 MIT.
+
+## The gate
+
+```bash
+npm test          # the spine: node --test + the two-way fixtures
+npm run check     # the nine source-consistency check packs
+npx crashtest run # the lint contract under a hostile member-block corpus
+```
+
+`npm test` and the dogfood both run on every push to `main` and `staging`
+(`.github/workflows/`). Zero runtime dependencies; the only install surface is
+the dev tooling the dogfood lanes pull in.

@@ -1,0 +1,62 @@
+# labs/TASKS.md - govstruct work log
+
+> Rolling log. Companion to [`labs/prd-govstruct.md`](./prd-govstruct.md) (the
+> product contract). Newest session at top. Struck items are done.
+
+Last updated: 2026-10-30.
+
+## Session 2026-10-30 - the first build
+
+The controller layer's core landed, all verbs green. Build-order from the PRD
+gap list: G10 (refusal vocabulary) first, then G3 (the graph), then G1+G5
+(write path + grants).
+
+- [x] **G10 - the refusal vocabulary.** `spec/refusals.json`, 39 codes,
+      namespaced by tool. Every refusal carries a registered code; an
+      unregistered code is itself refused (`E_REFUSAL_UNREGISTERED`).
+- [x] **The manifest grammar (lint).** id==filename, https + unique urls,
+      order collisions (global rule), role/status/section enums, alias and
+      `needs`/`home` edges, tombstone discipline. 18 two-way fixtures.
+- [x] **G3 - the graph.** `needs[]` edges, topological sort, cycle refusal.
+- [x] **The render surfaces.** react | partial | readme | registry, emitted
+      statically; `registry.json` carries the manifest checksum.
+- [x] **The doctor.** Offline by default (G11); `--suite` reports the
+      suite-wide truth battery.
+- [x] **The check host + nine source-consistency packs** (PRD section 11):
+      comment, env, floor, hygiene, naming, pin, style, test, version.
+- [x] **The registry roll-up.** Floors, env, pins, versions from the
+      compliance blocks into one addressed, checksummed surface.
+- [x] **G14 - the audit ledger.** Append-only, tamper-evident
+      (`labs/audit-ledger.jsonl`); `audit record` appends, `audit verify`
+      walks the chain offline.
+- [x] **G9 / G2 / G6 - init, names, migrate.** `init` scaffolds a green
+      one-member family; `names` checks the roster + the reserved block;
+      `migrate --status/--dry-run` reports the ritual.
+- [x] **The crashtest dogfood.** `packs/public/govstruct-manifest-shapes`,
+      five attacks over a hostile corpus through an in-process double. All
+      REFUSED, zero exploited.
+- [x] **The test spine.** 74 tests over 13 modules, two-way fixtures.
+- [x] **Docs + CI.** AGENTS.md, CHANGELOG.md, DEPLOY.md, README refresh,
+      `.github/workflows/{test,crashtest,publish}.yml`.
+
+## Next
+
+- [ ] **G1 + G5 - the write path + grants.** The stamp path and the scoped
+      credential list (`grants[]`), so a stamp cannot spend a credential
+      absent from a member's list.
+- [ ] **G4 - the verdict bus.** How the arms' verdicts (crashtest, eyestruct,
+      poststruct) land in one place.
+- [ ] **G8 - accessibility + i18n** (PRD section 10 S5).
+- [ ] **`compliance.yml`** - `govstruct doctor --suite` over every adopter at
+      a pinned rev, refusing drift.
+- [ ] **`web/` + `docs/`** - the coreforge landing shell and the Jekyll rig,
+      adopted from a checkout per the house rule.
+- [ ] **`apps.json`** - the composed manifest, if the block-file directory
+      proves insufficient (open question, PRD section 17).
+
+## Laws this repo carries
+
+- Manifest frozen, refusal instant and nameable.
+- Every refusal carries a registered code (G10).
+- `labs/` is a receipt, not config: the rename doctor skips it.
+- The doctor is offline by default: the default run never opens a socket.

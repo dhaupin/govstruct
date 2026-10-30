@@ -1,0 +1,25 @@
+name: crashtest
+on:
+  push: { branches: [main, staging] }
+  pull_request: { branches: [main, staging] }
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm install --no-fund --no-audit
+      - run: npm test
+      # npm registry pin: crashtest 1.2.0 is unreleased on main, so the lane
+      # pins the published 1.1.0. Bump the pin and the ledger together.
+      - name: Install crashtest
+        run: npm install --no-save --no-audit --no-fund crashtest@1.1.0
+      - name: Run the manifest-shapes pack
+        run: npx crashtest run

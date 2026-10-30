@@ -1,0 +1,33 @@
+name: test
+on:
+  push: { branches: [main, staging] }
+  pull_request: { branches: [main, staging] }
+  workflow_dispatch:
+
+jobs:
+  test:
+    # Bounded: a stalled runner dies HERE (10 min) with its phase markers in
+    # the log instead of hanging silently.
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm install --no-fund --no-audit
+      - run: npm test
+      # The check host over the nine source-consistency packs.
+      - name: check battery
+        run: npm run check
+      # The manifest grammar through the CLI, both ways: the reference roster
+      # lints green, and a broken fixture family refuses.
+      - name: lint the repo's own fixtures through the CLI (both ways)
+        run: |
+          node bin/cli.mjs lint test/fixtures/clean
+          if node bin/cli.mjs lint test/fixtures/broken/id-mismatch >/dev/null 2>&1; then
+            echo "lint should have refused the broken fixture"; exit 1
+          fi
+      - name: doctor the reference roster
+        run: npm run doctor
+      - name: the audit ledger verifies offline
+        run: node bin/cli.mjs audit verify

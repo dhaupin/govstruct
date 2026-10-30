@@ -1,0 +1,332 @@
+{
+  "schemaVersion": 1,
+  "findings": [
+    {
+      "id": "auth/identity-spoof-headers",
+      "verdict": "REFUSED",
+      "detail": "route \"admin\" not declared on this target - spoof matrix skipped (declare it for coverage)"
+    },
+    {
+      "id": "auth/secret-watermark",
+      "verdict": "REFUSED",
+      "detail": "no fake secrets planted in env - declare CRASHTEST_SECRET to arm this probe"
+    },
+    {
+      "id": "auth/privilege-escalation",
+      "verdict": "REFUSED",
+      "detail": "route \"device\" not declared on this target - escalation skipped (declare it for coverage)"
+    },
+    {
+      "id": "authz/method-matrix-privileged",
+      "verdict": "REFUSED",
+      "detail": "route \"admin\" not declared on this target - authz skipped (declare it for coverage)"
+    },
+    {
+      "id": "authz/role-body-spoof-family",
+      "verdict": "REFUSED",
+      "detail": "route \"admin\" not declared on this target - authz skipped (declare it for coverage)"
+    },
+    {
+      "id": "authz/handler-alias-confusion",
+      "verdict": "REFUSED",
+      "detail": "route \"admin\" not declared on this target - authz skipped (declare it for coverage)"
+    },
+    {
+      "id": "governance/succession-trust-floor",
+      "verdict": "REFUSED",
+      "detail": "vocabulary knob(s) \"grantsRoute\", \"resolveRoute\" not declared on this target - governance skipped (export moduleCtx['governance'].grantsRoute/resolveRoute for coverage)"
+    },
+    {
+      "id": "governance/succession-single-heir",
+      "verdict": "REFUSED",
+      "detail": "vocabulary knob(s) \"grantsRoute\", \"resolveRoute\" not declared on this target - governance skipped (export moduleCtx['governance'].grantsRoute/resolveRoute for coverage)"
+    },
+    {
+      "id": "governance/succession-revocation-carry",
+      "verdict": "REFUSED",
+      "detail": "vocabulary knob(s) \"grantsRoute\", \"resolveRoute\" not declared on this target - governance skipped (export moduleCtx['governance'].grantsRoute/resolveRoute for coverage)"
+    },
+    {
+      "id": "governance/escrow-two-key-release",
+      "verdict": "REFUSED",
+      "detail": "vocabulary knob(s) \"escrowRoute\" not declared on this target - escrow skipped (export moduleCtx['governance'].escrowRoute for coverage)"
+    },
+    {
+      "id": "governance/escrow-expiry-is-fail-closed",
+      "verdict": "REFUSED",
+      "detail": "vocabulary knob(s) \"escrowRoute\" not declared on this target - escrow skipped (export moduleCtx['governance'].escrowRoute for coverage)"
+    },
+    {
+      "id": "governance/escrow-refusal-is-typed",
+      "verdict": "REFUSED",
+      "detail": "vocabulary knob(s) \"escrowRoute\" not declared on this target - escrow skipped (export moduleCtx['governance'].escrowRoute for coverage)"
+    },
+    {
+      "id": "governance/grant-conflict-deterministic",
+      "verdict": "REFUSED",
+      "detail": "vocabulary knob(s) \"grantsRoute\", \"resolveRoute\" not declared on this target - governance skipped (export moduleCtx['governance'].grantsRoute/resolveRoute for coverage)"
+    },
+    {
+      "id": "governance/capability-no-sideways",
+      "verdict": "REFUSED",
+      "detail": "vocabulary knob(s) \"grantsRoute\", \"resolveRoute\" not declared on this target - governance skipped (export moduleCtx['governance'].grantsRoute/resolveRoute for coverage)"
+    },
+    {
+      "id": "governance/lock-ttl-honesty",
+      "verdict": "REFUSED",
+      "detail": "governance knob(s) \"locksRoute\", \"ttlMode\" not declared on this target - lock-ttl-honesty skipped (declare locksRoute + the DOCUMENTED ttlMode for coverage)"
+    },
+    {
+      "id": "governance/lock-owner-fencing",
+      "verdict": "REFUSED",
+      "detail": "governance knob(s) \"locksRoute\", \"staleToken\" not declared on this target - fencing skipped (declare locksRoute + staleToken for coverage)"
+    },
+    {
+      "id": "govstruct-manifest-shapes/hostile-manifest-fuzz",
+      "verdict": "REFUSED",
+      "detail": "13 hostile family shapes held: in-bounds verdicts, nameable refusals, no crash, no deep stack (PRD section 6)"
+    },
+    {
+      "id": "govstruct-manifest-shapes/oversize-in-bounds",
+      "verdict": "REFUSED",
+      "detail": "oversize but spec-allowed shapes (deep extra nesting, half-megabyte string) answered in-bounds"
+    },
+    {
+      "id": "govstruct-manifest-shapes/refusal-codes-registered",
+      "verdict": "REFUSED",
+      "detail": "every emitted refusal code is registered (the G10 vocabulary holds)"
+    },
+    {
+      "id": "govstruct-manifest-shapes/over-strict-drift-canary",
+      "verdict": "REFUSED",
+      "detail": "minimum-spec shapes held: null url/repo, extra keys, and retired aliases all exit 0, zero refusals"
+    },
+    {
+      "id": "govstruct-manifest-shapes/clean-family-canary",
+      "verdict": "REFUSED",
+      "detail": "clean family exits 0 with an empty refusals list (the happy wire holds)"
+    },
+    {
+      "id": "guards/hygiene-no-store",
+      "verdict": "REFUSED",
+      "detail": "route \"enroll\" not declared on this target - attack skipped (declare it for coverage)"
+    },
+    {
+      "id": "guards/burst-wall",
+      "verdict": "REFUSED",
+      "detail": "route \"burst\" not declared on this target - attack skipped (declare it for coverage)"
+    },
+    {
+      "id": "input/proto-pollution-body",
+      "verdict": "REFUSED",
+      "detail": "route \"enroll\" not declared on this target - attack skipped (declare it for coverage)"
+    },
+    {
+      "id": "input/never-fail-mutations",
+      "verdict": "REFUSED",
+      "detail": "route \"enroll\" not declared on this target - attack skipped (declare it for coverage)"
+    },
+    {
+      "id": "input/oversized-field",
+      "verdict": "REFUSED",
+      "detail": "route \"enroll\" not declared on this target - attack skipped (declare it for coverage)"
+    },
+    {
+      "id": "memory/drift-silent-overwrite",
+      "verdict": "REFUSED",
+      "detail": "vocabulary knob(s) \"writeRoute\", \"readRoute\" not declared on this target - memory skipped (export moduleCtx['memory'].writeRoute/readRoute for coverage)"
+    },
+    {
+      "id": "memory/drift-stale-poisons-fresh",
+      "verdict": "REFUSED",
+      "detail": "vocabulary knob(s) \"writeRoute\", \"readRoute\" not declared on this target - memory skipped (export moduleCtx['memory'].writeRoute/readRoute for coverage)"
+    },
+    {
+      "id": "memory/drift-contradiction-carry",
+      "verdict": "REFUSED",
+      "detail": "vocabulary knob(s) \"writeRoute\", \"readRoute\" not declared on this target - memory skipped (export moduleCtx['memory'].writeRoute/readRoute for coverage)"
+    },
+    {
+      "id": "memory/hallucinated-fact-probe",
+      "verdict": "REFUSED",
+      "detail": "vocabulary knob(s) \"writeRoute\", \"readRoute\" not declared on this target - memory skipped (export moduleCtx['memory'].writeRoute/readRoute for coverage)"
+    },
+    {
+      "id": "memory/citation-drift",
+      "verdict": "REFUSED",
+      "detail": "vocabulary knob(s) \"writeRoute\", \"readRoute\", \"deleteRoute\" not declared on this target - citation drift skipped (export moduleCtx['memory'].writeRoute/readRoute/deleteRoute for coverage)"
+    },
+    {
+      "id": "memory/phantom-scope",
+      "verdict": "REFUSED",
+      "detail": "vocabulary knob(s) \"writeRoute\", \"readRoute\" not declared on this target - memory skipped (export moduleCtx['memory'].writeRoute/readRoute for coverage)"
+    },
+    {
+      "id": "memory/identity-merge-collision",
+      "verdict": "REFUSED",
+      "detail": "vocabulary knob(s) \"writeRoute\", \"readRoute\" not declared on this target - memory skipped (export moduleCtx['memory'].writeRoute/readRoute for coverage)"
+    },
+    {
+      "id": "memory/resolution-order-stability",
+      "verdict": "REFUSED",
+      "detail": "vocabulary knob(s) \"writeRoute\", \"readRoute\" not declared on this target - memory skipped (export moduleCtx['memory'].writeRoute/readRoute for coverage)"
+    },
+    {
+      "id": "memory/delete-is-loud",
+      "verdict": "REFUSED",
+      "detail": "vocabulary knob(s) \"writeRoute\", \"readRoute\", \"deleteRoute\" not declared on this target - delete skip (export moduleCtx['memory'].writeRoute/readRoute/deleteRoute for coverage)"
+    },
+    {
+      "id": "proto-hygiene/head-get-parity",
+      "verdict": "REFUSED",
+      "detail": "1 route(s): HEAD mirrors GET (no throws, no status drift beyond honest 405) + 1 info note(s)"
+    },
+    {
+      "id": "proto-hygiene/request-shape-flood",
+      "verdict": "REFUSED",
+      "detail": "1 route(s) x 18 bare shapes (query chaos, path shapes, header casings) all landed 4xx-or-cleaner with case-parity intact"
+    },
+    {
+      "id": "race/double-submit-idempotency",
+      "verdict": "REFUSED",
+      "detail": "route \"charge\" not declared on this target - race skipped (declare it for coverage)"
+    },
+    {
+      "id": "race/concurrent-write-lost-update",
+      "verdict": "REFUSED",
+      "detail": "route \"profile\" not declared on this target - race skipped (declare it for coverage)"
+    },
+    {
+      "id": "recursion/deep-nest-stack-overflow",
+      "verdict": "REFUSED",
+      "detail": "route \"enroll\" not declared on this target - recursion skipped (declare it for coverage)"
+    },
+    {
+      "id": "recursion/redos-catastrophic-pattern",
+      "verdict": "REFUSED",
+      "detail": "route \"validate\" not declared on this target - recursion skipped (declare it for coverage)"
+    },
+    {
+      "id": "session/cookie-hygiene",
+      "verdict": "REFUSED",
+      "detail": "route \"login\" not declared on this target - session skipped (declare it for coverage)"
+    },
+    {
+      "id": "session/session-fixation",
+      "verdict": "REFUSED",
+      "detail": "route(s) \"login\", \"me\" not declared on this target - session skipped (declare it for coverage)"
+    },
+    {
+      "id": "session/token-replay-deny",
+      "verdict": "REFUSED",
+      "detail": "route \"login\" not declared on this target - session skipped (declare it for coverage)"
+    },
+    {
+      "id": "session/logout-invalidates",
+      "verdict": "REFUSED",
+      "detail": "route(s) \"login\", \"me\", \"logout\" not declared on this target - session skipped (declare it for coverage)"
+    },
+    {
+      "id": "state/enumeration-oracle",
+      "verdict": "REFUSED",
+      "detail": "route \"device\" not declared on this target - enumeration skipped (declare it for coverage)"
+    },
+    {
+      "id": "state/id-collision-alias",
+      "verdict": "REFUSED",
+      "detail": "route \"enroll\" not declared on this target - alias check skipped"
+    },
+    {
+      "id": "taxonomy/abuse-not-5xx",
+      "verdict": "REFUSED",
+      "detail": "route \"enroll\" not declared on this target - taxonomy skipped (declare it for coverage)"
+    },
+    {
+      "id": "taxonomy/errors-stay-impersonal",
+      "verdict": "REFUSED",
+      "detail": "route \"enroll\" not declared on this target - taxonomy skipped (declare it for coverage)"
+    },
+    {
+      "id": "upload/filename-traversal-family",
+      "verdict": "REFUSED",
+      "detail": "route \"upload\" not declared on this target - upload skipped (declare the upload route + its kv store for coverage)"
+    },
+    {
+      "id": "upload/mime-polyglot-family",
+      "verdict": "REFUSED",
+      "detail": "route \"upload\" not declared on this target - upload skipped (declare the upload route + its kv store for coverage)"
+    },
+    {
+      "id": "volume/credential-stuffing",
+      "verdict": "REFUSED",
+      "detail": "route \"enroll\" not declared on this target - stuffing skipped (declare it for coverage)"
+    },
+    {
+      "id": "volume/storage-fill",
+      "verdict": "REFUSED",
+      "detail": "route \"kvwrite\" not declared on this target - fill check skipped (declare a KV-writing route)"
+    },
+    {
+      "id": "volume/cost-amplification",
+      "verdict": "REFUSED",
+      "detail": "route \"enroll\" not declared on this target - amplification skipped (declare it for coverage)"
+    }
+  ],
+  "acceptedRisks": [],
+  "baseline": [
+    "auth/identity-spoof-headers",
+    "auth/secret-watermark",
+    "auth/privilege-escalation",
+    "authz/method-matrix-privileged",
+    "authz/role-body-spoof-family",
+    "authz/handler-alias-confusion",
+    "governance/succession-trust-floor",
+    "governance/succession-single-heir",
+    "governance/succession-revocation-carry",
+    "governance/escrow-two-key-release",
+    "governance/escrow-expiry-is-fail-closed",
+    "governance/escrow-refusal-is-typed",
+    "governance/grant-conflict-deterministic",
+    "governance/capability-no-sideways",
+    "governance/lock-ttl-honesty",
+    "governance/lock-owner-fencing",
+    "govstruct-manifest-shapes/hostile-manifest-fuzz",
+    "govstruct-manifest-shapes/oversize-in-bounds",
+    "govstruct-manifest-shapes/refusal-codes-registered",
+    "govstruct-manifest-shapes/over-strict-drift-canary",
+    "govstruct-manifest-shapes/clean-family-canary",
+    "guards/hygiene-no-store",
+    "guards/burst-wall",
+    "input/proto-pollution-body",
+    "input/never-fail-mutations",
+    "input/oversized-field",
+    "memory/drift-silent-overwrite",
+    "memory/drift-stale-poisons-fresh",
+    "memory/drift-contradiction-carry",
+    "memory/hallucinated-fact-probe",
+    "memory/citation-drift",
+    "memory/phantom-scope",
+    "memory/identity-merge-collision",
+    "memory/resolution-order-stability",
+    "memory/delete-is-loud",
+    "proto-hygiene/head-get-parity",
+    "proto-hygiene/request-shape-flood",
+    "race/double-submit-idempotency",
+    "race/concurrent-write-lost-update",
+    "recursion/deep-nest-stack-overflow",
+    "recursion/redos-catastrophic-pattern",
+    "session/cookie-hygiene",
+    "session/session-fixation",
+    "session/token-replay-deny",
+    "session/logout-invalidates",
+    "state/enumeration-oracle",
+    "state/id-collision-alias",
+    "taxonomy/abuse-not-5xx",
+    "taxonomy/errors-stay-impersonal",
+    "upload/filename-traversal-family",
+    "upload/mime-polyglot-family",
+    "volume/credential-stuffing",
+    "volume/storage-fill",
+    "volume/cost-amplification"
+  ]
+}
