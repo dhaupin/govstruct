@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **The registry contract page + its drift guard (govstruct#23).** The inferops
+  filing asked which fields of `registry.v1.json` are contract versus
+  free-form, so an outside integrator can pin a `schemaVersion` and upgrade
+  consciously. `docs/registry.md` answers it: the frozen top-level and member
+  projection fields, the conditional `npm`/`repo` keys, the versioned
+  address/ETag/checksum seam a lane pins, and the refusal vocabulary a surface
+  consumer reads. `test/registry-contract.test.mjs` guards the page from
+  drifting from the emitted shape - every field the roll-up carries must be
+  named on the page.
 - **The why / what / about pages, both surfaces.** The landing gains three
   routes (`/why`, `/what`, `/about`) in the nav vocabulary, each a real page in
   the family voice: the crosslink-mesh problem and the refusal thesis; the CLI
