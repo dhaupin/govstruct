@@ -22,6 +22,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   now reports all 11 gates current.
 
 ### Added
+- **The `/api/health` canary (the fleet CF contract).** `web/functions/api/health.js`
+  ships the house Pages Function - `GET /api/health` returns honest JSON
+  (`{ ok, name, service, ts }`), the same schema poststruct / monoforge / packstruct
+  serve. The landing already deploys from the `web/` root directory, so
+  `functions/` resolves there and the canary serves at the site origin; a
+  root-level `functions/` would fall outside the Pages project and 404. This
+  closes the gap between govstruct's PRD section 9 (which names the canary as the
+  fleet shape) and the tree.
+
 - **The why / what / about pages, both surfaces.** The landing gains three
   routes (`/why`, `/what`, `/about`) in the nav vocabulary, each a real page in
   the family voice: the crosslink-mesh problem and the refusal thesis; the CLI
