@@ -300,5 +300,34 @@ export default function AppsMenu() {
     </div>
   )
 }
-// S5 (G8): a visible focus ring, so the pane is keyboard-usable.
-const STYLE = `.apps-menu__link:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }`
+// PRD 5: the pane carries its own styling, so the emitted bytes are
+// self-contained (no host CSS needed) and every color rides the tokens.
+// S5 (G8): the :focus-visible rule is the pane's keyboard-usable floor.
+const STYLE = `/* The apps menu pane (PRD 5). Self-contained + token-colored. */
+.apps-menu { position: relative; }
+.apps-menu__toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: none; border: 1px solid var(--line); border-radius: 8px;
+  color: var(--ink); cursor: pointer; padding: 8px 11px;
+}
+.apps-menu__toggle:hover,
+.apps-menu__toggle[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
+.apps-menu__grid { font-size: 18px; line-height: 1; letter-spacing: 1px; }
+.apps-menu__pane {
+  position: absolute; z-index: 30; top: calc(100% + 8px); left: 0;
+  width: min(340px, 86vw); max-height: min(70vh, 520px); overflow-y: auto;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .4); padding: 8px;
+}
+.apps-menu__pane[hidden] { display: none; }
+.apps-menu__list { list-style: none; margin: 0; padding: 0; }
+.apps-menu__item + .apps-menu__item { border-top: 1px solid var(--line); }
+.apps-menu__link {
+  display: block; padding: 10px 12px; border-radius: 8px;
+  text-decoration: none; border-left: 3px solid transparent;
+}
+.apps-menu__link:hover { background: var(--raised); border-left-color: var(--accent); }
+.apps-menu__name { display: block; color: var(--ink); font-size: 14px; font-weight: 600; }
+.apps-menu__link:hover .apps-menu__name { color: var(--accent); }
+.apps-menu__blurb { display: block; color: var(--ink-soft); font-size: 12.5px; line-height: 1.45; margin-top: 2px; }
+.apps-menu__link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }`
