@@ -18,6 +18,12 @@
  *   </pre-island>
  */
 
+import FamilyStatusIsland from './components/FamilyStatusIsland.jsx'
+
 export const islands = {
-  // 'your-island': YourIsland,
+  // family-status@1: fetches each sibling's served /status.json and renders
+  // the family table honestly - absence is rendered as absent, never guessed.
+  // Static fallback prerenders for crawlers; the live table mounts in the
+  // browser only.
+  'family-status': FamilyStatusIsland,
 }

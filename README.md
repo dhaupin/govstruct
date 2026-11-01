@@ -49,8 +49,10 @@ Exit codes are the family ladder: `0` all honored, `1` any refusal, `2` usage
 error. Every refusal carries a code from [`spec/refusals.json`](./spec/refusals.json)
 (the shared vocabulary); a code the vocabulary does not name is itself refused.
 
-**Status:** pre-alpha, first build complete (all verbs green). The design lives
-in [`labs/prd-govstruct.md`](./labs/prd-govstruct.md).
+**Status:** 0.9.0, pre-alpha - first build complete (all verbs green). The
+release ladder is in [`DEPLOY.md`](./DEPLOY.md): 0.9.x publishes manually with
+`npm publish` (the OIDC lane refuses 0.x), and 1.0.0+ publishes from `v*` tags.
+The design lives in [`labs/prd-govstruct.md`](./labs/prd-govstruct.md).
 
 MIT.
 
