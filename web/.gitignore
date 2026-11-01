@@ -1,3 +1,8 @@
 node_modules/
 dist/
 .prestruct/
+
+# The generated family-status file (family-status@1): regenerated on every
+# web build by scripts/build-status.mjs straight from the committed ledger -
+# committing it would recreate the stale-copy drift class the family kills.
+public/status.json
