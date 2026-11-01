@@ -43,3 +43,17 @@ test('a config that is not JSON refuses E_CONFIG_INVALID', () => {
     rmSync(dir, { recursive: true, force: true })
   }
 })
+
+test('a scalar override of a null-default config key merges cleanly (iso.profile)', () => {
+  // Regression: merge() treated a null default as an object and crashed on
+  // `Object.entries(null)`; a host setting iso.profile (null by default) hit it.
+  const dir = mkdtempSync(join(tmpdir(), 'govstruct-cfg-'))
+  try {
+    writeFileSync(join(dir, 'govstruct.config.json'), JSON.stringify({ schemaVersion: 1, iso: { profile: 'my-profile.json' } }))
+    const { config } = loadConfig(dir)
+    assert.equal(config.iso.profile, 'my-profile.json')
+    assert.equal(config.iso.enabled, true, 'the sibling default is preserved')
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})

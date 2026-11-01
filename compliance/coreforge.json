@@ -9,5 +9,13 @@
   },
   "env": [],
   "pins": [],
+  "templates": {
+    "file": "web/package.json",
+    "floors": [
+      { "name": "react", "floor": ">=18" },
+      { "name": "vite", "floor": ">=5" },
+      { "name": "react-router-dom", "floor": ">=6" }
+    ]
+  },
   "clause": {}
 }

@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "name": "surface-shapes",
+  "description": "The surface-shapes compliance check pack (govstruct PRD section 5.1). A packstruct SPEC v1 check-profile pack: pure-reading verifiers over the surface stability contract (spec/surface-contract.json). It keeps the promise honest - an emitted surface that drops or retypes a promised field refuses by name, so an integrator can pin a schemaVersion and upgrade consciously.",
+  "version": "0.1.0",
+  "entry": "index.mjs"
+}

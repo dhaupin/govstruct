@@ -35,18 +35,26 @@ jobs:
       # refuses drift. A declared adopter with no checkout is UNCHECKED (a
       # named state), never a silent pass. Adopters are public family repos,
       # so the checkout needs no token; a private adopter would need its own.
+      # An unreachable adopter (private, renamed, or not yet pushed) does NOT
+      # fail the job: it stays UNCHECKED and the gate names it below - the same
+      # posture as a declared adopter with no checkout at all.
       - name: Check out declared adopters at their pinned revs
         run: |
           mkdir -p .adopters
           node bin/cli.mjs doctor --adopters --json \
-            | jq -c '.report.rows[] | select(.repo != null)' \
+            | jq -c '.report.rows[] | select(.repo != null and .rev != null)' \
             | while read -r row; do
                 id=$(echo "$row" | jq -r .id)
                 repo=$(echo "$row" | jq -r .repo)
                 rev=$(echo "$row" | jq -r .rev)
                 echo "checkout $id <- $repo@$rev"
-                git clone --quiet --no-tags "https://github.com/${repo}.git" ".adopters/${id}"
-                git -C ".adopters/${id}" checkout --quiet "$rev"
+                if git clone --quiet --no-tags "https://github.com/${repo}.git" ".adopters/${id}" \
+                   && git -C ".adopters/${id}" checkout --quiet "$rev"; then
+                  :
+                else
+                  echo "adopter ${id}: ${repo}@${rev} unreachable - stays UNCHECKED (named state)"
+                  rm -rf ".adopters/${id}"
+                fi
               done
 
       - name: Gate the adopter pins (refuses drift, names the pilot state)

@@ -10,6 +10,10 @@
   items:
   - title: Overview
     url: /
+  - title: ISO compliance
+    url: /iso/
+  - title: Surface contract
+    url: /surface/
   - title: Why
     url: /why/
   - title: What

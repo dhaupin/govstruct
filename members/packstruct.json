@@ -13,5 +13,9 @@
   "status": "Live",
   "section": "open-source",
   "needs": [],
-  "grants": []
+  "grants": [],
+  "clause": {
+    "9001-8.5.1": "packstruct lint: the frozen manifest grammar, enforced",
+    "27001-A.8.28": "packstruct lint: strict checks, refusal by name"
+  }
 }

@@ -87,3 +87,33 @@ test('the offline doctor stays socket-free even with network:true', () => {
   assert.match(net.detail, /separate explicit ask/)
   assert.equal(r.report.network, true)
 })
+
+// --- issue #23 ask #3: the online leg honors a pending annotation ---
+
+test('online mode skips a declared-pending url and npm instead of refusing them', async () => {
+  const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs')
+  const { tmpdir } = await import('node:os')
+  const dir = mkdtempSync(join(tmpdir(), 'govstruct-pending-'))
+  try {
+    mkdirSync(join(dir, 'members'))
+    mkdirSync(join(dir, 'compliance'))
+    writeFileSync(join(dir, 'govstruct.config.json'), JSON.stringify({
+      schemaVersion: 1, family: { name: 'fixture' },
+      members: { dir: 'members' }, compliance: { dir: 'compliance' },
+    }))
+    writeFileSync(join(dir, 'members', 'a.json'), JSON.stringify({
+      id: 'a', name: 'A', role: 'product', url: 'https://a.example.com', repo: 'dhaupin/a',
+      npm: 'a', aliases: [], home: null, blurb: 'b', icon: 'a', order: 1, status: 'Live',
+      section: 'open-source', needs: [], grants: [],
+      pending: { resources: ['repo', 'npm', 'url'], interim: 'x/src/forge' },
+    }))
+    const dead = async () => 0
+    const r = await doctorOnline(dir, { probe: dead })
+    assert.equal(r.ok, true, JSON.stringify(r.refusals))
+    assert.ok(!r.refusals.some((x) => x.code === 'E_URL_UNRESOLVABLE' || x.code === 'E_NPM_MISSING'))
+    const pendingCheck = r.report.checks.find((c) => c.name === 'pending-resources')
+    assert.match(pendingCheck.detail, /2 declared-pending/)
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})

@@ -18,5 +18,9 @@
       "floor": ">=1"
     }
   ],
-  "grants": []
+  "grants": [],
+  "clause": {
+    "9001-8.6": "eyestruct: the frozen env surface, release-gated",
+    "27001-A.8.31": "eyestruct: dev/test/prod env separation by registry"
+  }
 }

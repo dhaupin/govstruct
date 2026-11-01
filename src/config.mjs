@@ -13,6 +13,11 @@ const DEFAULTS = {
   members: { dir: 'members' },
   compliance: { dir: 'compliance' },
   manifest: { out: 'apps.json' },
+  // G15: the ISO evidence profile. Ships with the tool and is on by default -
+  // the orientation a company needs, out of the box. A host may set
+  // `profile` to its own file to add clauses or remap codes; unset means the
+  // shipped profile is used.
+  iso: { enabled: true, profile: null },
   surfaces: {
     apps: 'apps.json',
     react: 'web/src/components/AppsMenu.jsx',
@@ -30,7 +35,7 @@ const DEFAULTS = {
 
 function merge(base, over) {
   if (over === undefined || over === null) return base
-  if (Array.isArray(base) || typeof base !== 'object') return over
+  if (base === null || base === undefined || Array.isArray(base) || typeof base !== 'object') return over
   const out = { ...base }
   for (const [k, v] of Object.entries(over)) out[k] = merge(base[k], v)
   return out

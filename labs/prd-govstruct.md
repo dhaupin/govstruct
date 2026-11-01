@@ -309,6 +309,27 @@ every consumer re-derives it and the copies diverge. The contract:
   it read is the copy the suite emitted - the same tamper-refusal law the arms
   apply, one level up.
 
+### 5.2 The surface stability contract (issue #23)
+
+A stable address is not enough: a consumer also needs to know **which fields** it
+may bind to, and at what type, or a schema change breaks it generically. So the
+address contract has a companion: `spec/surface-contract.json` names, for each
+emitted surface (`registry`, `registry-member`, `member`, `apps`), every field as
+
+- **promised** - stable; its type is fixed, and removing or retyping it is a
+  breaking change that needs a `schemaVersion` bump;
+- **optional** - may be absent (a conditional spread), but carries the stated
+  type when present;
+- **free-form** - may change without notice; a consumer must not depend on it.
+
+`govstruct surface` prints the contract; `govstruct surface --verify` checks the
+emitted surfaces against it, refusing a dropped promised field
+(`E_SURFACE_FIELD_MISSING`) or a retyped one (`E_SURFACE_TYPE_DRIFT`) by name. The
+`surface-shapes` check pack runs the same checks under `govstruct check`, and the
+doctor folds it in as the `surface-contract` check. So an integrator pins a
+`schemaVersion` and upgrades consciously - the same "refusal instant and
+nameable" law the whole tool carries, applied to the wire a consumer reads.
+
 ---
 
 ## 6. The doctor (the load-bearing half)

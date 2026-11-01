@@ -34,6 +34,8 @@ govstruct render <target>      # apps | react | partial | readme | registry
 govstruct doctor [--suite] [--fleet] [--network]  # adopter gate, suite battery, fleet meter, or the online leg
 govstruct check                # the source-consistency check packs
 govstruct registry             # the suite roll-up (env / pins / floors / versions)
+govstruct iso [--coverage]     # the ISO 9001 / 27001 evidence orientation
+govstruct surface [--verify]   # the surface stability contract a consumer binds to
 govstruct lock                 # archive + sha256 receipt
 govstruct names <id>           # check a candidate id against npm, GitHub, the roster
 govstruct migrate --status     # report / preview a spec or field migration

@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "name": "iso-shapes",
+  "description": "The iso-shapes compliance check pack (govstruct PRD section 10, G15). A packstruct SPEC v1 check-profile pack: pure-reading verifiers over the ISO profile (spec/iso-profile.json). It keeps the evidence map honest - a clause with no surface, or a refusal with no resolution, refuses by name.",
+  "version": "0.1.0",
+  "entry": "index.mjs"
+}

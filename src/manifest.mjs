@@ -17,6 +17,10 @@ export const STATUSES = ['Live', 'Beta', 'In Development', 'Backburner', 'Archiv
 // the transitions and `status` must agree with the last one.
 export const LIFECYCLE = STATUSES
 export const SECTIONS = ['open-source', 'proprietary', 'other']
+// Issue #23 ask #3: a member may declare a resource (repo, npm, url) that is
+// promised but not yet live. `pending` records that honestly, naming the
+// interim home, so a consumer reads a named state instead of a phantom.
+export const PENDING_RESOURCES = ['repo', 'npm', 'url']
 // G5: the governed credential kinds a member's stamps may spend. A kind
 // outside this list is a refusal (a stamp cannot widen a wall by inventing
 // a credential class).
@@ -158,6 +162,37 @@ export function validateBlock(block, bag) {
         bag.add('E_GRANT_DUPLICATE', `${file}: grant ${g.kind}/${g.scope} is listed twice`, where)
       }
       seen.add(key)
+    }
+  }
+
+  // Issue #23 ask #3: a declared-but-not-live resource is annotated, never a
+  // phantom. `pending` names which resource(s) await, an optional interim
+  // home, and a short note. A resource outside the governed list refuses
+  // (E_PENDING_UNKNOWN), and an annotation for a resource the member does not
+  // declare refuses (E_PENDING_UNKNOWN) - a pending flag on nothing is a lie.
+  if (block.pending !== undefined) {
+    const declared = { repo: block.repo, npm: block.npm, url: block.url }
+    if (!block.pending || typeof block.pending !== 'object' || Array.isArray(block.pending)) {
+      bag.add('E_PENDING_INVALID', `${file}: pending must be an object { resources, interim?, note? }`, where)
+    } else {
+      const resources = block.pending.resources
+      if (!Array.isArray(resources) || resources.length === 0) {
+        bag.add('E_PENDING_INVALID', `${file}: pending.resources must be a non-empty array`, where)
+      } else {
+        for (const r of resources) {
+          if (!PENDING_RESOURCES.includes(r)) {
+            bag.add('E_PENDING_UNKNOWN', `${file}: pending resource "${r}" is outside the governed list (${PENDING_RESOURCES.join(' | ')})`, where)
+          } else if (declared[r] === undefined || declared[r] === null) {
+            bag.add('E_PENDING_UNKNOWN', `${file}: pending names resource "${r}" but the member declares no ${r}`, where)
+          }
+        }
+      }
+      if (block.pending.note !== undefined && (typeof block.pending.note !== 'string' || !block.pending.note.trim())) {
+        bag.add('E_PENDING_INVALID', `${file}: pending.note must be a non-empty string when present`, where)
+      }
+      if (block.pending.interim !== undefined && block.pending.interim !== null && (typeof block.pending.interim !== 'string' || !block.pending.interim.trim())) {
+        bag.add('E_PENDING_INVALID', `${file}: pending.interim must be a non-empty string or null`, where)
+      }
     }
   }
 

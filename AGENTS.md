@@ -112,7 +112,7 @@
 - The adopter gate (M2.5, the `compliance.yml` leg) is the low end of the
   fleet meter: the meter watches what a member SHIPS; the gate watches who
   CONSUMES govstruct, and how. `src/adopters.mjs` reads each declared adopter's
-  `govstruct` pin (in a checkout named by `--fleet-root`) against the version
+  govstruct pin (in a checkout named by `--fleet-root`) against the version
   the suite serves (the tool's own `package.json`) and refuses pin drift
   (`E_ADOPTER_MISSING`, `E_ADOPTER_PIN_STYLE_DRIFT`, `E_ADOPTER_VERSION_DRIFT`).
   A declared adopter with no checkout is UNCHECKED - a named state, never a
@@ -120,9 +120,25 @@
   refuses drift from the first adopter, but withholds the suite claim until >= 2
   verified adopters, reporting a pilot state instead of assuming the claim.
   Adopters are declared in `govstruct.config.json` as `adopters.list` (a bare id
-  string, or `{ id, repo, rev }` where `compliance.yml` checks out `repo` at the
-  pinned `rev`). govstruct declares none today, so its own run is an honest
-  pilot, not a fabricated green.
+  string, or `{ id, repo, rev, mode, pinFile }` where `compliance.yml` checks
+  out `repo` at the pinned `rev`). A **mode** governs the pin shape: `npm` (the
+  default) is an exact devDependency; `commit` (issue #23 ask #5, the interim
+  transport while govstruct is not npm-published) is a full 40-hex git sha in
+  `pinFile` (default `govstruct.lock`). An unknown mode refuses
+  `E_ADOPTER_MODE_UNKNOWN`; an absent or short sha refuses
+  `E_ADOPTER_SHA_INVALID`. `compliance.yml` tolerates an unreachable adopter
+  repo (private, renamed, or not yet pushed): it stays UNCHECKED and the gate
+  names it. creadev-site is declared as the first adopter (mode `commit`); with
+  no reachable checkout the gate reports it UNCHECKED.
+- A declared-but-not-live resource is **pending**, never a phantom (issue #23
+  ask #3): `members/<id>.json` carries `pending: { resources, interim?, note? }`
+  naming a resource the member promises but has not stood up (the flowforge ->
+  coreforge rename is the first case; govstruct's own landing url + npm name are
+  another). The annotation rides the roll-up member rows; `doctor --network`
+  skips a declared-pending resource as a named state rather than refusing it. A
+  pending flag on a resource the member does not declare, or one outside the
+  governed list (`repo | npm | url`), refuses `E_PENDING_UNKNOWN`; a malformed
+  annotation refuses `E_PENDING_INVALID`.
 - The roll-up has a stable address and a cache contract (G12, PRD 5.1).
   `apps.json` is the canonical composed source (members + compliance + meta);
   `registry.json` is ONE rendering of it, so one artifact has many readers and
