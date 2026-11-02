@@ -195,5 +195,9 @@
 ## Release
 - 0.9.0 is the manual bootstrap publish (the family convention: 0.x lands
   by hand). 1.0.0 and later ride the governed ladder: tag v1.x.0 →
-  publish.yml runs (OIDC trusted publishing, refuses 0.x versions).
+  publish.yml runs the three-job family ladder (eyestruct@4e2b552):
+  `publish` (OIDC trusted publishing, refuses 0.x, tag==version) →
+  `release` (notes from the CHANGELOG + the served tarball attached) →
+  `verify` (post-publish trust ladder over the served tarball and the
+  release object).
 - CHANGELOG.md is Keep-a-Changelog; every PR adds an Unreleased item.

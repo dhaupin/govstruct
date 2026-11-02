@@ -513,6 +513,13 @@ async function main() {
         usage()
         process.exit(0)
 
+      case '--version':
+        // The version truth is package.json (the family rule): the publish
+        // lane's verify job probes the INSTALLED bin with --version, so the
+        // answer must come from the packaged tree, never a hardcoded literal.
+        console.log(JSON.parse(fsMod.readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version)
+        process.exit(0)
+
       default:
         usageError(`unknown verb "${verb}"`)
     }
