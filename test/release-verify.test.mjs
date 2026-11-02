@@ -14,7 +14,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { readFileSync, existsSync, mkdtempSync, rmSync, mkdirSync, writeFileSync } from 'node:fs'
+import { readFileSync, existsSync, mkdtempSync, rmSync, mkdirSync, writeFileSync, chmodSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -25,11 +25,20 @@ const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 const exportsKeys = Object.keys(pkg.exports).join(',')
 
 function packTree(dest) {
-  const r = spawnSync('npm', ['pack', '--pack-destination', dest], { cwd: root, encoding: 'utf8', timeout: 180000 })
+  const r = spawnSync('npm', ['pack', '--pack-destination', dest], { cwd: root, encoding: 'utf8', timeout: 180000, env: packEnv() })
   assert.equal(r.status, 0, `npm pack failed: ${r.stderr}`)
   const tgz = join(dest, `${pkg.name}-${pkg.version}.tgz`)
   assert.ok(existsSync(tgz), `npm pack produced nothing at ${tgz}`)
   return tgz
+}
+
+// `npm publish --dry-run` exports npm_config_dry_run=true into the lifecycle
+// env; a nested `npm pack` would then write no tarball. Strip it so a
+// rehearsal verdict equals a real-publish verdict.
+function packEnv() {
+  const env = { ...process.env }
+  delete env.npm_config_dry_run
+  return env
 }
 
 test('the pack ladder verifies real npm pack output (contents + identity + bin)', () => {
@@ -52,7 +61,7 @@ test('the pack ladder verifies real npm pack output (contents + identity + bin)'
 test('a doctored tarball is refused BY NAME before any install', () => {
   const toy = mkdtempSync(join(tmpdir(), 'verify-release-smuggle-'))
   writeFileSync(join(toy, 'package.json'), JSON.stringify({ name: 'govstruct', version: pkg.version, files: ['package.json'] }, null, 2))
-  const r = spawnSync('npm', ['pack', '--pack-destination', toy], { cwd: toy, encoding: 'utf8', timeout: 120000 })
+  const r = spawnSync('npm', ['pack', '--pack-destination', toy], { cwd: toy, encoding: 'utf8', timeout: 120000, env: packEnv() })
   assert.equal(r.status, 0, `toy npm pack failed: ${r.stderr}`)
   const base = join(toy, `govstruct-${pkg.version}.tgz`)
   const ex = join(toy, 'extracted')
@@ -132,3 +141,58 @@ test('release-notes reads Keep-a-Changelog sections and refuses an absent versio
     assert.ok(r.stdout.trim().length > 0, 'release-notes produced an empty section')
   }
 });
+
+// The phone's npm prints a deprecation/config warning on stdout before the
+// JSON for `npm pack --dry-run --json` (a deprecated .npmrc line did exactly
+// this). The ladder must survive that: it slices from the first '[' and asks
+// npm for --loglevel=error. This shim reproduces the noisy-npm phone and
+// proves a stray warning can never turn a clean tree into a cap(2) failure.
+test('the pack probe survives a warning line before the JSON (the noisy-npm phone)', () => {
+  const work = mkdtempSync(join(tmpdir(), 'release-verify-noisy-'))
+  const tgz = packTree(work)
+  const bin = join(work, 'bin')
+  mkdirSync(bin)
+  const realNpm = spawnSync('which', ['npm'], { encoding: 'utf8' }).stdout.trim()
+  const shim = join(bin, 'npm')
+  writeFileSync(shim, [
+    '#!/bin/sh',
+    'if [ "$1" = "pack" ]; then',
+    `  out=$(${realNpm} "$@" 2>/dev/null)`,
+    '  echo "npm warn Unknown project config \\"always-auth\\". This will stop working in the next major version of npm."',
+    '  echo "$out"',
+    '  exit 0',
+    'fi',
+    `exec ${realNpm} "$@"`,
+    '',
+  ].join('\n'))
+  chmodSync(shim, 0o755)
+  const r = spawnSync('node', [script, '--pack', tgz, '--version', pkg.version, '--exports', exportsKeys], {
+    cwd: root,
+    encoding: 'utf8',
+    timeout: 300000,
+    env: { ...process.env, PATH: `${bin}:${process.env.PATH}` },
+  })
+  const out = `${r.stdout}\n${r.stderr}`
+  assert.ok(out.includes('PASS served set == npm pack of this tree'), `the noisy npm broke the pack probe:\n${out}`)
+  assert.ok(!out.includes('npm pack --dry-run --json failed'), 'a stray warning must not be read as a pack failure')
+  rmSync(work, { recursive: true, force: true })
+});
+
+// `npm publish --dry-run` exports npm_config_dry_run=true, and an unguarded
+// nested `npm pack` would then write no tarball and fail here for a reason
+// that has nothing to do with the tree. packEnv() strips it; this proves the
+// strip is load-bearing (pack still produces a tarball under that env).
+test('the pack ladder is dry-run immune (npm_config_dry_run never suppresses the pack)', () => {
+  const work = mkdtempSync(join(tmpdir(), 'release-verify-dryrun-'))
+  const prev = process.env.npm_config_dry_run
+  process.env.npm_config_dry_run = 'true'
+  try {
+    const tgz = packTree(work)
+    assert.ok(existsSync(tgz), 'the pack still lands with npm_config_dry_run set in the parent env')
+  } finally {
+    if (prev === undefined) delete process.env.npm_config_dry_run
+    else process.env.npm_config_dry_run = prev
+    rmSync(work, { recursive: true, force: true })
+  }
+});
+
