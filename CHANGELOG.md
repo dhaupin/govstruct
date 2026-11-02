@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **The phone publish lane (`scripts/ship-from-download.cjs`) plus its offline
+  test.** The Termux/Android recipe is now a vendored family script (copied
+  byte-identical from the family copy source): it stages a zip-extracted repo
+  tree into the Termux home, runs the repo's own `prepublishOnly` gate, and
+  publishes - staging a one-line `.npmrc` that holds only the `${NPM_TOKEN}`
+  expansion (the raw token never lands in a file, in argv, or in the log) and
+  unlinking it in a `finally`. Named refusals cover a wrong or truncated zip
+  (`NOT_A_PACKAGE_TREE`, `BAD_PACKAGE_NAME`), a shared-storage root
+  (`SHARED_STORAGE_ROOT`), an occupied root (`ROOT_OCCUPIED`), and a malformed
+  token (`BAD_TOKEN`); `--clean` removes only the root it staged this run,
+  never the source tree. `test/ship-from-download.test.mjs` proves the whole
+  contract offline (temp dirs + an injected runner, no network).
+
 ### Changed
 
 - **Changelog + release-notes standardized to the family shape.** `CHANGELOG.md`
