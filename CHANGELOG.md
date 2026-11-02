@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **The phone publish lane no longer stages a deprecated `always-auth` `.npmrc`
+  line.** npm >=9 warns `Unknown project config "always-auth"` on it, and that
+  warning reaches the child processes the `prepublishOnly` gate spawns - on some
+  npm builds it corrupts `npm pack --dry-run --json` output, turning a clean tree
+  into a false capability failure. The staged file is now exactly one line (the
+  `${NPM_TOKEN}` expansion), and the release ladder's pack probe passes
+  `--loglevel=error` and slices the JSON from the first `[`, so a stray warning
+  can never again read as a pack failure.
+
 ### Added
 
 - **The phone publish lane (`scripts/ship-from-download.cjs`) plus its offline
