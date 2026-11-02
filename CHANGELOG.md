@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **The publish lane adopts the family release ladder (eyestruct@4e2b552).**
+  The old `publish` + `github-release` pair becomes three jobs: `publish`
+  (0.x refused, tag==version gate, `npm publish --provenance` over OIDC) →
+  `release` (the GH release body extracted from the changelog via
+  `scripts/release-notes.cjs`, refused if empty, plus the served tarball
+  attached as the release asset) → `verify` (`scripts/verify-release.cjs`
+  re-asserts the served tarball's sha512 against the registry integrity,
+  provenance presence, the full pack ladder, the release object's target
+  commit, and the asset's sha512). The bin answers `--version` (reads
+  `package.json`), so the ladder's installed-bin probe passes. The pack
+  ladder also runs offline every push (`test/release-verify.test.mjs`).
+
 ### Changed
 - **`prepublishOnly` gate (the family release convention).** The publish ladder
   now runs `npm test && npm run lint:docs && npm run check:rig` before a tarball
