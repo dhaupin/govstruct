@@ -5,6 +5,14 @@
 
 Last updated: 2026-11-03.
 
+## Session 2026-11-03 - v1.0.0 release notes + announcements
+
+- The release-post tree lands for both lines: `docs/discussions/announcing-v0.9.0.md` (backfilled) and `docs/discussions/announcing-v1.0.0.md` (staged), with the index table updated to name both.
+- Version truth reconciled after the bump: `package-lock.json` and `web/package-lock.json` re-derived (root version 0.9.0 -> 1.0.0, version-only diffs), the AGENTS release prose made era-free (it still called 0.9.0 "current"), and DEPLOY.md's bootstrap tense corrected (the manual 0.9.0 publish already ran, so it is not "must run first").
+- The roll-up follows: `compliance/{poststruct,govstruct,monoforge,gistory}.json` move `version.repo` 0.9.0 -> 1.0.0 and `govstruct registry --write` re-emits `apps.json` (4 lines), so the canonical roll-up and the rendered registries stay in sync.
+- Tarball re-verified at 1.0.0: 61 files, `/packs` present (28 entries, all under `/packs/public`, 14 `pack.json`).
+- Gates: `npm test` (247), `npm run check`, and `npm run check:rig` all green.
+
 ## Session 2026-11-03 - v1.0.0 release prep (version bump + pack distribution)
 
 - `packs/` now rides the published tarball (`package.json` `files`, poststruct#79), so an adopter's `npm i govstruct` delivers the check-profile packs instead of a committed-but-invisible tree.

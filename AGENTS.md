@@ -193,8 +193,8 @@
 - Promote by FAST-FORWARD so drift cannot happen: `git push origin staging:main`.
 
 ## Release
-- 0.9.0 is the manual bootstrap publish (the family convention: 0.x lands
-  by hand). 1.0.0 and later ride the governed ladder: tag v1.x.0 →
+- 0.x landed as the manual bootstrap publish (the family convention: 0.x
+  lands by hand). 1.0.0 and later ride the governed ladder: tag v1.x.0 →
   publish.yml runs the three-job family ladder (eyestruct@4e2b552):
   `publish` (OIDC trusted publishing, refuses 0.x, tag==version) →
   `release` (notes from the CHANGELOG + the served tarball attached) →

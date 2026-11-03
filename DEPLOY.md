@@ -51,7 +51,7 @@ The pack ladder also runs offline on every push (`test/release-verify.test.mjs`)
   crashtest/freestruct/packstruct: the repo stores no publish secret.
   One-time setup on npmjs.com is required BEFORE the first tag: govstruct ->
   Settings -> Trusted Publisher (repo `dhaupin/govstruct`, workflow
-  `publish.yml`). The manual 0.9.0 bootstrap must run first to create the
+  `publish.yml`). The manual 0.9.0 bootstrap already ran to create the
   package, because OIDC cannot create a brand-new package (npm/cli#8544).
 
 ## The gate

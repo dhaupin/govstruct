@@ -611,7 +611,7 @@
           "battery": ">=18"
         },
         "version": {
-          "repo": "0.9.0"
+          "repo": "1.0.0"
         },
         "env": [],
         "pins": [],
@@ -624,7 +624,7 @@
           "battery": ">=20"
         },
         "version": {
-          "repo": "0.9.0"
+          "repo": "1.0.0"
         },
         "env": [],
         "pins": [],
@@ -643,7 +643,7 @@
       "monoforge": {
         "id": "monoforge",
         "version": {
-          "repo": "0.9.0"
+          "repo": "1.0.0"
         },
         "env": [],
         "pins": [],
@@ -669,7 +669,7 @@
           "battery": ">=20"
         },
         "version": {
-          "repo": "0.9.0"
+          "repo": "1.0.0"
         },
         "env": [],
         "pins": [],
