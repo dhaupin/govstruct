@@ -3,7 +3,14 @@
 > Rolling log. Companion to [`labs/prd-govstruct.md`](./prd-govstruct.md) (the
 > product contract). Newest session at top. Struck items are done.
 
-Last updated: 2026-10-30.
+Last updated: 2026-11-03.
+
+## Session 2026-11-03 - v1.0.0 release prep (version bump + pack distribution)
+
+- `packs/` now rides the published tarball (`package.json` `files`, poststruct#79), so an adopter's `npm i govstruct` delivers the check-profile packs instead of a committed-but-invisible tree.
+- 0.9.0 -> 1.0.0 across the version-truth surfaces (`package.json`, `web/package.json`, the README status line) plus the `## [1.0.0] - 2026-11-03` changelog section the release job extracts.
+- The release-verify ladder permits `packs/` by name in the forbidden scan; a new `test/distribution.test.mjs` refuses a `files` list that would silently un-deliver the packs.
+- Gates: `npm test` green (247), `npm run check` + `check:rig` green.
 
 ## Session 2026-10-30 - the first build
 
