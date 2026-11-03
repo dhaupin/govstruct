@@ -183,5 +183,8 @@ jobs:
           V="$(node -p "require('./package.json').version")"
           EXPECTED_EXPORTS="$(node -p "Object.keys(require('./package.json').exports).join(',')")"
           GV_PROBE="const g=require('govstruct');if(typeof g.lint!=='function')process.exit(1)"
-          node scripts/verify-release.cjs --npm --version "$V" --exports "$EXPECTED_EXPORTS" --probe "$GV_PROBE"
+          # govstruct ships its check-profile packs (packs/, poststruct#79 - the
+          # verdict packs ride the published tarball so a consumer can run them),
+          # so packs/ is permitted by name in the forbidden scan.
+          node scripts/verify-release.cjs --npm --version "$V" --exports "$EXPECTED_EXPORTS" --allow packs/ --probe "$GV_PROBE"
           node scripts/verify-release.cjs --gh --tag "v$V" --asset "govstruct-$V.tgz"

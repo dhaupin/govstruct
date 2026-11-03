@@ -23,6 +23,9 @@ const root = fileURLToPath(new URL('..', import.meta.url))
 const script = join(root, 'scripts', 'verify-release.cjs')
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 const exportsKeys = Object.keys(pkg.exports).join(',')
+// govstruct ships its check-profile packs in the tarball (packs/, poststruct#79),
+// so the forbidden scan is told to permit the prefix by name.
+const allow = 'packs/'
 
 function packTree(dest) {
   const r = spawnSync('npm', ['pack', '--pack-destination', dest], { cwd: root, encoding: 'utf8', timeout: 180000, env: packEnv() })
@@ -44,7 +47,7 @@ function packEnv() {
 test('the pack ladder verifies real npm pack output (contents + identity + bin)', () => {
   const work = mkdtempSync(join(tmpdir(), 'release-verify-'))
   const tgz = packTree(work)
-  const r = spawnSync('node', [script, '--pack', tgz, '--version', pkg.version, '--exports', exportsKeys], { cwd: root, encoding: 'utf8', timeout: 300000 })
+  const r = spawnSync('node', [script, '--pack', tgz, '--version', pkg.version, '--exports', exportsKeys, '--allow', allow], { cwd: root, encoding: 'utf8', timeout: 300000 })
   const out = `${r.stdout}\n${r.stderr}`
   assert.equal(r.status, 0, `pack ladder failed (${r.status}):\n${out}`)
   assert.ok(out.includes('PASS forbidden scan'), 'forbidden scan never ran')
@@ -167,7 +170,7 @@ test('the pack ladder survives a phone npm whose --dry-run --json probe is empty
     '',
   ].join('\n'))
   chmodSync(shim, 0o755)
-  const r = spawnSync('node', [script, '--pack', tgz, '--version', pkg.version, '--exports', exportsKeys], {
+  const r = spawnSync('node', [script, '--pack', tgz, '--version', pkg.version, '--exports', exportsKeys, '--allow', allow], {
     cwd: root,
     encoding: 'utf8',
     timeout: 300000,
