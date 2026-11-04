@@ -2,8 +2,7 @@
 
 All notable changes to govstruct will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
@@ -11,382 +10,79 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **The expected-set probe no longer parses `npm pack --dry-run --json`.** The
-  phone's npm answers that probe with empty stdout even under `--loglevel=error`,
-  so the ladder's `JSON.parse` failed and read as a capability failure on a clean
-  tree (the `always-auth` warning was a red herring on stderr). The ladder now
-  derives the expected set from a REAL `npm pack` of the checkout, listed by the
-  same `tarList` the served tarball already goes through - the code path the
-  forbidden scan proved works on the phone.
+- **The expected-set probe no longer parses `npm pack --dry-run --json`.** The phone's npm answers that probe with empty stdout even under `--loglevel=error`, so the ladder's `JSON.parse` failed and read as a capability failure on a clean tree (the `always-auth` warning was a red herring on stderr). The ladder now derives the expected set from a REAL `npm pack` of the checkout, listed by the same `tarList` the served tarball already goes through - the code path the forbidden scan proved works on the phone.
 
-- **The staged publish `.npmrc` no longer writes the deprecated `always-auth`
-  line.** npm >=9 warns `Unknown project config "always-auth"` on it, and that
-  warning reaches the child processes the `prepublishOnly` gate spawns. The
-  staged file is now exactly one line (the `${NPM_TOKEN}` expansion).
+- **The staged publish `.npmrc` no longer writes the deprecated `always-auth` line.** npm >=9 warns `Unknown project config "always-auth"` on it, and that warning reaches the child processes the `prepublishOnly` gate spawns. The staged file is now exactly one line (the `${NPM_TOKEN}` expansion).
 
 ### Added
 
-- **The phone publish lane (`scripts/ship-from-download.cjs`) plus its offline
-  test.** The Termux/Android recipe is now a vendored family script (copied
-  byte-identical from the family copy source): it stages a zip-extracted repo
-  tree into the Termux home, runs the repo's own `prepublishOnly` gate, and
-  publishes - staging a one-line `.npmrc` that holds only the `${NPM_TOKEN}`
-  expansion (the raw token never lands in a file, in argv, or in the log) and
-  unlinking it in a `finally`. Named refusals cover a wrong or truncated zip
-  (`NOT_A_PACKAGE_TREE`, `BAD_PACKAGE_NAME`), a shared-storage root
-  (`SHARED_STORAGE_ROOT`), an occupied root (`ROOT_OCCUPIED`), and a malformed
-  token (`BAD_TOKEN`); `--clean` removes only the root it staged this run,
-  never the source tree. `test/ship-from-download.test.mjs` proves the whole
-  contract offline (temp dirs + an injected runner, no network).
+- **The phone publish lane (`scripts/ship-from-download.cjs`) plus its offline test.** The Termux/Android recipe is now a vendored family script (copied byte-identical from the family copy source): it stages a zip-extracted repo tree into the Termux home, runs the repo's own `prepublishOnly` gate, and publishes - staging a one-line `.npmrc` that holds only the `${NPM_TOKEN}` expansion (the raw token never lands in a file, in argv, or in the log) and unlinking it in a `finally`. Named refusals cover a wrong or truncated zip (`NOT_A_PACKAGE_TREE`, `BAD_PACKAGE_NAME`), a shared-storage root (`SHARED_STORAGE_ROOT`), an occupied root (`ROOT_OCCUPIED`), and a malformed token (`BAD_TOKEN`); `--clean` removes only the root it staged this run, never the source tree. `test/ship-from-download.test.mjs` proves the whole contract offline (temp dirs + an injected runner, no network).
 
 ### Changed
 
-- **Changelog + release-notes standardized to the family shape.** `CHANGELOG.md`
-  is now Keep-a-Changelog end to end (a `## [Unreleased]` block over
-  `## [version] - date` sections) and `scripts/release-notes.cjs` is the
-  family's single superset extractor: it reads the KAC heading, still reads the
-  older bare (`## 1.2.0`) and v-prefixed (`## v1.2.0`) forms, closes the
-  version token so `## [1.2.0]` never matches a `## [1.2.0-rc.1]`, and refuses
-  a version with no section by name. One extractor across the family means one
-  release-body shape everywhere.
+- **Changelog + release-notes standardized to the family shape.** `CHANGELOG.md` is now Keep-a-Changelog end to end (a `## [Unreleased]` block over `## [version] - date` sections) and `scripts/release-notes.cjs` is the family's single superset extractor: it reads the KAC heading, still reads the older bare (`## 1.2.0`) and v-prefixed (`## v1.2.0`) forms, closes the version token so `## [1.2.0]` never matches a `## [1.2.0-rc.1]`, and refuses a version with no section by name. One extractor across the family means one release-body shape everywhere.
 
 ### Fixed
 
-- **The release ladder no longer races registry propagation, nor false-flags a
-  branch-name `target_commitish`** - both surfaced by the crashtest 1.2.0 live
-  cut. `scripts/verify-release.cjs` polls `dist-tags.latest` **and** the version
-  entry through npm's post-publish propagation window instead of reading once
-  (the first read saw the old `latest`), and the `release` job retries
-  `npm pack <pkg>@<ver>` the same way (it read `ETARGET: no matching version`
-  seconds after publish). The release check now accepts GitHub's
-  `target_commitish` default-branch name and treats only a 40-hex SHA as a
-  commit claim (a branch name is not drift; the tag is the identity). Two pins
-  in the release-verify leg hold both fixes.
+- **The release ladder no longer races registry propagation, nor false-flags a branch-name `target_commitish`** - both surfaced by the crashtest 1.2.0 live cut. `scripts/verify-release.cjs` polls `dist-tags.latest` **and** the version entry through npm's post-publish propagation window instead of reading once (the first read saw the old `latest`), and the `release` job retries `npm pack <pkg>@<ver>` the same way (it read `ETARGET: no matching version` seconds after publish). The release check now accepts GitHub's `target_commitish` default-branch name and treats only a 40-hex SHA as a commit claim (a branch name is not drift; the tag is the identity). Two pins in the release-verify leg hold both fixes.
 
 ### Added
-- **The publish lane adopts the family release ladder (eyestruct@4e2b552).**
-  The old `publish` + `github-release` pair becomes three jobs: `publish`
-  (0.x refused, tag==version gate, `npm publish --provenance` over OIDC) →
-  `release` (the GH release body extracted from the changelog via
-  `scripts/release-notes.cjs`, refused if empty, plus the served tarball
-  attached as the release asset) → `verify` (`scripts/verify-release.cjs`
-  re-asserts the served tarball's sha512 against the registry integrity,
-  provenance presence, the full pack ladder, the release object's target
-  commit, and the asset's sha512). The bin answers `--version` (reads
-  `package.json`), so the ladder's installed-bin probe passes. The pack
-  ladder also runs offline every push (`test/release-verify.test.mjs`).
+- **The publish lane adopts the family release ladder (eyestruct@4e2b552).** The old `publish` + `github-release` pair becomes three jobs: `publish` (0.x refused, tag==version gate, `npm publish --provenance` over OIDC) → `release` (the GH release body extracted from the changelog via `scripts/release-notes.cjs`, refused if empty, plus the served tarball attached as the release asset) → `verify` (`scripts/verify-release.cjs` re-asserts the served tarball's sha512 against the registry integrity, provenance presence, the full pack ladder, the release object's target commit, and the asset's sha512). The bin answers `--version` (reads `package.json`), so the ladder's installed-bin probe passes. The pack ladder also runs offline every push (`test/release-verify.test.mjs`).
 
 ### Changed
-- **`prepublishOnly` gate (the family release convention).** The publish ladder
-  now runs `npm test && npm run lint:docs && npm run check:rig` before a tarball
-  can be minted, matching packstruct's `prepublishOnly` (packstruct#33): the
-  registry cut cannot happen without the test suite and every rig gate green.
-  This is the last prep item before the manual 0.9.0 bootstrap publish.
-- **Re-pull the Jekyll-filters gate from the rig.** govstruct's vendored
-  `scripts/check-jekyll-filters.cjs` predated the unknown-Liquid-tag rule
-  (`{% seo %}` in prose kills the docs build) that coreforge's gate just gained.
-  The vendored copy now carries the same rule (raw-region aware, line-count
-  preserving), so the adopter and the rig agree. The rig-side detector is
-  `coreforge lib/gate-drift.mjs --adopter <dir>` - run against govstruct it
-  now reports all 11 gates current.
+- **`prepublishOnly` gate (the family release convention).** The publish ladder now runs `npm test && npm run lint:docs && npm run check:rig` before a tarball can be minted, matching packstruct's `prepublishOnly` (packstruct#33): the registry cut cannot happen without the test suite and every rig gate green. This is the last prep item before the manual 0.9.0 bootstrap publish.
+- **Re-pull the Jekyll-filters gate from the rig.** govstruct's vendored `scripts/check-jekyll-filters.cjs` predated the unknown-Liquid-tag rule (`{% seo %}` in prose kills the docs build) that coreforge's gate just gained. The vendored copy now carries the same rule (raw-region aware, line-count preserving), so the adopter and the rig agree. The rig-side detector is `coreforge lib/gate-drift.mjs --adopter <dir>` - run against govstruct it now reports all 11 gates current.
 
 ### Added
-- **The surface stability contract (issue #23, PRD section 5.1).** A consumer
-  of the roll-up (creadev.org's forge lane, vant's connector, railyard) needs to
-  know which fields are safe to bind to, at what type, so it can pin a
-  `schemaVersion` and upgrade consciously rather than guessing and breaking
-  generically. `spec/surface-contract.json` is the promise in data: for each
-  emitted surface (`registry`, `registry-member`, `member`, `apps`), every field
-  is marked promised (stable, retyping it needs a `schemaVersion` bump),
-  optional (may be absent, but carries the stated type when present), or
-  free-form (may change without notice). `govstruct surface` prints the
-  contract; `govstruct surface --verify` refuses a dropped promised field
-  (`E_SURFACE_FIELD_MISSING`) or a retyped one (`E_SURFACE_TYPE_DRIFT`) by name.
-  The `surface-shapes` check pack runs the same honesty checks under `govstruct
-  check`, and the doctor folds it in as the `surface-contract` check.
-- **Starter pin floors (issue #23, ask #2, PRD section 10 S3).** An integrator
-  that cuts a repo from a starter template needs to know the dependency floors
-  it may rely on, instead of guessing. A member's compliance block now carries
-  them as data (`templates: { file, floors: [{ name, floor }] }`), and the
-  `template-shapes` check pack verifies each pinned spec honors its floor,
-  refusing `E_TEMPLATE_FLOOR_DRIFT` by name when a pin has drifted below the
-  declared floor or names a dependency the template does not pin. The
-  comparison is honest about what it cannot prove: an unparseable spec or floor
-  is a state, not a refusal.
-- **The pending annotation (issue #23, ask #3).** A member may declare a
-  resource (repo, npm, url) that is promised but not yet live - the flowforge
-  → coreforge rename being the first case. `members/<id>.json` now accepts a
-  governed `pending` block (`{ resources, interim?, note? }`) that records the
-  state honestly and names the interim home, so a consumer reads a named state
-  instead of a phantom. The annotation rides the roll-up (`registry.v1.json`
-  member rows) and the `doctor --network` leg honors it: a declared-pending url
-  or npm is skipped as a named state rather than refused. A pending flag on a
-  resource the member does not declare, or a resource outside the governed
-  list, refuses `E_PENDING_UNKNOWN`; a malformed annotation refuses
-  `E_PENDING_INVALID`.
-- **The live surface, declared pending (issue #23, ask #4).** govstruct's own
-  member record now declares the landing `url` (PRD section 9:
-  `govstruct.creadev.org`) and the `npm` name as **pending** resources rather
-  than leaving them `null`. The record states the truth a consumer needs - the
-  surface is promised, the interim transport is `raw.githubusercontent` at a
-  pinned commit - so a reader sees a named state, not a phantom. `doctor
-  --network` skips a declared-pending resource by name instead of failing it.
-- **Adopter enrollment, the interim commit pin (issue #23, ask #5).** While
-  govstruct is not npm-published, an adopter cannot pin an exact version. The
-  adopter gate now accepts a governed `mode`: `npm` (an exact devDependency, the
-  default) or `commit` (a full 40-hex git sha in a `pinFile`, default
-  `govstruct.lock`). An unknown mode refuses `E_ADOPTER_MODE_UNKNOWN`; an absent
-  or short sha refuses `E_ADOPTER_SHA_INVALID`; a commit-mode adopter is
-  verified when its pin is a full sha. creadev-site is declared as the first
-  adopter (mode `commit`); with no reachable checkout the gate reports it
-  UNCHECKED - a named state, never a silent pass. `compliance.yml` checks out
-  each declared adopter at its pinned `rev` and tolerates an unreachable repo
-  (private, renamed, or not yet pushed): it stays UNCHECKED and the gate names
-  it, the same posture as an adopter with no checkout at all.
-- **Refusals, not warnings (issue #23, ask #6).** The adopter gate and the
-  pending annotation both refuse drift by name rather than warn and pass: a
-  drifted pin, an unknown mode, an invalid sha, or a pending flag on an
-  undeclared resource is a `refusals[]` entry with a registered code, not a
-  line a consumer may ignore. The doctor treats a declared-pending resource as a
-  named state (skipped, counted), never a silent success.
-- **The ISO evidence orientation (PRD section 10, G15).** govstruct now ships
-  an ISO 9001:2015 / ISO 27001:2022 evidence map, drop-in and on by default.
-  `spec/iso-profile.json` is the data: a clause catalog where every clause names
-  the govstruct surface that can evidence it and the gate that proves it, plus a
-  resolution for every registered refusal code (the clause it bears on and the
-  action that clears it). `govstruct iso` prints the orientation; `govstruct iso
-  --resolve <code>` turns a refusal into an ISO statement; `govstruct iso
-  --statement` maps a whole run; `govstruct iso --coverage` refuses when a
-  refusal has no resolution. The `iso-shapes` check pack runs the same honesty
-  checks under `govstruct check`. The law is stated in the data and printed on
-  every run: **an evidence map, not a certificate** - govstruct certifies
-  nothing, and a clause with no surface is named out of scope, never faked. A
-  host may point `iso.profile` at its own file; unset uses the shipped profile.
+- **The surface stability contract (issue #23, PRD section 5.1).** A consumer of the roll-up (creadev.org's forge lane, vant's connector, railyard) needs to know which fields are safe to bind to, at what type, so it can pin a `schemaVersion` and upgrade consciously rather than guessing and breaking generically. `spec/surface-contract.json` is the promise in data: for each emitted surface (`registry`, `registry-member`, `member`, `apps`), every field is marked promised (stable, retyping it needs a `schemaVersion` bump), optional (may be absent, but carries the stated type when present), or free-form (may change without notice). `govstruct surface` prints the contract; `govstruct surface --verify` refuses a dropped promised field (`E_SURFACE_FIELD_MISSING`) or a retyped one (`E_SURFACE_TYPE_DRIFT`) by name. The `surface-shapes` check pack runs the same honesty checks under `govstruct check`, and the doctor folds it in as the `surface-contract` check.
+- **Starter pin floors (issue #23, ask #2, PRD section 10 S3).** An integrator that cuts a repo from a starter template needs to know the dependency floors it may rely on, instead of guessing. A member's compliance block now carries them as data (`templates: { file, floors: [{ name, floor }] }`), and the `template-shapes` check pack verifies each pinned spec honors its floor, refusing `E_TEMPLATE_FLOOR_DRIFT` by name when a pin has drifted below the declared floor or names a dependency the template does not pin. The comparison is honest about what it cannot prove: an unparseable spec or floor is a state, not a refusal.
+- **The pending annotation (issue #23, ask #3).** A member may declare a resource (repo, npm, url) that is promised but not yet live - the flowforge → coreforge rename being the first case. `members/<id>.json` now accepts a governed `pending` block (`{ resources, interim?, note? }`) that records the state honestly and names the interim home, so a consumer reads a named state instead of a phantom. The annotation rides the roll-up (`registry.v1.json` member rows) and the `doctor --network` leg honors it: a declared-pending url or npm is skipped as a named state rather than refused. A pending flag on a resource the member does not declare, or a resource outside the governed list, refuses `E_PENDING_UNKNOWN`; a malformed annotation refuses `E_PENDING_INVALID`.
+- **The live surface, declared pending (issue #23, ask #4).** govstruct's own member record now declares the landing `url` (PRD section 9: `govstruct.creadev.org`) and the `npm` name as **pending** resources rather than leaving them `null`. The record states the truth a consumer needs - the surface is promised, the interim transport is `raw.githubusercontent` at a pinned commit - so a reader sees a named state, not a phantom. `doctor --network` skips a declared-pending resource by name instead of failing it.
+- **Adopter enrollment, the interim commit pin (issue #23, ask #5).** While govstruct is not npm-published, an adopter cannot pin an exact version. The adopter gate now accepts a governed `mode`: `npm` (an exact devDependency, the default) or `commit` (a full 40-hex git sha in a `pinFile`, default `govstruct.lock`). An unknown mode refuses `E_ADOPTER_MODE_UNKNOWN`; an absent or short sha refuses `E_ADOPTER_SHA_INVALID`; a commit-mode adopter is verified when its pin is a full sha. creadev-site is declared as the first adopter (mode `commit`); with no reachable checkout the gate reports it UNCHECKED - a named state, never a silent pass. `compliance.yml` checks out each declared adopter at its pinned `rev` and tolerates an unreachable repo (private, renamed, or not yet pushed): it stays UNCHECKED and the gate names it, the same posture as an adopter with no checkout at all.
+- **Refusals, not warnings (issue #23, ask #6).** The adopter gate and the pending annotation both refuse drift by name rather than warn and pass: a drifted pin, an unknown mode, an invalid sha, or a pending flag on an undeclared resource is a `refusals[]` entry with a registered code, not a line a consumer may ignore. The doctor treats a declared-pending resource as a named state (skipped, counted), never a silent success.
+- **The ISO evidence orientation (PRD section 10, G15).** govstruct now ships an ISO 9001:2015 / ISO 27001:2022 evidence map, drop-in and on by default. `spec/iso-profile.json` is the data: a clause catalog where every clause names the govstruct surface that can evidence it and the gate that proves it, plus a resolution for every registered refusal code (the clause it bears on and the action that clears it). `govstruct iso` prints the orientation; `govstruct iso --resolve <code>` turns a refusal into an ISO statement; `govstruct iso --statement` maps a whole run; `govstruct iso --coverage` refuses when a refusal has no resolution. The `iso-shapes` check pack runs the same honesty checks under `govstruct check`. The law is stated in the data and printed on every run: **an evidence map, not a certificate** - govstruct certifies nothing, and a clause with no surface is named out of scope, never faked. A host may point `iso.profile` at its own file; unset uses the shipped profile.
 
-- **The `/api/health` canary (the fleet CF contract).** `web/functions/api/health.js`
-  ships the house Pages Function - `GET /api/health` returns honest JSON
-  (`{ ok, name, service, ts }`), the same schema poststruct / monoforge / packstruct
-  serve. The landing already deploys from the `web/` root directory, so
-  `functions/` resolves there and the canary serves at the site origin; a
-  root-level `functions/` would fall outside the Pages project and 404. This
-  closes the gap between govstruct's PRD section 9 (which names the canary as the
-  fleet shape) and the tree.
+- **The `/api/health` canary (the fleet CF contract).** `web/functions/api/health.js` ships the house Pages Function - `GET /api/health` returns honest JSON (`{ ok, name, service, ts }`), the same schema poststruct / monoforge / packstruct serve. The landing already deploys from the `web/` root directory, so `functions/` resolves there and the canary serves at the site origin; a root-level `functions/` would fall outside the Pages project and 404. This closes the gap between govstruct's PRD section 9 (which names the canary as the fleet shape) and the tree.
 
-- **The why / what / about pages, both surfaces.** The landing gains three
-  routes (`/why`, `/what`, `/about`) in the nav vocabulary, each a real page in
-  the family voice: the crosslink-mesh problem and the refusal thesis; the CLI
-  verbs and the owns-versus-defers boundary; who builds it and the MIT
-  provenance. The docs tree grows the matching `docs/why.md`, `docs/what.md`,
-  `docs/about.md`, reachable from the docs nav. This closes the family-wide gap
-  where no member carried a supporting trio.
-- **The landing's docs link + filled legal pages.** The nav vocabulary gains a
-  `Docs` entry (`site.config.js`), so the landing header/footer reach the docs
-  rig like every sibling's does. `Terms.jsx` and `Privacy.jsx` were the blank
-  adopter placeholders; both now carry govstruct's own copy in the family
-  voice, matching the surface facts (offline doctor, no telemetry, MIT).
-- **Release prep for the 0.9.0 manual ship.** The tree was already at 0.9.0 in
-  both `package.json` files (the 0.x manual ladder). This adds the two gates a
-  manual `npm publish` needs: `prepublishOnly` (`npm test && npm run check`) so
-  a red battery cannot mint a tarball, and `test/version-truth.test.mjs`, the
-  census leg that pins the README status line and `web/package.json` to the
-  root version. The README status line now names `0.9.0` and the DEPLOY ladder.
-- **The `/packs` surface.** The landing now carries a `/packs` route (nav +
-  `site.config.js` route + sitemap) that reads the family's extension surface
-  the way eyestruct's does: a hero, the shipped pack table, the four-bucket
-  verdict taxonomy, and the run-the-lane block. It names the ten check-profile
-  packs under `packs/public/` and the `govstruct-manifest-shapes` crashtest
-  lane, and crosslinks the family SPEC ([packstruct](https://github.com/dhaupin/packstruct)).
-  The docs tree grows the matching `docs/packs.md` (grammar, taxonomy,
-  authoring), reachable from the docs nav.
-- **The family status page (family-status@1).** govstruct now serves the
-  family's shared status contract: `web/scripts/build-status.mjs` generates
-  `web/public/status.json` from the committed `labs/crashledger.json` (63
-  refusal verdicts, PASS) and the 11 pack banks under `packs/public/` (31
-  declared members) on every web build, and a new `/status` route renders the
-  family table live - each sibling's served `/status.json` fetched in the
-  browser, absence shown as absent, never guessed. Same fixed path
-  (`/status.json`), same schema, same dialect as packstruct / poststruct /
-  eyestruct / crashtest. The `_headers` CSP `connect-src` now allows the
-  family origins so the island's fetches pass.
-- **The coreforge rig, adopted (PRD section 9).** govstruct's landing and docs
-  now ship the family shell verbatim, with the identity swapped: one
-  `site.config.js` is the single identity file, and `npm run sync` fans it out
-  to every surface that cannot import it (`web/ssr.config.js`,
-  `docs/_config.yml`, `docs/freestruct.config.yml`, `web/public/robots.txt`,
-  `web/public/site.webmanifest`). The gates come with it: the birth gate
-  (workflows YAML-parse, every `uses:` SHA-pinned, reusable-workflow contract),
-  the brand census (no identity literal outside `site.config.js`), the docs
-  gates (frontmatter, links, style, fiction signatures, Jekyll filters), and
-  paint-scheme parity. `docs-build.yml` (reusable) + `docs-deploy.yml` (thin
-  caller, deploy gated to main) build the Jekyll + pagefind + freestruct docs
-  lane and publish it to Pages. The product is its own first adopter: the
-  landing renders govstruct's own `render react` surface over its own roster,
-  so the served HTML carries a plain anchor per member.
-- **The adopter gate + `compliance.yml` (PRD M2.5).** `govstruct doctor
-  --adopters` reads each declared adopter's `govstruct` pin against the version
-  the suite serves and refuses pin drift by name (`E_ADOPTER_MISSING`,
-  `E_ADOPTER_PIN_STYLE_DRIFT`, `E_ADOPTER_VERSION_DRIFT`). A declared adopter
-  with no checkout is UNCHECKED - a named state, never a silent pass. The
-  **rule of three** is the claim, not the gate: the gate refuses drift from the
-  first adopter, but withholds the *suite claim* until ≥2 verified adopters,
-  reporting a pilot state instead of assuming the claim. `compliance.yml` checks
-  out each adopter at its pinned rev and gates it, then emits the roll-up and
-  refuses a drifted rendering.
-- **The controller layer, first build.** One manifest of members
-  (`members/<id>.json`), one render surface per deployment shape, one doctor
-  verb that verifies every adopter serves the same truth. Zero runtime
-  dependencies, Node ESM, exit codes 0/1/2.
-- **The refusal vocabulary (G10).** `spec/refusals.json` holds 39 codes,
-  namespaced by tool. Every refusal govstruct emits carries a registered
-  code; an unregistered code is itself refused (`E_REFUSAL_UNREGISTERED`).
-- **The manifest grammar (lint).** id==filename, https + unique urls, order
-  collisions, role/status/section enums, alias and `needs`/`home` edges,
-  tombstone discipline. Two-way fixtures: a clean family plus one broken
-  family per refusal code.
-- **The dependency graph (G3).** `needs[]` edges, a topological sort, and a
-  cycle refusal - how a floor bump propagates.
-- **The render surfaces.** `react | partial | readme | registry`, emitted
-  statically from the manifest (no runtime fetch). `registry.json` carries
-  the manifest checksum.
-- **The doctor.** Offline by default (G11): the default run is
-  byte-deterministic and never opens a socket; `--suite` reports the
-  suite-wide truth battery.
-- **The check host + the source-consistency packs.** Nine packstruct SPEC v1
-  check-profile packs under `packs/public/*-shapes/` (comment, env, floor,
-  hygiene, naming, pin, style, test, version) - PRD section 11, the ruling
-  that source-level consistency is a pack, not a fifth app.
-- **The registry roll-up.** Floors, env keys, pins, and versions gathered
-  from the compliance blocks into one address with a checksum.
-- **The audit ledger (G14).** `labs/audit-ledger.jsonl`, append-only and
-  tamper-evident: every entry carries `seq`, `prev`, and an `addr` over its
-  own body. `govstruct audit record` appends; `govstruct audit verify` walks
-  the chain offline.
-- **init / names / migrate (G9, G2, G6).** `init` scaffolds a one-member
-  family that lints green; `names` checks a candidate id against the roster
-  and the reserved block; `migrate --status/--dry-run` reports the migration
-  ritual.
-- **The crashtest dogfood.** `crashtest.config.js` +
-  `packs/public/govstruct-manifest-shapes`: nine attacks over a hostile
-  member-block corpus, the verdict chain, the retirement wire, and the
-  a11y/i18n pane through an in-process double. All REFUSED, zero exploited.
-- **The verdict bus (G4).** The self-proof the arms provide is a pull; this
-  adds the push. `govstruct verdict emit <receipt.json>` appends a member's
-  status receipt to `labs/receipts.jsonl` - append-only, content-addressed,
-  and chained, so it is tamper-evident and verifiable offline
-  (`verdict verify`). A receipt is portable only if its refusal codes are in
-  the shared vocabulary, so an unregistered code refuses
-  (`E_RECEIPT_INVALID`). `verdict rollup` reads receipts when fresh and
-  polls the manifest's declared state when not: "the suite is green right
-  now" is a fact, not a cache age.
-- **Tamper-evidence made deep.** The audit address was computed with a
-  shallow key sort, so a rewritten nested field (a verdict row, an actor id)
-  did not move the hash - tamper-evidence was a lie for exactly the fields
-  that matter. `entryAddress` now canonicalizes recursively; the committed
-  ledger is re-addressed over unchanged bodies.
-- **Four new refusal codes** (49 total): `E_RECEIPT_INVALID`,
-  `E_RECEIPT_UNKNOWN_MEMBER`, `E_RECEIPT_TAMPER`, `E_RECEIPT_CHAIN`.
-- **The write path (G1) + credential grants (G5).** `govstruct stamp
-  <record.json>` registers a machine-minted member as a reviewable,
-  refusable claim: it validates with the same grammar a hand-authored block
-  does, never overwrites an existing member file
-  (`E_STAMP_TARGET_EXISTS`), and refuses a duplicate id
-  (`E_STAMP_DUPLICATE`). A stamp that spends a credential must declare it in
-  `spends[]`, and every spend must be covered by the member's `grants[]` -
-  a stamp cannot widen a wall (`E_GRANT_UNLISTED`). `grants[]` is itself
-  governed: a kind outside the vocabulary (`E_GRANT_UNKNOWN_KIND`), an empty
-  scope (`E_GRANT_SCOPE_EMPTY`), or a duplicate (`E_GRANT_DUPLICATE`) is a
-  refusal. The mint is a ledger row (G14), so it is auditable offline.
-- **Six new refusal codes** (45 total): `E_STAMP_INVALID`,
-  `E_STAMP_DUPLICATE`, `E_STAMP_TARGET_EXISTS`, `E_GRANT_SCOPE_EMPTY`,
-  `E_GRANT_DUPLICATE`, `E_GRANT_UNKNOWN_KIND`.
-- **The lifecycle + revocation (G7).** A member is born, changed, and
-  retired. `history[]` records the transitions and `status` must agree with
-  the last one, on a forward-only ladder
-  (`Live -> Beta -> In Development -> Backburner -> Archived -> Tombstoned`).
-  A backward step refuses (`E_HISTORY_BACKWARD`), a malformed history refuses
-  (`E_HISTORY_INVALID`), and a status that disagrees with its last transition
-  refuses (`E_HISTORY_MISMATCH`). `govstruct retire <id>` tombstones a member
-  as a governed write: it keeps the member's row so an old id still resolves
-  (never a 404), appends the Tombstoned transition to `history[]`, and logs
-  one ledger row (G14). Retirement is terminal - a second retire refuses
-  (`E_RETIRE_ALREADY_TOMBSTONED`), and an unknown member refuses
-  (`E_RETIRE_UNKNOWN_MEMBER`). A tombstone with neither an alias nor the
-  history that retired it is a lie about a member that never existed
-  (`E_TOMBSTONE_EMPTY`).
-- **Six new refusal codes** (55 total): `E_HISTORY_INVALID`,
-  `E_HISTORY_BACKWARD`, `E_HISTORY_MISMATCH`, `E_RETIRE_UNKNOWN_MEMBER`,
-  `E_RETIRE_ALREADY_TOMBSTONED`, `E_RETIRE_ALIAS_REQUIRED`.
-- **The online leg (G11, PRD 6.1).** `doctor --network` is now its own mode -
-  the ONLY arm that opens a socket, so the offline default stays
-  byte-deterministic and CI-safe. It checks each member's url resolvability
-  (refusing `E_URL_UNRESOLVABLE`, or `E_URL_INSECURE` when only the http twin
-  answers) and each declared npm name's existence (`E_NPM_MISSING`). The probe
-  is injectable, so its tests never touch the network; combining `--network`
-  with `--suite`/`--fleet` refuses rather than silently dropping a flag.
-- **The roll-up address + cache contract (G12, PRD 5.1).** `registry.json` is a
-  build artifact many consumers read, so it gets a stable address and a cache
-  policy. `apps.json` is now the canonical composed source (members +
-  compliance + meta); `registry.json` is ONE rendering of it. The roll-up
-  serves at a versioned path (`registry.v1.json`) with an `ETag` keyed on the
-  manifest checksum and a `max-age`, so a consumer caches cheaply and
-  revalidates cheaply. The doctor refuses a versioned copy whose ETag disagrees
-  with a fresh render (`E_ROLLUP_ETAG_STALE`) and a rendering that diverged
-  from the manifest (`E_ROLLUP_NOT_CANONICAL`); an unrenderable payload schema
-  refuses `E_ADDRESS_VERSION_UNKNOWN`.
-- **The fleet drift meter (G13, the golden case).** The four proving cases are
-  events; this is the steady state. `govstruct doctor --suite --fleet
-  --fleet-root <dir>` reads each member's live surfaces (engines floor,
-  lockfile presence, pin style, repo version, workflow count) against the
-  truth its compliance block declares, and reports every drift on one page as
-  a typed refusal. Offline by default: a member with no local checkout is
-  reported UNCHECKED, never a silent pass. Codes: `E_FLEET_FLOOR_DRIFT`,
-  `E_FLEET_LOCK_MISSING`, `E_FLEET_PIN_STYLE_DRIFT`, `E_FLEET_CI_SHAPE_DRIFT`,
-  `E_FLEET_VERSION_DRIFT`.
-- **The dependency graph, both halves (G3).** `needs[]` edges were already
-  topo-sorted and cycle-refused; now the PRD's other two promises land. The
-  roll-up (`registry.json`) renders the graph (`{ id, needs, neededBy }` per
-  member), and `govstruct impact <id>` answers the maintainer's real
-  question - "who does a bump here touch?" - by walking the reverse closure
-  to every direct and transitive dependent. An unknown id refuses by name
-  (`E_IMPACT_UNKNOWN_MEMBER`).
-- **Accessibility and i18n (G8, S5).** The menu renders on every member site,
-  so govstruct's own surface now states its floor: the emitted pane carries a
-  named landmark, a real anchor per row (never a click-handler `div`), a
-  visible focus ring, and keyed chrome strings with an explicit locale
-  fallback. A tenth check pack, `packs/public/a11y-shapes`, verifies it - and
-  the deeper DOM/contrast leg stays poststruct's, invoked by CLI (the interop
-  law). A pane with no landmark (`E_A11Y_NO_LANDMARK`), a row that is not a
-  link (`E_A11Y_FAKE_ANCHOR`), no focus ring (`E_A11Y_NO_FOCUS`), an unkeyed
-  string (`E_I18N_UNKEYED`), or no locale fallback (`E_I18N_NO_FALLBACK`) each
-  refuses by name.
-- **A real bug the dogfood caught.** The check host coerced a finding code to
-  `E_SUITE_DRIFT` unless it matched `/^[A-Z_]+$/` - so any code carrying a digit
-  (the whole `E_A11Y_*` family) was silently renamed. The shape is now
-  `/^[A-Z][A-Z0-9_]*$/`, so a digit-bearing code survives to the report.
-- **Five new refusal codes** (60 total): `E_A11Y_NO_LANDMARK`,
-  `E_A11Y_FAKE_ANCHOR`, `E_A11Y_NO_FOCUS`, `E_I18N_UNKEYED`,
-  `E_I18N_NO_FALLBACK`.
+- **The why / what / about pages, both surfaces.** The landing gains three routes (`/why`, `/what`, `/about`) in the nav vocabulary, each a real page in the family voice: the crosslink-mesh problem and the refusal thesis; the CLI verbs and the owns-versus-defers boundary; who builds it and the MIT provenance. The docs tree grows the matching `docs/why.md`, `docs/what.md`, `docs/about.md`, reachable from the docs nav. This closes the family-wide gap where no member carried a supporting trio.
+- **The landing's docs link + filled legal pages.** The nav vocabulary gains a `Docs` entry (`site.config.js`), so the landing header/footer reach the docs rig like every sibling's does. `Terms.jsx` and `Privacy.jsx` were the blank adopter placeholders; both now carry govstruct's own copy in the family voice, matching the surface facts (offline doctor, no telemetry, MIT).
+- **Release prep for the 0.9.0 manual ship.** The tree was already at 0.9.0 in both `package.json` files (the 0.x manual ladder). This adds the two gates a manual `npm publish` needs: `prepublishOnly` (`npm test && npm run check`) so a red battery cannot mint a tarball, and `test/version-truth.test.mjs`, the census leg that pins the README status line and `web/package.json` to the root version. The README status line now names `0.9.0` and the DEPLOY ladder.
+- **The `/packs` surface.** The landing now carries a `/packs` route (nav + `site.config.js` route + sitemap) that reads the family's extension surface the way eyestruct's does: a hero, the shipped pack table, the four-bucket verdict taxonomy, and the run-the-lane block. It names the ten check-profile packs under `packs/public/` and the `govstruct-manifest-shapes` crashtest lane, and crosslinks the family SPEC ([packstruct](https://github.com/dhaupin/packstruct)). The docs tree grows the matching `docs/packs.md` (grammar, taxonomy, authoring), reachable from the docs nav.
+- **The family status page (family-status@1).** govstruct now serves the family's shared status contract: `web/scripts/build-status.mjs` generates `web/public/status.json` from the committed `labs/crashledger.json` (63 refusal verdicts, PASS) and the 11 pack banks under `packs/public/` (31 declared members) on every web build, and a new `/status` route renders the family table live - each sibling's served `/status.json` fetched in the browser, absence shown as absent, never guessed. Same fixed path (`/status.json`), same schema, same dialect as packstruct / poststruct / eyestruct / crashtest. The `_headers` CSP `connect-src` now allows the family origins so the island's fetches pass.
+- **The coreforge rig, adopted (PRD section 9).** govstruct's landing and docs now ship the family shell verbatim, with the identity swapped: one `site.config.js` is the single identity file, and `npm run sync` fans it out to every surface that cannot import it (`web/ssr.config.js`, `docs/_config.yml`, `docs/freestruct.config.yml`, `web/public/robots.txt`, `web/public/site.webmanifest`). The gates come with it: the birth gate (workflows YAML-parse, every `uses:` SHA-pinned, reusable-workflow contract), the brand census (no identity literal outside `site.config.js`), the docs gates (frontmatter, links, style, fiction signatures, Jekyll filters), and paint-scheme parity. `docs-build.yml` (reusable) + `docs-deploy.yml` (thin caller, deploy gated to main) build the Jekyll + pagefind + freestruct docs lane and publish it to Pages. The product is its own first adopter: the landing renders govstruct's own `render react` surface over its own roster, so the served HTML carries a plain anchor per member.
+- **The adopter gate + `compliance.yml` (PRD M2.5).** `govstruct doctor --adopters` reads each declared adopter's `govstruct` pin against the version the suite serves and refuses pin drift by name (`E_ADOPTER_MISSING`, `E_ADOPTER_PIN_STYLE_DRIFT`, `E_ADOPTER_VERSION_DRIFT`). A declared adopter with no checkout is UNCHECKED - a named state, never a silent pass. The **rule of three** is the claim, not the gate: the gate refuses drift from the first adopter, but withholds the *suite claim* until ≥2 verified adopters, reporting a pilot state instead of assuming the claim. `compliance.yml` checks out each adopter at its pinned rev and gates it, then emits the roll-up and refuses a drifted rendering.
+- **The controller layer, first build.** One manifest of members (`members/<id>.json`), one render surface per deployment shape, one doctor verb that verifies every adopter serves the same truth. Zero runtime dependencies, Node ESM, exit codes 0/1/2.
+- **The refusal vocabulary (G10).** `spec/refusals.json` holds 39 codes, namespaced by tool. Every refusal govstruct emits carries a registered code; an unregistered code is itself refused (`E_REFUSAL_UNREGISTERED`).
+- **The manifest grammar (lint).** id==filename, https + unique urls, order collisions, role/status/section enums, alias and `needs`/`home` edges, tombstone discipline. Two-way fixtures: a clean family plus one broken family per refusal code.
+- **The dependency graph (G3).** `needs[]` edges, a topological sort, and a cycle refusal - how a floor bump propagates.
+- **The render surfaces.** `react | partial | readme | registry`, emitted statically from the manifest (no runtime fetch). `registry.json` carries the manifest checksum.
+- **The doctor.** Offline by default (G11): the default run is byte-deterministic and never opens a socket; `--suite` reports the suite-wide truth battery.
+- **The check host + the source-consistency packs.** Nine packstruct SPEC v1 check-profile packs under `packs/public/*-shapes/` (comment, env, floor, hygiene, naming, pin, style, test, version) - PRD section 11, the ruling that source-level consistency is a pack, not a fifth app.
+- **The registry roll-up.** Floors, env keys, pins, and versions gathered from the compliance blocks into one address with a checksum.
+- **The audit ledger (G14).** `labs/audit-ledger.jsonl`, append-only and tamper-evident: every entry carries `seq`, `prev`, and an `addr` over its own body. `govstruct audit record` appends; `govstruct audit verify` walks the chain offline.
+- **init / names / migrate (G9, G2, G6).** `init` scaffolds a one-member family that lints green; `names` checks a candidate id against the roster and the reserved block; `migrate --status/--dry-run` reports the migration ritual.
+- **The crashtest dogfood.** `crashtest.config.js` + `packs/public/govstruct-manifest-shapes`: nine attacks over a hostile member-block corpus, the verdict chain, the retirement wire, and the a11y/i18n pane through an in-process double. All REFUSED, zero exploited.
+- **The verdict bus (G4).** The self-proof the arms provide is a pull; this adds the push. `govstruct verdict emit <receipt.json>` appends a member's status receipt to `labs/receipts.jsonl` - append-only, content-addressed, and chained, so it is tamper-evident and verifiable offline (`verdict verify`). A receipt is portable only if its refusal codes are in the shared vocabulary, so an unregistered code refuses (`E_RECEIPT_INVALID`). `verdict rollup` reads receipts when fresh and polls the manifest's declared state when not: "the suite is green right now" is a fact, not a cache age.
+- **Tamper-evidence made deep.** The audit address was computed with a shallow key sort, so a rewritten nested field (a verdict row, an actor id) did not move the hash - tamper-evidence was a lie for exactly the fields that matter. `entryAddress` now canonicalizes recursively; the committed ledger is re-addressed over unchanged bodies.
+- **Four new refusal codes** (49 total): `E_RECEIPT_INVALID`, `E_RECEIPT_UNKNOWN_MEMBER`, `E_RECEIPT_TAMPER`, `E_RECEIPT_CHAIN`.
+- **The write path (G1) + credential grants (G5).** `govstruct stamp <record.json>` registers a machine-minted member as a reviewable, refusable claim: it validates with the same grammar a hand-authored block does, never overwrites an existing member file (`E_STAMP_TARGET_EXISTS`), and refuses a duplicate id (`E_STAMP_DUPLICATE`). A stamp that spends a credential must declare it in `spends[]`, and every spend must be covered by the member's `grants[]` - a stamp cannot widen a wall (`E_GRANT_UNLISTED`). `grants[]` is itself governed: a kind outside the vocabulary (`E_GRANT_UNKNOWN_KIND`), an empty scope (`E_GRANT_SCOPE_EMPTY`), or a duplicate (`E_GRANT_DUPLICATE`) is a refusal. The mint is a ledger row (G14), so it is auditable offline.
+- **Six new refusal codes** (45 total): `E_STAMP_INVALID`, `E_STAMP_DUPLICATE`, `E_STAMP_TARGET_EXISTS`, `E_GRANT_SCOPE_EMPTY`, `E_GRANT_DUPLICATE`, `E_GRANT_UNKNOWN_KIND`.
+- **The lifecycle + revocation (G7).** A member is born, changed, and retired. `history[]` records the transitions and `status` must agree with the last one, on a forward-only ladder (`Live -> Beta -> In Development -> Backburner -> Archived -> Tombstoned`). A backward step refuses (`E_HISTORY_BACKWARD`), a malformed history refuses (`E_HISTORY_INVALID`), and a status that disagrees with its last transition refuses (`E_HISTORY_MISMATCH`). `govstruct retire <id>` tombstones a member as a governed write: it keeps the member's row so an old id still resolves (never a 404), appends the Tombstoned transition to `history[]`, and logs one ledger row (G14). Retirement is terminal - a second retire refuses (`E_RETIRE_ALREADY_TOMBSTONED`), and an unknown member refuses (`E_RETIRE_UNKNOWN_MEMBER`). A tombstone with neither an alias nor the history that retired it is a lie about a member that never existed (`E_TOMBSTONE_EMPTY`).
+- **Six new refusal codes** (55 total): `E_HISTORY_INVALID`, `E_HISTORY_BACKWARD`, `E_HISTORY_MISMATCH`, `E_RETIRE_UNKNOWN_MEMBER`, `E_RETIRE_ALREADY_TOMBSTONED`, `E_RETIRE_ALIAS_REQUIRED`.
+- **The online leg (G11, PRD 6.1).** `doctor --network` is now its own mode - the ONLY arm that opens a socket, so the offline default stays byte-deterministic and CI-safe. It checks each member's url resolvability (refusing `E_URL_UNRESOLVABLE`, or `E_URL_INSECURE` when only the http twin answers) and each declared npm name's existence (`E_NPM_MISSING`). The probe is injectable, so its tests never touch the network; combining `--network` with `--suite`/`--fleet` refuses rather than silently dropping a flag.
+- **The roll-up address + cache contract (G12, PRD 5.1).** `registry.json` is a build artifact many consumers read, so it gets a stable address and a cache policy. `apps.json` is now the canonical composed source (members + compliance + meta); `registry.json` is ONE rendering of it. The roll-up serves at a versioned path (`registry.v1.json`) with an `ETag` keyed on the manifest checksum and a `max-age`, so a consumer caches cheaply and revalidates cheaply. The doctor refuses a versioned copy whose ETag disagrees with a fresh render (`E_ROLLUP_ETAG_STALE`) and a rendering that diverged from the manifest (`E_ROLLUP_NOT_CANONICAL`); an unrenderable payload schema refuses `E_ADDRESS_VERSION_UNKNOWN`.
+- **The fleet drift meter (G13, the golden case).** The four proving cases are events; this is the steady state. `govstruct doctor --suite --fleet --fleet-root <dir>` reads each member's live surfaces (engines floor, lockfile presence, pin style, repo version, workflow count) against the truth its compliance block declares, and reports every drift on one page as a typed refusal. Offline by default: a member with no local checkout is reported UNCHECKED, never a silent pass. Codes: `E_FLEET_FLOOR_DRIFT`, `E_FLEET_LOCK_MISSING`, `E_FLEET_PIN_STYLE_DRIFT`, `E_FLEET_CI_SHAPE_DRIFT`, `E_FLEET_VERSION_DRIFT`.
+- **The dependency graph, both halves (G3).** `needs[]` edges were already topo-sorted and cycle-refused; now the PRD's other two promises land. The roll-up (`registry.json`) renders the graph (`{ id, needs, neededBy }` per member), and `govstruct impact <id>` answers the maintainer's real question - "who does a bump here touch?" - by walking the reverse closure to every direct and transitive dependent. An unknown id refuses by name (`E_IMPACT_UNKNOWN_MEMBER`).
+- **Accessibility and i18n (G8, S5).** The menu renders on every member site, so govstruct's own surface now states its floor: the emitted pane carries a named landmark, a real anchor per row (never a click-handler `div`), a visible focus ring, and keyed chrome strings with an explicit locale fallback. A tenth check pack, `packs/public/a11y-shapes`, verifies it - and the deeper DOM/contrast leg stays poststruct's, invoked by CLI (the interop law). A pane with no landmark (`E_A11Y_NO_LANDMARK`), a row that is not a link (`E_A11Y_FAKE_ANCHOR`), no focus ring (`E_A11Y_NO_FOCUS`), an unkeyed string (`E_I18N_UNKEYED`), or no locale fallback (`E_I18N_NO_FALLBACK`) each refuses by name.
+- **A real bug the dogfood caught.** The check host coerced a finding code to `E_SUITE_DRIFT` unless it matched `/^[A-Z_]+$/` - so any code carrying a digit (the whole `E_A11Y_*` family) was silently renamed. The shape is now `/^[A-Z][A-Z0-9_]*$/`, so a digit-bearing code survives to the report.
+- **Five new refusal codes** (60 total): `E_A11Y_NO_LANDMARK`, `E_A11Y_FAKE_ANCHOR`, `E_A11Y_NO_FOCUS`, `E_I18N_UNKEYED`, `E_I18N_NO_FALLBACK`.
 - **One more refusal code** (61 total): `E_IMPACT_UNKNOWN_MEMBER`.
-- **Five fleet-meter refusal codes** (66 total): `E_FLEET_FLOOR_DRIFT`,
-  `E_FLEET_LOCK_MISSING`, `E_FLEET_PIN_STYLE_DRIFT`, `E_FLEET_CI_SHAPE_DRIFT`,
-  `E_FLEET_VERSION_DRIFT`.
-- **Three roll-up-address refusal codes** (69 total): `E_ADDRESS_VERSION_UNKNOWN`,
-  `E_ROLLUP_ETAG_STALE`, `E_ROLLUP_NOT_CANONICAL`.
-- **Three online-leg refusal codes** (72 total): `E_URL_UNRESOLVABLE`,
-  `E_URL_INSECURE`, `E_NPM_MISSING`.
+- **Five fleet-meter refusal codes** (66 total): `E_FLEET_FLOOR_DRIFT`, `E_FLEET_LOCK_MISSING`, `E_FLEET_PIN_STYLE_DRIFT`, `E_FLEET_CI_SHAPE_DRIFT`, `E_FLEET_VERSION_DRIFT`.
+- **Three roll-up-address refusal codes** (69 total): `E_ADDRESS_VERSION_UNKNOWN`, `E_ROLLUP_ETAG_STALE`, `E_ROLLUP_NOT_CANONICAL`.
+- **Three online-leg refusal codes** (72 total): `E_URL_UNRESOLVABLE`, `E_URL_INSECURE`, `E_NPM_MISSING`.
 
 ### Fixed
-- **The apps-menu pane shipped unstyled.** `renderReact` and `renderPartial`
-  emitted the `apps-menu__*` markup while carrying only a `:focus-visible`
-  rule, so the pane rendered as a raw list on every adopter that dropped it in
-  (the live govstruct landing was the visible case). The generated bytes now
-  carry the full pane stylesheet, so both surfaces are self-contained: the
-  react component injects it and the Jekyll include inlines it. Every rule
-  rides the host theme tokens (`--surface`/`--line`/`--ink`/`--ink-soft`/
-  `--accent`/`--raised`), so the pane re-themes with light/dark and the paint
-  scheme and no rule hardcodes a hex. Four regression tests (both surfaces plus
-  the token/no-hex rule) hold the line.
+- **The apps-menu pane shipped unstyled.** `renderReact` and `renderPartial` emitted the `apps-menu__*` markup while carrying only a `:focus-visible` rule, so the pane rendered as a raw list on every adopter that dropped it in (the live govstruct landing was the visible case). The generated bytes now carry the full pane stylesheet, so both surfaces are self-contained: the react component injects it and the Jekyll include inlines it. Every rule rides the host theme tokens (`--surface`/`--line`/`--ink`/`--ink-soft`/ `--accent`/`--raised`), so the pane re-themes with light/dark and the paint scheme and no rule hardcodes a hex. Four regression tests (both surfaces plus the token/no-hex rule) hold the line.
 
 ### Notes
-- The reference roster (23 members) is data, not code: member 24 is a block
-  file plus a doctor run, never a PRD edit.
+- The reference roster (23 members) is data, not code: member 24 is a block file plus a doctor run, never a PRD edit.

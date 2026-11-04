@@ -1,39 +1,22 @@
 # PRD rider: govstruct - the ISO 9001 / ISO 27001 compliance frame
 
-**Status:** rider v0.1, 2026-10-29 · Owner: dhaupin
-**Companion:** `prd-govstruct.md` (sections 10 and 15), `spec/iso-profile.json`,
-`docs/iso.md`. This rider is the family's **canonical frame**: the other five
-riders (eyestruct, packstruct, crashtest, poststruct, prestruct) point at it.
-**The one law:** an evidence map, not a certificate. It names which ISO
-9001:2015 clauses and ISO 27001:2022 Annex A controls govstruct's own surfaces
-can **evidence**, and the gate that proves each one.
+**Status:** rider v0.1, 2026-10-29 · Owner: dhaupin **Companion:** `prd-govstruct.md` (sections 10 and 15), `spec/iso-profile.json`, `docs/iso.md`. This rider is the family's **canonical frame**: the other five riders (eyestruct, packstruct, crashtest, poststruct, prestruct) point at it. **The one law:** an evidence map, not a certificate. It names which ISO 9001:2015 clauses and ISO 27001:2022 Annex A controls govstruct's own surfaces can **evidence**, and the gate that proves each one.
 
 ---
 
 ## 0. Why govstruct carries the frame
 
-govstruct is the family's **governor**: it holds the suite manifest, refuses a
-drifted rendering, records every governance action in an append-only ledger, and
-meters the live fleet. That is the whole of ISO 9001 clause 9 (performance
-evaluation) and clause 10 (improvement) as a running tool, plus the 27001
-technological controls a software suite can hold. The other members carry local
-frames; govstruct carries the frame the family is audited under.
+govstruct is the family's **governor**: it holds the suite manifest, refuses a drifted rendering, records every governance action in an append-only ledger, and meters the live fleet. That is the whole of ISO 9001 clause 9 (performance evaluation) and clause 10 (improvement) as a running tool, plus the 27001 technological controls a software suite can hold. The other members carry local frames; govstruct carries the frame the family is audited under.
 
-govstruct is also the purest form of clause 7.5 (documented information): the
-profile itself is **data** (`spec/iso-profile.json`), versioned, machine-checked,
-and printed on demand. The map is not prose that can rot; it is a file the
-`iso-shapes` pack keeps honest on every `govstruct check`.
+govstruct is also the purest form of clause 7.5 (documented information): the profile itself is **data** (`spec/iso-profile.json`), versioned, machine-checked, and printed on demand. The map is not prose that can rot; it is a file the `iso-shapes` pack keeps honest on every `govstruct check`.
 
-The frame rides the govstruct vocabulary (`clause` field on a member, the shared
-`spec/refusals.json`, the append-only ledger) so a family install is auditable
-as one unit, not six.
+The frame rides the govstruct vocabulary (`clause` field on a member, the shared `spec/refusals.json`, the append-only ledger) so a family install is auditable as one unit, not six.
 
 ---
 
 ## 1. The clause map
 
-This is the shipped profile, verbatim. `govstruct iso` prints it;
-`govstruct iso --coverage` proves it is complete.
+This is the shipped profile, verbatim. `govstruct iso` prints it; `govstruct iso --coverage` proves it is complete.
 
 ### ISO 9001:2015 - quality management
 
@@ -79,8 +62,7 @@ This is the shipped profile, verbatim. `govstruct iso` prints it;
 | A.8.33 | test information | fixtures under `test/fixtures`: synthetic, committed, never real data | `npm test` |
 | A.8.34 | protection of information systems during audit testing | the audit ledger is read-only evidence; audits never mutate the system | `govstruct audit verify` |
 
-The profile holds 36 clauses (15 under ISO 9001, 21 under ISO 27001) and 90
-resolutions. `govstruct iso --coverage` reports `0` unmapped and `0` dangling.
+The profile holds 36 clauses (15 under ISO 9001, 21 under ISO 27001) and 90 resolutions. `govstruct iso --coverage` reports `0` unmapped and `0` dangling.
 
 ---
 
@@ -102,42 +84,20 @@ resolutions. `govstruct iso --coverage` reports `0` unmapped and `0` dangling.
 
 ## 3. Steps to stand the frame up
 
-1. **Read the orientation.** `govstruct iso` prints the clause catalog. Nothing
-   to install: the profile ships with the tool and is on by default. Evidence
-   for 4.4, 7.5.2.
-2. **Keep the map honest.** `govstruct check` runs the `iso-shapes` pack: a
-   clause with no surface, a refusal with no resolution, or a member clause
-   annotation that names a clause outside the catalog refuses by name. Evidence
-   for 6.1, 8.5.6.
-3. **Resolve a refusal.** `govstruct iso --resolve <code>` turns a refusal into
-   an ISO statement: the clause it bears on and the action that clears it.
-   Evidence for 8.7, 10.2.
-4. **Meter the fleet.** `govstruct doctor --suite --fleet` reads every member's
-   live surfaces against its compliance block and reports every drift on one
-   page. Evidence for 9.1, A.5.36.
-5. **Keep the ledger.** `govstruct audit verify` walks the append-only chain.
-   The ledger is the retention evidence. Evidence for 7.5.3, 10.3, A.8.15.
-6. **Gate the adopters.** `govstruct doctor --adopters` reads each declared
-   adopter's `govstruct` pin against the version the suite serves. Evidence for
-   9.2.
-7. **Attach the local frames.** Each member ships its own rider
-   (`prd-<member>-compliance.md`) that points here for the shared vocabulary.
+1. **Read the orientation.** `govstruct iso` prints the clause catalog. Nothing to install: the profile ships with the tool and is on by default. Evidence for 4.4, 7.5.2.
+2. **Keep the map honest.** `govstruct check` runs the `iso-shapes` pack: a clause with no surface, a refusal with no resolution, or a member clause annotation that names a clause outside the catalog refuses by name. Evidence for 6.1, 8.5.6.
+3. **Resolve a refusal.** `govstruct iso --resolve <code>` turns a refusal into an ISO statement: the clause it bears on and the action that clears it. Evidence for 8.7, 10.2.
+4. **Meter the fleet.** `govstruct doctor --suite --fleet` reads every member's live surfaces against its compliance block and reports every drift on one page. Evidence for 9.1, A.5.36.
+5. **Keep the ledger.** `govstruct audit verify` walks the append-only chain. The ledger is the retention evidence. Evidence for 7.5.3, 10.3, A.8.15.
+6. **Gate the adopters.** `govstruct doctor --adopters` reads each declared adopter's `govstruct` pin against the version the suite serves. Evidence for 9.2.
+7. **Attach the local frames.** Each member ships its own rider (`prd-<member>-compliance.md`) that points here for the shared vocabulary.
 
 ---
 
 ## 4. What this frame does not claim
 
-- **No certification.** The frame emits evidence; a certification body decides.
-  govstruct certifies nothing.
-- **No people or physical controls.** ISO 27001 Annex A themes 6 and 7 are
-  named **out of scope** in the profile, never dropped silently. A software tool
-  cannot evidence them.
-- **No runtime enforcement.** govstruct is author-time and build-time. It does
-  not sit in a request path.
-- **No invented evidence.** Every clause maps to a surface that exists today or
-  a milestone that will build it (PRD section 15). A clause with no surface is
-  out of scope, not a promise.
-- **No over-claim.** A check the spec does not promise is a bug in the check,
-  never shipped. The profile is held to the same rule: the `iso-shapes` pack
-  flags an in-scope clause with no gate as a refusal, so the map cannot claim
-  coverage it has not earned.
+- **No certification.** The frame emits evidence; a certification body decides. govstruct certifies nothing.
+- **No people or physical controls.** ISO 27001 Annex A themes 6 and 7 are named **out of scope** in the profile, never dropped silently. A software tool cannot evidence them.
+- **No runtime enforcement.** govstruct is author-time and build-time. It does not sit in a request path.
+- **No invented evidence.** Every clause maps to a surface that exists today or a milestone that will build it (PRD section 15). A clause with no surface is out of scope, not a promise.
+- **No over-claim.** A check the spec does not promise is a bug in the check, never shipped. The profile is held to the same rule: the `iso-shapes` pack flags an in-scope clause with no gate as a refusal, so the map cannot claim coverage it has not earned.

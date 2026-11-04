@@ -22,133 +22,34 @@ Last updated: 2026-11-03.
 
 ## Session 2026-10-30 - the first build
 
-The controller layer's core landed, all verbs green. Build-order from the PRD
-gap list: G10 (refusal vocabulary) first, then G3 (the graph), then G1+G5
-(write path + grants).
+The controller layer's core landed, all verbs green. Build-order from the PRD gap list: G10 (refusal vocabulary) first, then G3 (the graph), then G1+G5 (write path + grants).
 
-- [x] **G10 - the refusal vocabulary.** `spec/refusals.json`, 39 codes,
-      namespaced by tool. Every refusal carries a registered code; an
-      unregistered code is itself refused (`E_REFUSAL_UNREGISTERED`).
-- [x] **The manifest grammar (lint).** id==filename, https + unique urls,
-      order collisions (global rule), role/status/section enums, alias and
-      `needs`/`home` edges, tombstone discipline. 18 two-way fixtures.
-- [x] **G3 - the graph, both halves.** `needs[]` edges, topological sort,
-      cycle refusal; the roll-up renders the graph, and `govstruct impact
-      <id>` walks the reverse closure to every transitive dependent (the
-      propagation path). Unknown id refuses `E_IMPACT_UNKNOWN_MEMBER`.
-- [x] **The render surfaces.** react | partial | readme | registry, emitted
-      statically; `registry.json` carries the manifest checksum.
-- [x] **The doctor.** Offline by default (G11); `--suite` reports the
-      suite-wide truth battery. `--network` is the online leg - its own mode,
-      the only socket arm (url resolvability + npm existence), with an
-      injectable probe so its tests stay offline.
-- [x] **The check host + source-consistency packs** (PRD section 11):
-      comment, env, floor, hygiene, naming, pin, style, test, version, and
-      (G8) a11y.
-- [x] **The registry roll-up.** Floors, env, pins, versions from the
-      compliance blocks into one addressed, checksummed surface.
-- [x] **G14 - the audit ledger.** Append-only, tamper-evident
-      (`labs/audit-ledger.jsonl`); `audit record` appends, `audit verify`
-      walks the chain offline.
-- [x] **G9 / G2 / G6 - init, names, migrate.** `init` scaffolds a green
-      one-member family; `names` checks the roster + the reserved block;
-      `migrate --status/--dry-run` reports the ritual.
-- [x] **The crashtest dogfood.** `packs/public/govstruct-manifest-shapes`,
-      nine attacks over a hostile corpus through an in-process double. All
-      REFUSED, zero exploited.
+- [x] **G10 - the refusal vocabulary.** `spec/refusals.json`, 39 codes, namespaced by tool. Every refusal carries a registered code; an unregistered code is itself refused (`E_REFUSAL_UNREGISTERED`).
+- [x] **The manifest grammar (lint).** id==filename, https + unique urls, order collisions (global rule), role/status/section enums, alias and `needs`/`home` edges, tombstone discipline. 18 two-way fixtures.
+- [x] **G3 - the graph, both halves.** `needs[]` edges, topological sort, cycle refusal; the roll-up renders the graph, and `govstruct impact <id>` walks the reverse closure to every transitive dependent (the propagation path). Unknown id refuses `E_IMPACT_UNKNOWN_MEMBER`.
+- [x] **The render surfaces.** react | partial | readme | registry, emitted statically; `registry.json` carries the manifest checksum.
+- [x] **The doctor.** Offline by default (G11); `--suite` reports the suite-wide truth battery. `--network` is the online leg - its own mode, the only socket arm (url resolvability + npm existence), with an injectable probe so its tests stay offline.
+- [x] **The check host + source-consistency packs** (PRD section 11): comment, env, floor, hygiene, naming, pin, style, test, version, and (G8) a11y.
+- [x] **The registry roll-up.** Floors, env, pins, versions from the compliance blocks into one addressed, checksummed surface.
+- [x] **G14 - the audit ledger.** Append-only, tamper-evident (`labs/audit-ledger.jsonl`); `audit record` appends, `audit verify` walks the chain offline.
+- [x] **G9 / G2 / G6 - init, names, migrate.** `init` scaffolds a green one-member family; `names` checks the roster + the reserved block; `migrate --status/--dry-run` reports the ritual.
+- [x] **The crashtest dogfood.** `packs/public/govstruct-manifest-shapes`, nine attacks over a hostile corpus through an in-process double. All REFUSED, zero exploited.
 - [x] **The test spine.** `node --test` over the modules, two-way fixtures.
-- [x] **Docs + CI.** AGENTS.md, CHANGELOG.md, DEPLOY.md, README refresh,
-      `.github/workflows/{test,crashtest,publish}.yml`.
+- [x] **Docs + CI.** AGENTS.md, CHANGELOG.md, DEPLOY.md, README refresh, `.github/workflows/{test,crashtest,publish}.yml`.
 
 ## Next
 
-- [x] **G1 + G5 - the write path + grants.** `govstruct stamp <record.json>`
-      registers a member as a governed write: it validates the block with the
-      same grammar a hand-authored one passes, refuses to overwrite an
-      existing file (append-mostly), and refuses a duplicate id. Every
-      declared spend must be covered by the member's `grants[]`
-      (`E_GRANT_UNLISTED`), and `grants[]` is itself governed - a kind outside
-      `GRANT_KINDS`, an empty scope, or a duplicate is a refusal. The stamp
-      writes the block and one ledger row; it never commits or pushes - the
-      caller opens the PR, so CI is the serializer.
-- [x] **G4 - the verdict bus.** The push side of the self-proof:
-      `govstruct verdict emit <receipt.json>` appends a chained, tamper-evident
-      receipt to `labs/receipts.jsonl`; `verdict verify` walks it offline;
-      `verdict rollup` reads fresh receipts and polls the rest. Receipts are
-      portable only through the shared vocabulary (G10).
-- [x] **Deep tamper-evidence.** `entryAddress` canonicalizes recursively (a
-      shallow key sort left nested fields - verdict rows, actor ids - outside
-      the hash); the committed ledger is re-addressed over unchanged bodies.
-- [x] **G7 - lifecycle + revocation.** `history[]` records the transitions
-      and `status` must agree with the last one, on a forward-only ladder
-      (`Live -> Beta -> In Development -> Backburner -> Archived ->
-      Tombstoned`). `govstruct retire <id>` tombstones a member as a governed
-      write: it keeps the row so an old id resolves (never a 404), records
-      the transition, and logs one ledger row. A backward step, a status
-      mismatch, a second retirement, and a tombstone with neither alias nor
-      history all refuse by name.
-- [x] **G8 - accessibility + i18n** (PRD section 10 S5). The emitted pane
-      carries a named landmark, a real anchor per row, a visible focus ring,
-      and keyed chrome strings with an explicit locale fallback. A tenth
-      check pack, `packs/public/a11y-shapes`, verifies it; the deeper
-      DOM/contrast leg stays poststruct's (the interop law). The dogfood
-      caught a real bug on the way: the check host renamed any code carrying
-      a digit to `E_SUITE_DRIFT`, so the `E_A11Y_*` family never surfaced.
-- [x] **G13 - the fleet drift meter (the golden case, PRD 16.10).** The
-      steady-state job the proving cases are not: coreforge *prevents*, the
-      meter *detects*. `govstruct doctor --suite --fleet --fleet-root <dir>`
-      reads each member's live surfaces (engines floor, lockfile presence,
-      pin style, repo version, workflow count) against its compliance block,
-      and reports every drift on one page as a typed refusal
-      (`E_FLEET_FLOOR_DRIFT`, `E_FLEET_LOCK_MISSING`, `E_FLEET_PIN_STYLE_DRIFT`,
-      `E_FLEET_CI_SHAPE_DRIFT`, `E_FLEET_VERSION_DRIFT`). Offline by default;
-      a member with no checkout is UNCHECKED, never a silent pass. The meter
-      warns where the doctor refuses - a lagging repo is a state, not a crime.
-- [x] **G12 - the roll-up address + cache contract** (PRD 5.1). `apps.json` is
-      the canonical composed source; `registry.json` is one rendering of it, so
-      one artifact has many readers and no divergent copies. The roll-up also
-      emits at a versioned path (`registry.v1.json`) with an `ETag` keyed on
-      the manifest checksum and a `max-age`, so a consumer caches and
-      revalidates cheaply. The doctor refuses a stale ETag
-      (`E_ROLLUP_ETAG_STALE`), a divergent rendering (`E_ROLLUP_NOT_CANONICAL`),
-      and an unrenderable payload schema (`E_ADDRESS_VERSION_UNKNOWN`).
-- [x] **`compliance.yml`** - `govstruct doctor --adopters` over every declared
-      adopter at a pinned rev, refusing pin drift (`E_ADOPTER_MISSING`,
-      `E_ADOPTER_PIN_STYLE_DRIFT`, `E_ADOPTER_VERSION_DRIFT`) and then emitting
-      the roll-up and refusing a drifted rendering. The gate is
-      `doctor --adopters`: it reads each declared adopter's `govstruct` pin
-      against the version the suite serves, in an offline checkout
-      (`--fleet-root`). A declared adopter with no checkout is UNCHECKED - a
-      named state, never a silent pass. The **rule of three** is the claim, not
-      the gate: the gate refuses drift from the first adopter, but withholds the
-      *suite claim* until ≥2 verified adopters, reporting a pilot state instead
-      of assuming the claim. govstruct declares zero adopters today (M2 has not
-      happened), so its own run is an honest pilot, not a fabricated green.
-- [x] **G15 - the ISO evidence orientation (PRD section 10).** An evidence
-      map, not a certificate: `spec/iso-profile.json` holds 36 clauses (15
-      ISO 9001, 21 ISO 27001 Annex A) and 90 resolutions, each clause naming
-      the govstruct surface that evidences it and the gate that proves it.
-      `govstruct iso` prints the orientation; `iso --resolve <code>` turns a
-      refusal into an ISO statement; `iso --statement` maps a whole run;
-      `iso --coverage` refuses when a refusal has no resolution. The
-      `iso-shapes` check pack keeps the map honest (a clause with no surface,
-      a refusal with no resolution, or a member clause annotation outside the
-      catalog refuses by name). Drop-in and on by default; a host may point
-      `iso.profile` at its own file. The family's canonical rider is
-      `labs/prd-govstruct-compliance.md`. Out-of-scope clauses (27001 themes
-      6 and 7) are named, never dropped.
-- [x] **The surface stability contract (issue #23, ask #1, PRD section 5.2).**
-      A consumer of the roll-up binds to field names and types, so the promise
-      is data: `spec/surface-contract.json` marks every field of each surface
-      (`registry`, `registry-member`, `member`, `apps`) promised, optional, or
-      free-form. `govstruct surface` prints it; `surface --verify` refuses a
-      dropped promised field (`E_SURFACE_FIELD_MISSING`) or a retyped one
-      (`E_SURFACE_TYPE_DRIFT`) by name. The `surface-shapes` check pack runs the
-      same checks under `govstruct check`; the doctor folds it in as the
-      `surface-contract` check. An integrator pins a `schemaVersion` and
-      upgrades consciously.
-- [ ] **`web/` + `docs/`** - the coreforge landing shell and the Jekyll rig,
-      adopted from a checkout per the house rule.
+- [x] **G1 + G5 - the write path + grants.** `govstruct stamp <record.json>` registers a member as a governed write: it validates the block with the same grammar a hand-authored one passes, refuses to overwrite an existing file (append-mostly), and refuses a duplicate id. Every declared spend must be covered by the member's `grants[]` (`E_GRANT_UNLISTED`), and `grants[]` is itself governed - a kind outside `GRANT_KINDS`, an empty scope, or a duplicate is a refusal. The stamp writes the block and one ledger row; it never commits or pushes - the caller opens the PR, so CI is the serializer.
+- [x] **G4 - the verdict bus.** The push side of the self-proof: `govstruct verdict emit <receipt.json>` appends a chained, tamper-evident receipt to `labs/receipts.jsonl`; `verdict verify` walks it offline; `verdict rollup` reads fresh receipts and polls the rest. Receipts are portable only through the shared vocabulary (G10).
+- [x] **Deep tamper-evidence.** `entryAddress` canonicalizes recursively (a shallow key sort left nested fields - verdict rows, actor ids - outside the hash); the committed ledger is re-addressed over unchanged bodies.
+- [x] **G7 - lifecycle + revocation.** `history[]` records the transitions and `status` must agree with the last one, on a forward-only ladder (`Live -> Beta -> In Development -> Backburner -> Archived -> Tombstoned`). `govstruct retire <id>` tombstones a member as a governed write: it keeps the row so an old id resolves (never a 404), records the transition, and logs one ledger row. A backward step, a status mismatch, a second retirement, and a tombstone with neither alias nor history all refuse by name.
+- [x] **G8 - accessibility + i18n** (PRD section 10 S5). The emitted pane carries a named landmark, a real anchor per row, a visible focus ring, and keyed chrome strings with an explicit locale fallback. A tenth check pack, `packs/public/a11y-shapes`, verifies it; the deeper DOM/contrast leg stays poststruct's (the interop law). The dogfood caught a real bug on the way: the check host renamed any code carrying a digit to `E_SUITE_DRIFT`, so the `E_A11Y_*` family never surfaced.
+- [x] **G13 - the fleet drift meter (the golden case, PRD 16.10).** The steady-state job the proving cases are not: coreforge *prevents*, the meter *detects*. `govstruct doctor --suite --fleet --fleet-root <dir>` reads each member's live surfaces (engines floor, lockfile presence, pin style, repo version, workflow count) against its compliance block, and reports every drift on one page as a typed refusal (`E_FLEET_FLOOR_DRIFT`, `E_FLEET_LOCK_MISSING`, `E_FLEET_PIN_STYLE_DRIFT`, `E_FLEET_CI_SHAPE_DRIFT`, `E_FLEET_VERSION_DRIFT`). Offline by default; a member with no checkout is UNCHECKED, never a silent pass. The meter warns where the doctor refuses - a lagging repo is a state, not a crime.
+- [x] **G12 - the roll-up address + cache contract** (PRD 5.1). `apps.json` is the canonical composed source; `registry.json` is one rendering of it, so one artifact has many readers and no divergent copies. The roll-up also emits at a versioned path (`registry.v1.json`) with an `ETag` keyed on the manifest checksum and a `max-age`, so a consumer caches and revalidates cheaply. The doctor refuses a stale ETag (`E_ROLLUP_ETAG_STALE`), a divergent rendering (`E_ROLLUP_NOT_CANONICAL`), and an unrenderable payload schema (`E_ADDRESS_VERSION_UNKNOWN`).
+- [x] **`compliance.yml`** - `govstruct doctor --adopters` over every declared adopter at a pinned rev, refusing pin drift (`E_ADOPTER_MISSING`, `E_ADOPTER_PIN_STYLE_DRIFT`, `E_ADOPTER_VERSION_DRIFT`) and then emitting the roll-up and refusing a drifted rendering. The gate is `doctor --adopters`: it reads each declared adopter's `govstruct` pin against the version the suite serves, in an offline checkout (`--fleet-root`). A declared adopter with no checkout is UNCHECKED - a named state, never a silent pass. The **rule of three** is the claim, not the gate: the gate refuses drift from the first adopter, but withholds the *suite claim* until ≥2 verified adopters, reporting a pilot state instead of assuming the claim. govstruct declares zero adopters today (M2 has not happened), so its own run is an honest pilot, not a fabricated green.
+- [x] **G15 - the ISO evidence orientation (PRD section 10).** An evidence map, not a certificate: `spec/iso-profile.json` holds 36 clauses (15 ISO 9001, 21 ISO 27001 Annex A) and 90 resolutions, each clause naming the govstruct surface that evidences it and the gate that proves it. `govstruct iso` prints the orientation; `iso --resolve <code>` turns a refusal into an ISO statement; `iso --statement` maps a whole run; `iso --coverage` refuses when a refusal has no resolution. The `iso-shapes` check pack keeps the map honest (a clause with no surface, a refusal with no resolution, or a member clause annotation outside the catalog refuses by name). Drop-in and on by default; a host may point `iso.profile` at its own file. The family's canonical rider is `labs/prd-govstruct-compliance.md`. Out-of-scope clauses (27001 themes 6 and 7) are named, never dropped.
+- [x] **The surface stability contract (issue #23, ask #1, PRD section 5.2).** A consumer of the roll-up binds to field names and types, so the promise is data: `spec/surface-contract.json` marks every field of each surface (`registry`, `registry-member`, `member`, `apps`) promised, optional, or free-form. `govstruct surface` prints it; `surface --verify` refuses a dropped promised field (`E_SURFACE_FIELD_MISSING`) or a retyped one (`E_SURFACE_TYPE_DRIFT`) by name. The `surface-shapes` check pack runs the same checks under `govstruct check`; the doctor folds it in as the `surface-contract` check. An integrator pins a `schemaVersion` and upgrades consciously.
+- [ ] **`web/` + `docs/`** - the coreforge landing shell and the Jekyll rig, adopted from a checkout per the house rule.
 
 ## Laws this repo carries
 
