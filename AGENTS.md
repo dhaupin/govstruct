@@ -46,7 +46,7 @@
 - The landing's manifest pane is SERVER-RENDERED in `web/src/pages/Home.jsx` from the `render react` surface (`web/src/components/AppsMenu.jsx`), NOT an island: the doctrine (PRD 5) is that the pane exists in the served HTML as a plain anchor, so the product dogfoods its own output on the page that documents it. Regenerate the surface with `govstruct render react --write`.
 - Identity lives once. The brand-census gate refuses any identity literal (`govstruct`, `creadev.org`, the repo url) outside `site.config.js`, and refuses a filename that carries the brand (`web/public/brand/logo.jpg`, not `govstruct-logo.jpg`).
 - Gates: `npm run lint:docs` (frontmatter, links, style, fiction signatures, Jekyll filters) and `npm run check:rig` (birth gate, brand census, theme parity, sync drift). `test.yml` runs both. The birth gate refuses a floating `uses:` - every action is SHA-pinned with the human tag in a trailing comment.
-- Docs deploy: `docs-build.yml` (reusable: Jekyll + pagefind + pinned freestruct) is called by `docs-deploy.yml`, whose deploy job is gated to `main`. Set the Pages custom domain to `docs.creadev.org` once in repo settings; `baseurl: /govstruct` serves the project path.
+- Docs deploy: `docs.yml` is a thin caller of THE one docs lane (`dhaupin/freestruct/.github/workflows/docs-lane.yml`, pinned by SHA) - Jekyll + pagefind + the pinned freestruct layer, with the deploy job gated to `main` inside the lane. Set the Pages custom domain to `docs.creadev.org` once in repo settings; `baseurl: /govstruct` serves the project path.
 
 ## Branches
 - `staging` is the permanent integration branch: work branches off it, PRs target it, and promotion to `main` is the only path out. Never delete it.

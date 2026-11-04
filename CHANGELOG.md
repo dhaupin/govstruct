@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### The docs-lane consolidation (2026-11-04)
+
+The family built docs from four topologies; the two reusable lanes had drifted (ruby 3.2 vs 3.4, pagefind `latest` scrape vs npm pin). The docs lane is now ONE canonical reusable workflow in `dhaupin/freestruct`, and this repo is a thin caller of it.
+
+- `.github/workflows/docs.yml` calls `dhaupin/freestruct/.github/workflows/docs-lane.yml@22bb7e9b2634d6cdd966963d9e25c7f892577276`, keeping only the trigger, permissions, concurrency, and this repo pins.
+- The local reusable `docs-build.yml` fork and its `docs-deploy.yml` caller are DELETED; `docs.yml` calls the one lane directly. No `package-lock.json` here, so the lane's lock-aware install takes the `npm install` path.
+- No version bump; a workflow consolidation, not a released surface.
+
 ### Changed
 
 - **The rename lands (PRD 16.5).** The member `flowforge` is now `coreforge`: `members/coreforge.json` carries the new id/name/url/repo/npm with `aliases: ["flowforge"]`, so a consumer that still knows the old id reads "renamed", never a 404. The `pending` annotation narrows to `npm` alone - the repo (`dhaupin/coreforge`) and domain (`coreforge.creadev.org`) are live, the npm name is declared but unpublished. `apps.json`, `registry.json`, and `registry.v1.json` regenerated from the manifest; `flowforge` stays in `names.reserved`.
