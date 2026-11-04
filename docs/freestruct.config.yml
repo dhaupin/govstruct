@@ -3,8 +3,23 @@
 
 site:
   name: govstruct
-  url: https://docs.creadev.org/govstruct
+  # ORIGIN ONLY - no path. Page paths carry /govstruct via basePath
+  # (below); putting the path here too makes the engine join host+path+slug and
+  # the strict link check resolve the prefix as a directory (freestruct#32).
+  url: https://docs.creadev.org
   description: "The controller layer for a family of repos: one manifest of members, one render surface per deployment shape, one doctor verb that verifies every adopter serves the same truth."
+
+# The deploy path the output tree is served under (Jekyll's baseurl). freestruct
+# strips it from root-absolute hrefs so the strict link check resolves a
+# /govstruct href against the tree, not the prefix as a directory.
+basePath: /govstruct
+
+# The baked output tree (discovered by freestruct from docs/).
+outputDir: _site
+
+# Fail the build on broken internal links (the truth pass). Requires the pinned
+# freestruct to carry the basePath-aware strip (>= 1.2.0, freestruct#32).
+linkCheck: true
 
 # Author identity - ships as a schema.org Person under "founder" on the
 # injected Organization JSON-LD block (the engine edition template carries the

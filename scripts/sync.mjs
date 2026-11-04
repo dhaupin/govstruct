@@ -93,8 +93,23 @@ plugins:
     render: (s) => `${BANNER('site.config.js')}
 site:
   name: ${yamlStr(s.name)}
-  url: ${yamlStr(s.docs.url)}
+  # ORIGIN ONLY - no path. Page paths carry ${yamlStr(s.docs.baseurl)} via basePath
+  # (below); putting the path here too makes the engine join host+path+slug and
+  # the strict link check resolve the prefix as a directory (freestruct#32).
+  url: ${yamlStr(s.docs.host)}
   description: ${yamlStr(s.description)}
+
+# The deploy path the output tree is served under (Jekyll's baseurl). freestruct
+# strips it from root-absolute hrefs so the strict link check resolves a
+# ${yamlStr(s.docs.baseurl)} href against the tree, not the prefix as a directory.
+basePath: ${yamlStr(s.docs.baseurl)}
+
+# The baked output tree (discovered by freestruct from docs/).
+outputDir: _site
+
+# Fail the build on broken internal links (the truth pass). Requires the pinned
+# freestruct to carry the basePath-aware strip (>= 1.2.0, freestruct#32).
+linkCheck: true
 
 # Author identity - ships as a schema.org Person under "founder" on the
 # injected Organization JSON-LD block (the engine edition template carries the

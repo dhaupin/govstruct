@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### The docs-lane canon: origin-only site.url + basePath (2026-11-04)
+
+The consolidation put the family on one reusable docs lane whose strict link check runs by default. That exposed a latent config bug: **govstruct and coreforge were the only two repos whose `docs/freestruct.config.yml` baked the deploy path into `site.url` and omitted `basePath`** - the non-canon shape every other repo (eyestruct, monoforge, gistory, crashtest, packstruct, poststruct, prestruct) had already moved off. freestruct joins `site.url + basePath + slug` (`engine/urls.js`), so with no `basePath` to strip, the link checker resolved every root-absolute `/govstruct/...` href against the output tree and reported it missing: 75 false-positive broken links, build failed.
+
+- **`scripts/sync.mjs`** - the `docs/freestruct.config.yml` generator now emits the canon: `site.url` is the ORIGIN (`docs.host`), a new `basePath` key carries the deploy path (`docs.baseurl`), and `linkCheck: true` is explicit.
+- **`docs/freestruct.config.yml`** - regenerated from `site.config.js` (the derived surface).
+- **Receipts:** `npm test` 266 pass / 0 fail; `npm run check` green.
+- **No version bump**; a config-shape fix, not a released surface.
+
 ### The docs-lane consolidation (2026-11-04)
 
 The family built docs from four topologies; the two reusable lanes had drifted (ruby 3.2 vs 3.4, pagefind `latest` scrape vs npm pin). The docs lane is now ONE canonical reusable workflow in `dhaupin/freestruct`, and this repo is a thin caller of it.
