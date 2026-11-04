@@ -20,9 +20,9 @@
   ],
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "prepublishOnly": "npm test && npm run check",
+    "prepublishOnly": "npm test && npm run lint:docs && npm run check:rig",
     "lint": "node bin/cli.mjs lint",
-    "check": "npm run lint:pins && node bin/cli.mjs check",
+    "check": "npm run lint:pins && npm run lint:prestruct-pins && node bin/cli.mjs check",
     "doctor": "node bin/cli.mjs doctor",
     "registry": "node bin/cli.mjs registry",
     "crashtest:run": "crashtest run",
@@ -33,7 +33,7 @@
     "lint:docs": "node scripts/check-docs-frontmatter.cjs && node scripts/check-docs-links.cjs && node scripts/check-docs-style.cjs && node scripts/check-fiction-signatures.cjs && node scripts/check-jekyll-filters.cjs && node scripts/check-theme-parity.cjs",
     "check:rig": "node scripts/check-birth-gate.cjs && node scripts/check-brand-census.mjs && node scripts/check-theme-parity.cjs && node scripts/sync.mjs --check",
     "build:web": "npm run build --prefix web",
-    "prepublishOnly": "npm test && npm run lint:docs && npm run check:rig"
+    "lint:prestruct-pins": "node scripts/check-prestruct-pins.cjs"
   },
   "engines": {
     "node": ">=20"
