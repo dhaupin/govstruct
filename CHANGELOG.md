@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- **The rename lands (PRD 16.5).** The member `flowforge` is now `coreforge`: `members/coreforge.json` carries the new id/name/url/repo/npm with `aliases: ["flowforge"]`, so a consumer that still knows the old id reads "renamed", never a 404. The `pending` annotation narrows to `npm` alone - the repo (`dhaupin/coreforge`) and domain (`coreforge.creadev.org`) are live, the npm name is declared but unpublished. `apps.json`, `registry.json`, and `registry.v1.json` regenerated from the manifest; `flowforge` stays in `names.reserved`.
+
 ### Security
 
 - **Pins, never floats (packstruct#69).** Every GitHub Action `uses:` in `.github/workflows/` names a 40-hex commit SHA (tag kept in the trailing comment), never a floating `@v4`/`@v1`. A new guard, `scripts/check-action-pins.cjs`, refuses any floating ref, a branch, or a `docker://` image; it runs as `npm run lint:pins` inside `npm run check` (the `prepublishOnly` gate) and CI, and its own battery (`test/check-action-pins.test.mjs`) proves it bites both ways.

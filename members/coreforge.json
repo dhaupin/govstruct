@@ -27,11 +27,8 @@
   "grants": [],
   "pending": {
     "resources": [
-      "repo",
-      "npm",
-      "url"
+      "npm"
     ],
-    "interim": "creadev-site/src/forge",
-    "note": "the flowforge -> coreforge rename is in progress: the repo (dhaupin/coreforge), the npm name, and the domain are declared but not yet live; the rig is embedded in creadev-site src/forge/ until the rename lands"
+    "note": "the rename landed: the repo (dhaupin/coreforge) and the domain (coreforge.creadev.org) are live. The npm name coreforge is declared but not yet published - the tool releases as 1.0.0 in the rename cut."
   }
 }

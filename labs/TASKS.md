@@ -63,3 +63,14 @@ The controller layer's core landed, all verbs green. Build-order from the PRD ga
 - `scripts/check-action-pins.cjs` (the "pins, never floats" guard) was a packstruct-only artifact (it landed on packstruct's `fix/sha-pin-actions`). It is now copied byte-identical into every sibling: `crashtest`, `eyestruct`, `freestruct`, `gistory`, `govstruct`, `monoforge`, `poststruct`, `prestruct` (packstruct already had it).
 - Wired as `npm run lint:pins` inside each repo's publish gate (`check` / `gate` / `prepublishOnly`) and CI, and the guard's own battery (`check-action-pins.test.*`) rides `npm test`.
 - Each repo's workflows were already SHA-pinned, so the guard is now mechanical here too. Receipt: `ACTION PINS: PASS (18 ref(s), all SHA-pinned)`, pin battery 8/8, full battery green.
+
+## 2026-11-03 - the rename lands (flowforge -> coreforge, PRD 16.5)
+
+The first proving case, executed end to end: the member `flowforge` is now `coreforge`, and the roster records it as one governed change.
+
+- **`members/coreforge.json`** - the one member edit. `id`/`name`/`url`/`repo`/`npm` are coreforge, `aliases: ["flowforge"]` keeps the old id resolving (a consumer that still knows `flowforge` reads "renamed", never a 404). The `pending` block narrows from `repo | npm | url` to **`npm` alone**: the repo (`dhaupin/coreforge`) and the domain (`coreforge.creadev.org`, live 200) have landed; the npm name is declared but not yet published, so the doctor still skips it as a named state instead of refusing a 404.
+- **`names.reserved`** - `flowforge` stays reserved (a retired name is never free to re-claim), and `coreforge` was already reserved.
+- **Surfaces regenerated** from the manifest: `apps.json`, `registry.json`, `registry.v1.json` (`node bin/cli.mjs registry --write`). The roll-up member row now reads repo + npm coreforge with the narrowed pending annotation.
+- **Frozen receipts untouched:** `labs/prd-govstruct.md` sections 16.5/16.6 keep saying `flowforge` - the PRD is the design record of the rename, not config. The rename doctor skips `labs/` for exactly this reason.
+- **Receipts:** `govstruct lint` 23 members clean; `govstruct doctor` offline all checks ok (surfaces in sync, contract honored); `npm test` 255 pass / 0 fail.
+- **No version bump** (1.0.0 = 1.0.0); a roster edit, not a released surface.
