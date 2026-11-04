@@ -10,6 +10,7 @@
 ## Mechanical conventions (this repo)
 
 - **Prose flow (#49).** Living prose never hard-wraps at commit time: paragraphs flow, and `scripts/unwrap-prose.cjs` joins hard-wrapped prose without touching frontmatter, fences, indented code, tables, headings, thematic breaks, or HTML blocks. Dated history keeps its era wording.
+- **Pins, never floats (packstruct#69).** Every GitHub Action `uses:` names a 40-hex commit SHA (tag kept in the trailing comment), never `@v4`/`@v1`. `npm run lint:pins` (`scripts/check-action-pins.cjs`) refuses a floating ref, so the rule is mechanical; it rides `npm run check` (the `prepublishOnly` gate) and CI. New pins take the family canon SHA the sibling repos already carry.
 - Zero runtime dependencies. Node ESM, exit codes 0/1/2 (the family ladder: 0 all honored, 1 any refusal, 2 usage error).
 - Every refusal carries a code registered in `spec/refusals.json` (G10). A code the vocabulary does not name is itself refused (`E_REFUSAL_UNREGISTERED`): the next tool must be able to read the refusal.
 - `members/<id>.json` is the manifest; the filename MUST equal the `id`. The roster is data, never code: member 24 is a block file + a doctor run.

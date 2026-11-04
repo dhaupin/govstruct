@@ -57,3 +57,9 @@ The controller layer's core landed, all verbs green. Build-order from the PRD ga
 - Every refusal carries a registered code (G10).
 - `labs/` is a receipt, not config: the rename doctor skips it.
 - The doctor is offline by default: the default run never opens a socket.
+
+## 2026-11-03 - the pin guard goes family-wide (packstruct#69 back-port)
+
+- `scripts/check-action-pins.cjs` (the "pins, never floats" guard) was a packstruct-only artifact (it landed on packstruct's `fix/sha-pin-actions`). It is now copied byte-identical into every sibling: `crashtest`, `eyestruct`, `freestruct`, `gistory`, `govstruct`, `monoforge`, `poststruct`, `prestruct` (packstruct already had it).
+- Wired as `npm run lint:pins` inside each repo's publish gate (`check` / `gate` / `prepublishOnly`) and CI, and the guard's own battery (`check-action-pins.test.*`) rides `npm test`.
+- Each repo's workflows were already SHA-pinned, so the guard is now mechanical here too. Receipt: `ACTION PINS: PASS (18 ref(s), all SHA-pinned)`, pin battery 8/8, full battery green.
