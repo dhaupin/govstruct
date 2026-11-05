@@ -33,7 +33,7 @@ npx govstruct doctor
 
 The manifest is data; the doctor is the teeth. `govstruct doctor` reads the member roster and verifies the suite truth against it:
 
-- **Offline by default** - the default run never opens a socket. `--network` is its own mode and the only arm that does.
+- **Offline by default** - the default run never opens a socket. `--network` is its own mode and the only arm that does. `--network --concurrency N` races the member probes N-wide (the crashtest#83 lever, ported): every member's url and npm probes are independent, so a suite of N members no longer pays N serial round-trips. Results land at the member's original index, so the refusals and the check roll-up stay in roster order whatever order the probes complete in. `--per-member` attaches a per-member accounting table (duration, probes, pending) and a run-level wall roll-up - wall timing is non-deterministic, so it never rides a default run.
 - **`--suite`** reports the suite-wide truth battery; **`--fleet`** reads each member's live surfaces against its compliance block; **`--adopters`** watches who consumes govstruct, and how.
 
 ## Adopters, pinned by mode
