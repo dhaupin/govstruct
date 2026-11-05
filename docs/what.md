@@ -24,6 +24,9 @@ govstruct render apps | react | partial | readme | registry
 # prove each adopter against the same truth
 govstruct doctor [--suite] [--fleet] [--network]
 
+# race the online probes N-wide, with a per-member accounting table
+govstruct doctor --network --concurrency 8 --per-member
+
 # the suite roll-up: env / pins / floors / versions
 govstruct registry
 ```
