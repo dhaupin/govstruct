@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-05
+
 ### Added (2026-11-05, the scan-speed round)
 
 - **`doctor --network --concurrency N` (the crashtest#83 lever, ported).** The online leg probed each member serially - url resolvability plus npm existence, two round-trips per member - so a 23-member roster paid 46 serial round-trips end to end. The probes are independent, so the leg now races them through ONE bounded pool (`src/pool.mjs`, the family shape poststruct's external probe pool already carries): `--concurrency N` runs up to N members at once, default `1` (the old serial loop byte-for-byte). Results land at the member's ORIGINAL index, so the refusals and the check roll-up stay in roster order whatever order the probes complete in - a raced run is order-identical to the serial one. The offline doctor is untouched: it stays socket-free and byte-deterministic (G11).
@@ -36,8 +38,6 @@ The family built docs from four topologies; the two reusable lanes had drifted (
 ### Security
 
 - **Pins, never floats (packstruct#69).** Every GitHub Action `uses:` in `.github/workflows/` names a 40-hex commit SHA (tag kept in the trailing comment), never a floating `@v4`/`@v1`. A new guard, `scripts/check-action-pins.cjs`, refuses any floating ref, a branch, or a `docker://` image; it runs as `npm run lint:pins` inside `npm run check` (the `prepublishOnly` gate) and CI, and its own battery (`test/check-action-pins.test.mjs`) proves it bites both ways.
-
-## [1.0.0] - 2026-11-03
 
 ### Fixed
 
