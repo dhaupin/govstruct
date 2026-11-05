@@ -5,7 +5,7 @@
     "battery": ">=20"
   },
   "version": {
-    "repo": "1.0.0"
+    "repo": "1.1.0"
   },
   "env": [],
   "pins": [],
