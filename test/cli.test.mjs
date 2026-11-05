@@ -135,3 +135,25 @@ test('verdict emit of an unknown member refuses', () => {
     rmSync(dir, { recursive: true, force: true })
   }
 })
+
+// --- the scan-speed lane (issue #83 port): the online leg's flags ---
+
+test('doctor --concurrency without --network is a usage error (the flag rides the online leg)', () => {
+  const r = run(['doctor', '--concurrency', '4'])
+  assert.equal(r.status, 2)
+  assert.match(r.stderr, /--concurrency and --per-member ride the online leg/)
+})
+
+test('doctor --concurrency with a non-integer value is a usage error', () => {
+  assert.equal(run(['doctor', '--network', '--concurrency', 'nope']).status, 2)
+  assert.equal(run(['doctor', '--network', '--concurrency', '0']).status, 2)
+  // A stated-empty/absent value is a usage error, never a silent default.
+  assert.equal(run(['doctor', '--network', '--concurrency']).status, 2)
+})
+
+test('doctor --concurrency is screened by name (a typo never silently changes mode)', () => {
+  const r = run(['doctor', '--concurreny', '4', '--network'])
+  assert.equal(r.status, 2)
+  assert.match(r.stderr, /unknown flag/)
+})
+

@@ -4,6 +4,7 @@
 //   govstruct lint                 # manifest grammar
 //   govstruct render <target>      # react | partial | readme | registry
 //   govstruct doctor [--suite] [--fleet]  adopter checksum gate, suite-wide truth battery, or the fleet drift meter
+//   govstruct doctor --network [--concurrency N] [--per-member]  the online leg (N races the member probes)
 //   govstruct check                # the compliance shape packs
 //   govstruct registry             # the suite roll-up (env / pins / floors / versions)
 //   govstruct lock                 # archive + sha256 receipt
@@ -49,7 +50,7 @@ const usage = () => {
 
   lint                 validate the manifest grammar
   render <target>      emit react | partial | readme | registry
-  doctor [--suite] [--fleet] [--adopters] [--network]  adopter checksum gate, suite battery, fleet drift meter, adopter pin gate, or the online leg
+  doctor [--suite] [--fleet] [--adopters] [--network] [--concurrency N] [--per-member]  adopter checksum gate, suite battery, fleet drift meter, adopter pin gate, or the online leg (N races the member probes; --per-member adds an accounting table)
   check                run the compliance shape packs
   registry             emit the suite roll-up (env / pins / floors / versions)
   iso [--coverage]     the ISO 9001 / 27001 evidence orientation, coverage, or a code's resolution
@@ -162,18 +163,27 @@ async function main() {
       }
 
       case 'doctor': {
-        rejectUnknownFlags(rest, ['--json', '--suite', '--network', '--fleet', '--fleet-root', '--adopters'])
+        rejectUnknownFlags(rest, ['--json', '--suite', '--network', '--fleet', '--fleet-root', '--adopters', '--concurrency', '--per-member'])
         const useFleet = rest.includes('--fleet')
         const useAdopters = rest.includes('--adopters')
         const useSuite = useFleet || rest.includes('--suite')
         const network = rest.includes('--network')
+        const concurrencyRaw = rest.includes('--concurrency') ? flagValue(rest, '--concurrency') : '1'
+        const concurrency = Number(concurrencyRaw)
+        const perMember = rest.includes('--per-member')
+        if (!Number.isInteger(concurrency) || concurrency < 1) {
+          usageError('--concurrency must be an integer >= 1')
+        }
+        if ((concurrency > 1 || perMember) && !network) {
+          usageError('--concurrency and --per-member ride the online leg: add --network')
+        }
         if (network && (useSuite || useAdopters)) {
           usageError('--network is its own mode (the online leg); it cannot be combined with --suite, --adopters, or --fleet')
         }
-        const target = rest.find((a) => !a.startsWith('-') && !isFlagValue(rest, '--fleet-root', a)) ?? '.'
+        const target = rest.find((a) => !a.startsWith('-') && !isFlagValue(rest, '--fleet-root', a) && !isFlagValue(rest, '--concurrency', a)) ?? '.'
         let r
         if (network) {
-          r = await doctorOnline(target, {})
+          r = await doctorOnline(target, { concurrency, perMember })
         } else if (useAdopters) {
           const fleetRoot = flagValue(rest, '--fleet-root')
           r = adopterGate(target, { roots: fleetRoot ? fleetRoots(target, fleetRoot) : {} })

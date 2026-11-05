@@ -17,6 +17,7 @@ import { loadManifest } from './manifest.mjs'
 import { RefusalBag } from './refusals.mjs'
 import { surfaceDrift, versionedRollupDrift } from './surfaces.mjs'
 import { verifySurfaces } from './surface.mjs'
+import { runPool } from './pool.mjs'
 
 /**
  * Adopter doctor: this tree against its own manifest. Returns
@@ -156,8 +157,17 @@ function countBy(items, key) {
  * https) and each declared npm name's existence. `probe` is injectable so the
  * tests never touch the network: it takes a url and returns an HTTP status
  * (0 on a transport failure). Returns { ok, refusals, report, lines }.
+ *
+ * `concurrency` (default 1) races the per-member probes N-wide through the
+ * shared pool (the crashtest#83 lever, ported): every member's probes are
+ * independent, so a suite of N members no longer pays N serial round-trips.
+ * Results land at the ORIGINAL index, so the refusals and rows stay in member
+ * order regardless of completion order. `perMember` (opt-in) attaches a
+ * per-member accounting row (durationMs, probes) and a run-level wall roll-up
+ * to the report - wall timing is non-deterministic, so it never rides a
+ * default run.
  */
-export async function doctorOnline(target = '.', { probe = defaultProbe } = {}) {
+export async function doctorOnline(target = '.', { probe = defaultProbe, concurrency = 1, perMember = false } = {}) {
   const { root, config } = loadConfig(target)
   const bag = new RefusalBag()
   const lines = []
@@ -167,50 +177,85 @@ export async function doctorOnline(target = '.', { probe = defaultProbe } = {}) 
   for (const r of loadBag.items) bag.add(r.code, r.message, r.context)
   report.memberCount = manifest.memberCount
 
-  let urlsChecked = 0
-  let npmChecked = 0
-  let pendingSkipped = 0
-  for (const m of manifest.members) {
+  // One member's probes, returned as a row so the pool can write it back at
+  // its original index. A member's url probe is https + its http twin; the
+  // npm probe is the registry existence check. Refusals are collected per-row
+  // and folded back in member order below, so a raced run is order-identical
+  // to the serial one.
+  const probeMember = async (m) => {
+    const started = perMember ? Date.now() : 0
+    const row = { id: m.id, refusals: [], urlsChecked: 0, npmChecked: 0, pendingSkipped: 0 }
     // Issue #23 ask #3: a resource the member declares `pending` is a named
     // state, not a refusal - the record already says it is not live yet. The
     // online leg honors the annotation instead of crying 404 at a promise.
     const pending = new Set(Array.isArray(m.pending?.resources) ? m.pending.resources : [])
     if (typeof m.url === 'string' && m.url) {
       if (pending.has('url')) {
-        pendingSkipped += 1
+        row.pendingSkipped += 1
       } else {
         const https = await probe(m.url)
         const insecure = await probe(m.url.replace(/^https:/, 'http:'))
-        urlsChecked += 1
+        row.urlsChecked += 1
         if (https < 200 || https >= 400) {
           if (insecure >= 200 && insecure < 400) {
-            bag.add('E_URL_INSECURE', `member "${m.id}" resolves over http but not https: ${m.url}`, { id: m.id, url: m.url })
+            row.refusals.push(['E_URL_INSECURE', `member "${m.id}" resolves over http but not https: ${m.url}`, { id: m.id, url: m.url }])
           } else {
-            bag.add('E_URL_UNRESOLVABLE', `member "${m.id}" url does not resolve: ${m.url} (HTTP ${https})`, { id: m.id, url: m.url })
+            row.refusals.push(['E_URL_UNRESOLVABLE', `member "${m.id}" url does not resolve: ${m.url} (HTTP ${https})`, { id: m.id, url: m.url }])
           }
         }
       }
     }
     if (typeof m.npm === 'string' && m.npm) {
       if (pending.has('npm')) {
-        pendingSkipped += 1
+        row.pendingSkipped += 1
       } else {
         const st = await probe(`https://registry.npmjs.org/${m.npm}`)
-        npmChecked += 1
+        row.npmChecked += 1
         if (st < 200 || st >= 400) {
-          bag.add('E_NPM_MISSING', `member "${m.id}" declares npm "${m.npm}" which is not on the registry (HTTP ${st})`, { id: m.id, npm: m.npm })
+          row.refusals.push(['E_NPM_MISSING', `member "${m.id}" declares npm "${m.npm}" which is not on the registry (HTTP ${st})`, { id: m.id, npm: m.npm }])
         }
       }
     }
+    if (perMember) row.durationMs = Date.now() - started
+    return row
+  }
+
+  const rows = await runPool(manifest.members, concurrency, probeMember)
+
+  // Fold rows back in member order: the refusals and the counts read exactly
+  // as the serial loop produced them, whatever order the probes completed in.
+  let urlsChecked = 0
+  let npmChecked = 0
+  let pendingSkipped = 0
+  for (const row of rows) {
+    urlsChecked += row.urlsChecked
+    npmChecked += row.npmChecked
+    pendingSkipped += row.pendingSkipped
+    for (const [code, message, context] of row.refusals) bag.add(code, message, context)
   }
 
   report.checks.push({ name: 'url-resolvability', ok: bag.ok, detail: `${urlsChecked} url(s) checked` })
   report.checks.push({ name: 'npm-existence', ok: bag.ok, detail: `${npmChecked} npm name(s) checked` })
   report.checks.push({ name: 'pending-resources', ok: true, detail: `${pendingSkipped} declared-pending resource(s) skipped (a named state)` })
 
+  if (perMember) {
+    report.members = rows
+    const totalMs = rows.reduce((sum, r) => sum + (r.durationMs ?? 0), 0)
+    const slowest = rows.reduce((a, b) => ((b.durationMs ?? 0) > (a.durationMs ?? 0) ? b : a), rows[0])
+    report.wallMs = totalMs
+    report.slowest = slowest ? { id: slowest.id, durationMs: slowest.durationMs ?? 0 } : null
+  }
+
   const refusals = bag.sorted()
   lines.push(`govstruct doctor --network: ${manifest.memberCount} member(s) in ${root}`)
   for (const c of report.checks) lines.push(`  ${c.ok ? 'ok  ' : 'FAIL'} ${c.name}: ${c.detail}`)
+  if (perMember && rows.length) {
+    lines.push('  per-member accounting (id | durationMs | urls | npm | pending):')
+    for (const row of rows) {
+      lines.push(`    ${row.id} | ${row.durationMs ?? '-'} | ${row.urlsChecked} | ${row.npmChecked} | ${row.pendingSkipped}`)
+    }
+    lines.push(`    total probe wall: ${report.wallMs}ms across ${rows.length} member(s); slowest: ${report.slowest.id} (${report.slowest.durationMs}ms)`)
+  }
   for (const r of refusals) lines.push(`  REFUSED [${r.code}]: ${r.message}`)
   return { ok: bag.ok, refusals, report, lines }
 }

@@ -80,6 +80,53 @@ test('online mode refuses a declared npm name that is missing', async () => {
   assert.ok(r.refusals.some((x) => x.code === 'E_NPM_MISSING'), JSON.stringify(r.refusals))
 })
 
+// --- issue #83 port: the online leg races its member probes ---
+
+test('online mode: a raced run is order-identical to the serial one (same refusals, same order)', async () => {
+  // A probe whose latency is inversely keyed to call order: the FIRST member
+  // answers slowest, so a naive concurrency would reorder the refusals. The
+  // pool writes results back at the original index, so both runs agree.
+  let call = 0
+  const staggered = async (url) => {
+    call++
+    await new Promise((r) => setTimeout(r, (call % 3 === 1) ? 20 : 1))
+    return url.includes('registry.npmjs.org') ? 200 : (url.startsWith('https:') ? 404 : 200)
+  }
+  const serial = await doctorOnline(CLEAN, { probe: staggered, concurrency: 1 })
+  call = 0
+  const raced = await doctorOnline(CLEAN, { probe: staggered, concurrency: 4 })
+  assert.deepEqual(raced.refusals, serial.refusals, 'a raced run must produce the same refusals in the same order')
+  assert.deepEqual(raced.report.checks, serial.report.checks, 'the check roll-up must not move under racing')
+})
+
+test('online mode: concurrency actually overlaps probes (the wall shrinks)', async () => {
+  const slow = async () => { await new Promise((r) => setTimeout(r, 25)); return 200 }
+  const t0 = Date.now()
+  await doctorOnline(CLEAN, { probe: slow, concurrency: 1 })
+  const serialMs = Date.now() - t0
+  const t1 = Date.now()
+  await doctorOnline(CLEAN, { probe: slow, concurrency: 8 })
+  const racedMs = Date.now() - t1
+  assert.ok(racedMs < serialMs, `racing should beat the serial wall (serial ${serialMs}ms, raced ${racedMs}ms)`)
+})
+
+test('online mode: --per-member attaches an accounting table and a wall roll-up', async () => {
+  const r = await doctorOnline(CLEAN, { probe: async () => 200, perMember: true })
+  assert.ok(Array.isArray(r.report.members) && r.report.members.length === r.report.memberCount)
+  for (const m of r.report.members) assert.ok(Number.isInteger(m.durationMs), `member ${m.id} carries a durationMs`)
+  assert.ok(Number.isInteger(r.report.wallMs))
+  assert.ok(r.report.slowest && typeof r.report.slowest.id === 'string')
+  assert.ok(r.lines.some((l) => l.includes('per-member accounting')), 'the table rides the human lines')
+  assert.ok(r.lines.some((l) => l.includes('total probe wall')), 'the wall roll-up rides the human lines')
+})
+
+test('online mode: the accounting table is opt-in (a default run stays duration-free)', async () => {
+  const r = await doctorOnline(CLEAN, { probe: async () => 200 })
+  assert.equal(r.report.members, undefined)
+  assert.equal(r.report.wallMs, undefined)
+  assert.ok(!r.lines.some((l) => l.includes('per-member accounting')))
+})
+
 test('the offline doctor stays socket-free even with network:true', () => {
   // Passing network:true to the offline doctor must not change its behavior.
   const r = doctor(CLEAN, { network: true })
