@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- **Family devDependency pins advance to the current cuts.** `crashtest` moves `1.1.0 -> 1.3.0` and `packstruct` `1.0.0 -> 1.1.0` (both exact, no float), and the `crashtest.yml` install pin moves with the devDependency. Lockfile re-resolved to match.
+
 ## [1.1.0] - 2026-11-05
 
 ### Added (2026-11-05, the scan-speed round)
