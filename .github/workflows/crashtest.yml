@@ -20,6 +20,6 @@ jobs:
       # npm registry pin: crashtest 1.2.0 is unreleased on main, so the lane
       # pins the published 1.1.0. Bump the pin and the ledger together.
       - name: Install crashtest
-        run: npm install --no-save --no-audit --no-fund crashtest@1.1.0
+        run: npm install --no-save --no-audit --no-fund crashtest@1.3.0
       - name: Run the manifest-shapes pack
         run: npx crashtest run
