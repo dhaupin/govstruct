@@ -39,9 +39,9 @@
     "node": ">=20"
   },
   "devDependencies": {
-    "crashtest": "1.1.0",
+    "crashtest": "1.3.0",
     "js-yaml": "^4.3.2",
-    "packstruct": "1.0.0"
+    "packstruct": "1.1.0"
   },
   "keywords": [
     "governance",
