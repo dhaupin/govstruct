@@ -111,6 +111,11 @@ outputDir: _site
 # freestruct to carry the basePath-aware strip (>= 1.2.0, freestruct#32).
 linkCheck: true
 
+# Auto BreadcrumbList per page: a trail from the URL tree (site root -> path
+# segments -> the page title). The home page ships none. Carried since
+# freestruct 1.1.0, so every pinned version in the family has it.
+breadcrumb: true
+
 # Author identity - ships as a schema.org Person under "founder" on the
 # injected Organization JSON-LD block (the engine edition template carries the
 # {{authorJson}} seam).
@@ -150,8 +155,8 @@ Sitemap: ${s.url}/sitemap.xml
           description: s.description,
           start_url: '/',
           display: 'standalone',
-          background_color: '#10131a',
-          theme_color: '#10131a',
+          background_color: '#f5f6fa',
+          theme_color: '#f5f6fa',
           lang: 'en',
           icons: [
             { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
