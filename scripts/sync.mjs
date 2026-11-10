@@ -155,8 +155,8 @@ Sitemap: ${s.url}/sitemap.xml
           description: s.description,
           start_url: '/',
           display: 'standalone',
-          background_color: '#10131a',
-          theme_color: '#10131a',
+          background_color: '#f5f6fa',
+          theme_color: '#f5f6fa',
           lang: 'en',
           icons: [
             { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },

@@ -51,7 +51,7 @@ export default {
   theme: {
     themeKey: 'site-theme',
     schemeKey: 'site-paint-scheme',
-    defaultMode: 'dark',
+    defaultMode: 'light',
     defaultScheme: 'iris',
   },
 

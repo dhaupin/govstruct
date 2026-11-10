@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -41,15 +41,14 @@
   <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/site.webmanifest" />
-  <meta name="theme-color" content="#10131a" />
+  <meta name="theme-color" content="#f5f6fa" />
 
   <script>
-    // Theme + paint-scheme bootstrap: apply a persisted light theme and a
-    // persisted paint scheme before the stylesheet paints (the default tokens
-    // are dark/iris). Non-critical: wrapped in try in case storage is
-    // unavailable (private mode). Keep the keys and the paper map in sync with
-    // src/theme.js, ThemeSwitch.jsx, and SchemeSwitch.jsx (the meta color
-    // depends on BOTH axes).
+    // Theme + paint-scheme bootstrap: the default tokens are light/iris; apply
+    // a persisted dark theme and a persisted paint scheme before the stylesheet
+    // paints. Non-critical: wrapped in try in case storage is unavailable
+    // (private mode). Keep the keys and the paper map in sync with src/theme.js,
+    // ThemeSwitch.jsx, and SchemeSwitch.jsx (the meta color depends on BOTH axes).
     try {
       var paper = {
         iris:   { dark: '#10131a', light: '#f5f6fa' },
@@ -59,9 +58,9 @@
       }
       var scheme = localStorage.getItem('site-paint-scheme') || 'iris'
       if (paper[scheme] && scheme !== 'iris') document.documentElement.dataset.scheme = scheme
-      var light = localStorage.getItem('site-theme') === 'light'
-      if (light) document.documentElement.dataset.theme = 'light'
-      var p = (paper[scheme] || paper.iris)[light ? 'light' : 'dark']
+      var dark = localStorage.getItem('site-theme') === 'dark'
+      document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+      var p = (paper[scheme] || paper.iris)[dark ? 'dark' : 'light']
       document.currentScript.previousElementSibling.setAttribute('content', p)
     } catch (e) {}
   </script>

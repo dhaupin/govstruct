@@ -109,3 +109,14 @@ Google Search Console showed the family's properties under a breadcrumbs enhance
 - `scripts/sync.mjs` renders `breadcrumb: true` into `docs/freestruct.config.yml` (regenerated, sync:check PASS); `web/ssr.config.js` - `breadcrumb: true`.
 - Receipts: docs config validates against the pinned engine; docs sync:check PASS where generated; prestruct's own `example/` build proves emission (BreadcrumbList on a sub-route, none on `/`).
 - No version bump; a discovery-surface opt-in.
+
+---
+
+### 2026-11-10 - light mode by default (web + docs)
+
+Owner directive: the family defaults to light. The product sites and docs sites shipped dark-first (a persisted `light` was the opt-in); now light is the first paint and a persisted `dark` theme is the opt-in. Shape: `<html>` pins `data-theme="light"`, the pre-paint bootstrap applies only a persisted `dark`, and the `theme-color` meta flips to the light paper. The CSS token blocks are untouched (the light block is already the second half of one set), so no palette, toggle handler, or gate changed.
+
+- `web/index.html` - `<html data-theme="light">`; two-axis bootstrap applies a persisted `dark`; `theme-color` light (`#f5f6fa`); `site.config.js` `defaultMode` dark -> light.
+- `docs/_layouts/default.html` - `<html data-theme="light">`; bootstrap inverted; `color-scheme` `light dark`.
+- `scripts/sync.mjs` - the PWA manifest `background_color`/`theme_color` go light (`#f5f6fa`); regenerated (`sync:check` PASS).
+- Receipts: `npm test` 280/280; `npm run check` green (theme-parity, brand census, docs-lint).
