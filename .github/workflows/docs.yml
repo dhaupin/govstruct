@@ -17,7 +17,11 @@ name: Deploy docs
 on:
   push:
     branches: [main, staging]
-    paths: ['docs/**', '.github/workflows/docs.yml']
+    # site.config.js is listed because the docs identity (docs/_config.yml,
+    # docs/freestruct.config.yml) is GENERATED from it by scripts/sync.mjs, so
+    # an identity-only edit is a real docs change the filter would otherwise
+    # miss (issue #49).
+    paths: ['docs/**', 'site.config.js', '.github/workflows/docs.yml']
   workflow_dispatch:
 permissions:
   contents: read
