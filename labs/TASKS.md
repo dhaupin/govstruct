@@ -91,3 +91,11 @@ The family carried four docs topologies - freestruct's `docs-lane.yml`, coreforg
 
 
 - **The docs lane went red on `main` - the config shape, not the links (2026-11-04 sweep).** govstruct and coreforge were the ONLY two repos whose generated `docs/freestruct.config.yml` baked the deploy path into `site.url` and omitted `basePath`; every other repo is origin-only + `basePath`. freestruct joins `site.url + basePath + slug` (engine/urls.js), so with no `basePath` the strict link checker resolved root-absolute `/govstruct/...` hrefs against the tree root and reported them missing: 75 false-positive broken links, build failed. Fix is one-source: `scripts/sync.mjs` emits `site.url = docs.host`, `basePath = docs.baseurl`, `linkCheck: true`; the generated file follows. Receipts: `npm test` 266/266, `npm run check` green. No version bump.
+
+
+- **The adopter sweep reaches govstruct: #48 / #49 / #35 (2026-11-10 session).** Propagates the coreforge adopter-sweep fixes (dhaupin/coreforge#52) to this repo.
+
+  - **#48** - `.gitignore`'s docs block carried `docs/.jekyll-cache/` + `docs/.jekyll-metadata` but not the pagefind outputs; it now carries `docs/pagefind/` and `docs/pagefind*`, so a local Jekyll + pagefind build leaves no untracked noise.
+  - **#49** - `docs.yml`'s path filter named only `docs/**`, but the docs identity (`docs/_config.yml`, `docs/freestruct.config.yml`) is GENERATED from `site.config.js` by `scripts/sync.mjs` - an identity-only edit was a real docs change the filter never saw. The filter now names `site.config.js`.
+  - **#35** - `test.yml` gains the arm-gated eyestruct row (pinned `eyestruct@1.1.0`, gated on `labs/.eyes/manifest.yml` existing) running the browserless `eyestruct gate`. Canon stays CI-cut; the battery only refuses drift.
+  - **Receipts:** `npm test` 280/280, `npm run check` green, edited YAML parses. No version bump; v1.1.0 still held.

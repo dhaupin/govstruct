@@ -38,3 +38,14 @@ jobs:
         run: npm run doctor
       - name: the audit ledger verifies offline
         run: node bin/cli.mjs audit verify
+
+      # eyestruct: armed, but wakes only when a visual home (labs/.eyes/) is
+      # committed. `eyestruct gate` is browserless + read-only (exit 1 on
+      # unexplained drift), so it needs no chrome. Canon is CI-cut (eyestruct's
+      # own ratify lane); this battery only refuses drift. Issue #35.
+      - name: Install eyestruct (pinned, parked until labs/.eyes lands)
+        if: ${{ hashFiles('labs/.eyes/manifest.yml') != '' }}
+        run: npm install --no-save --no-audit --no-fund eyestruct@1.1.0
+      - name: Eyestruct gate (visual memory)
+        if: ${{ hashFiles('labs/.eyes/manifest.yml') != '' }}
+        run: node node_modules/eyestruct/bin/eyestruct.js gate
