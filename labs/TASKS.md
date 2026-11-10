@@ -99,3 +99,13 @@ The family carried four docs topologies - freestruct's `docs-lane.yml`, coreforg
   - **#49** - `docs.yml`'s path filter named only `docs/**`, but the docs identity (`docs/_config.yml`, `docs/freestruct.config.yml`) is GENERATED from `site.config.js` by `scripts/sync.mjs` - an identity-only edit was a real docs change the filter never saw. The filter now names `site.config.js`.
   - **#35** - `test.yml` gains the arm-gated eyestruct row (pinned `eyestruct@1.1.0`, gated on `labs/.eyes/manifest.yml` existing) running the browserless `eyestruct gate`. Canon stays CI-cut; the battery only refuses drift.
   - **Receipts:** `npm test` 280/280, `npm run check` green, edited YAML parses. No version bump; v1.1.0 still held.
+
+---
+
+### 2026-11-03 - session: breadcrumbs on (engine + this site)
+
+Google Search Console showed the family's properties under a breadcrumbs enhancement with 0 results. Recon split the fleet: the docs sites run freestruct (auto BreadcrumbList since 1.1.0); the product sites run prestruct, whose `buildJsonLd()` is site-wide by contract and could never emit a per-route trail. prestruct gained engine-level `breadcrumb: true` (injectMeta already owns the route path); this repo turned the discovery surface on.
+
+- `scripts/sync.mjs` renders `breadcrumb: true` into `docs/freestruct.config.yml` (regenerated, sync:check PASS); `web/ssr.config.js` - `breadcrumb: true`.
+- Receipts: docs config validates against the pinned engine; docs sync:check PASS where generated; prestruct's own `example/` build proves emission (BreadcrumbList on a sub-route, none on `/`).
+- No version bump; a discovery-surface opt-in.
