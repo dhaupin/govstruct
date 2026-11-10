@@ -4,8 +4,8 @@
   "description": "The controller layer for a family of repos: one manifest of members, one render surface per deployment shape, one doctor verb that verifies every adopter serves the same truth.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#10131a",
-  "theme_color": "#10131a",
+  "background_color": "#f5f6fa",
+  "theme_color": "#f5f6fa",
   "lang": "en",
   "icons": [
     {
