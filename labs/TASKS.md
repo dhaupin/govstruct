@@ -152,3 +152,14 @@ The family release-readiness pass (owner-driven) swept all eight island sites. O
 - **The parent receipt.** The full pass (CSP sweep = no live bug remains; `npm audit --omit=dev` = 0 vulnerabilities across all eleven packages; `npm pack --dry-run` clean; two railyard ledger drifts fixed) lives in `dhaupin/railyard` (`CHANGELOG.md` + `labs/TASKS.md`).
 - **No version bump.**
 
+### 2026-11-12 - session: the roster admits the two newest members
+
+Owner ask: close the membership gap found in the interop pass - `memstruct` and `gamestruct` were missing from the roster the islands could not see.
+
+- **Role ruling (receipts).** PRD section 3.1: `arm` is one of the five verification arms and "five arms is final" (section 3.2); `product` is "a shipped tool or site governed by the suite." memstruct (npm 0.9.0, memory interchange) and gamestruct (npm 1.2.1, the semantic tree / a11y lane) are shipped products, so both are `product`, `status` Live, `section` open-source.
+- **Order (receipts).** The add-a-member precedent: "The reference roster is data, not code: member 24 is a block file plus a doctor run, never a PRD edit." Appended at the tail: `order` 24 (memstruct), 25 (gamestruct) - order is a display hint (PRD section 4), collisions refuse, ties fall to id sort.
+- **Files.** `members/memstruct.json`, `members/gamestruct.json`; `compliance/memstruct.json`, `compliance/gamestruct.json` (floors from each `engines.node` - `>=22` / `>=18`; `version.repo` 0.9.0 / 1.2.1). Re-rendered the emitted surfaces; added both ids to `names.reserved`.
+- **Test counts.** `test/registry.test.mjs` and `test/cli.test.mjs` pinned the old 23-member roster; both move to 25. `doctor` green at 25; `npm test` 280 pass / 0 fail.
+- **Historical prose left as-is.** The `23 members` mentions in `labs/prd-govstruct.md` and `labs/TASKS.md` are dated receipts of the state at authoring; rewriting them would falsify the log.
+- **No version bump.**
+

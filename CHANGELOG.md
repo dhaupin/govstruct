@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### 2026-11-12 - the roster admits the two newest members (memstruct, gamestruct)
+
+The roster was 23 members; `memstruct` (the memory interchange, npm 0.9.0) and `gamestruct` (the semantic tree, npm 1.2.1) were absent - the same two the status islands could not see. Both are shipped tools governed by the suite, so the PRD role table puts them at `product` (section 3.1: "a shipped tool or site governed by the suite"); the five arms stay closed. Added `members/{memstruct,gamestruct}.json` at the tail of the roster (`order` 24, 25 - the add-a-member precedent: "member 24 is a block file plus a doctor run"), plus their `compliance/*.json` blocks (floors `>=22`/`>=18` from each `engines.node`, `version.repo` 0.9.0/1.2.1). The emitted surfaces re-rendered (`apps.json`, `registry.json`, `registry.v1.json`, `AppsMenu.jsx`, `apps-menu.html`, `labs/readme-members.md`); `names.reserved` gains both ids so the roster and the reservation mirror. Two test counts pinned the old roster (23) and move to 25 (`test/registry.test.mjs`, `test/cli.test.mjs`). `doctor` green at 25 members; `npm test` 280 pass / 0 fail.
+
 ### 2026-11-12 - the island sees the whole family (interop)
 
 The `/status` family island hand-types its sibling set (`web/src/components/FamilyStatusIsland.jsx`), and the set had drifted: this site listed five members, missing `gamestruct` and `memstruct` - both of which already serve `/status.json` on the family-status@1 dialect. So this page could not render them at all. The island now lists every other family member, and `web/public/_headers` `connect-src` gains the two origins (the reader half: CSP governs `fetch()` before CORS, so an origin the island fetches but the CSP omits is a dark row). The reader-clause guard stays green - it pins the island's `origin:` rows to the served CSP so the two cannot drift silently again.

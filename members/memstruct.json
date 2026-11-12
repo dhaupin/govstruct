@@ -1,0 +1,17 @@
+{
+  "id": "memstruct",
+  "name": "Memstruct",
+  "role": "product",
+  "url": "https://memstruct.creadev.org",
+  "repo": "dhaupin/memstruct",
+  "npm": "memstruct",
+  "aliases": [],
+  "home": null,
+  "blurb": "The memory interchange: one record format and one merge contract, so any two memory systems exchange memory without a rewrite.",
+  "icon": "memstruct",
+  "order": 24,
+  "status": "Live",
+  "section": "open-source",
+  "needs": [],
+  "grants": []
+}

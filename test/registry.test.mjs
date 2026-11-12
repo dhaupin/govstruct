@@ -13,7 +13,7 @@ const ROOT = join(HERE, '..')
 
 test('the roll-up carries the member count and a manifest checksum', () => {
   const r = suiteRegistry(ROOT)
-  assert.equal(r.memberCount, 23)
+  assert.equal(r.memberCount, 25)
   assert.match(r.manifest, /^sha256:[0-9a-f]{64}$/)
 })
 

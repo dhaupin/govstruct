@@ -1,0 +1,17 @@
+{
+  "id": "gamestruct",
+  "name": "Gamestruct",
+  "role": "product",
+  "url": "https://gamestruct.creadev.org",
+  "repo": "dhaupin/gamestruct",
+  "npm": "gamestruct",
+  "aliases": [],
+  "home": null,
+  "blurb": "One semantic tree, two lanes: the same named, role-tagged nodes serve a human on a screen reader and a machine agent, with one event stream.",
+  "icon": "gamestruct",
+  "order": 25,
+  "status": "Live",
+  "section": "open-source",
+  "needs": [],
+  "grants": []
+}
