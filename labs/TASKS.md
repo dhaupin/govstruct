@@ -163,3 +163,10 @@ Owner ask: close the membership gap found in the interop pass - `memstruct` and 
 - **Historical prose left as-is.** The `23 members` mentions in `labs/prd-govstruct.md` and `labs/TASKS.md` are dated receipts of the state at authoring; rewriting them would falsify the log.
 - **No version bump.**
 
+
+### 2026-11-12 - session: the Dependabot flow lands (railyard#31)
+
+- **Change.** Added `.github/dependabot.yml` (weekly Monday, grouped minor/patch, majors alone, plus the `github-actions` ecosystem). npm directories `/`, `/web`.
+- **Shape (receipt).** `dhaupin/creadev` PR #38 (`fca49c6`); the family-wide rollout is tracked on `dhaupin/railyard#31`.
+- **Guard.** railyard's `scripts/check-dependabot.cjs` (the shape) + `scripts/check-dependabot.test.cjs` (it bites), wired into railyard CI.
+- **No version bump.**
