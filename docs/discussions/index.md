@@ -26,3 +26,4 @@ Prose on these pages flows - paragraphs keep their natural length, and nothing i
 | [Announcing govstruct v0.9.0](/govstruct/discussions/announcing-v0.9.0) | 0.9.0 | yes - the controller layer's first release line, the manual bootstrap on npm |
 | [Announcing govstruct v1.1.0](/govstruct/discussions/announcing-v1.1.0) | 1.1.0 | staged for the v1.1.0 tag |
 | [Announcing govstruct v1.0.0](/govstruct/discussions/announcing-v1.0.0) | 1.0.0 | 2026-11-03 on npm |
+| [Announcing govstruct v1.1.1](/govstruct/discussions/announcing-v1.1.1) | 1.1.1 | staged for the v1.1.1 tag |
