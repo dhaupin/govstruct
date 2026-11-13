@@ -23,7 +23,7 @@ test('lint --json emits a schema-1 report', () => {
   const parsed = JSON.parse(r.stdout)
   assert.equal(parsed.schema, 1)
   assert.equal(parsed.ok, true)
-  assert.equal(parsed.memberCount, 23)
+  assert.equal(parsed.memberCount, 25)
 })
 test('an unknown verb exits 2', () => {
   assert.equal(run(['frobnicate']).status, 2)
@@ -37,7 +37,7 @@ test('doctor --suite exits 0 on the reference roster', () => {
 test('render registry prints JSON', () => {
   const r = run(['render', 'registry'])
   assert.equal(r.status, 0)
-  assert.equal(JSON.parse(r.stdout).memberCount, 23)
+  assert.equal(JSON.parse(r.stdout).memberCount, 25)
 })
 test('lint honors a positional target: the clean fixture lints green', () => {
   assert.equal(run(['lint', 'test/fixtures/clean']).status, 0)

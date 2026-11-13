@@ -59,6 +59,8 @@
       "vibeflow",
       "creadev-security",
       "creadev-qos",
+      "memstruct",
+      "gamestruct",
       "navstruct",
       "flowforge"
     ]

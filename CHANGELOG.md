@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-12
+
+### 2026-11-12 - the Dependabot flow lands (railyard#31)
+
+`.github/dependabot.yml` now carries the family flow: a weekly (Monday) pass, grouped minor/patch updates in one pull request, majors alone, and the `github-actions` ecosystem so the SHA-pinned refs move without a hand-edit. npm directories `/`, `/web`. The config header names the family caveat - a tool whose output is committed as canon can have a "minor" release that changes the canon (the eyestruct 1.1.0 overlay case), so a bump arrives as a pull request that runs CI. The shape is proved and guarded on the parent (`dhaupin/creadev` PR #38; `dhaupin/railyard#31`). No version bump.
+
+### 2026-11-12 - the roster admits the two newest members (memstruct, gamestruct)
+
+The roster was 23 members; `memstruct` (the memory interchange, npm 0.9.0) and `gamestruct` (the semantic tree, npm 1.2.1) were absent - the same two the status islands could not see. Both are shipped tools governed by the suite, so the PRD role table puts them at `product` (section 3.1: "a shipped tool or site governed by the suite"); the five arms stay closed. Added `members/{memstruct,gamestruct}.json` at the tail of the roster (`order` 24, 25 - the add-a-member precedent: "member 24 is a block file plus a doctor run"), plus their `compliance/*.json` blocks (floors `>=22`/`>=18` from each `engines.node`, `version.repo` 0.9.0/1.2.1). The emitted surfaces re-rendered (`apps.json`, `registry.json`, `registry.v1.json`, `AppsMenu.jsx`, `apps-menu.html`, `labs/readme-members.md`); `names.reserved` gains both ids so the roster and the reservation mirror. Two test counts pinned the old roster (23) and move to 25 (`test/registry.test.mjs`, `test/cli.test.mjs`). `doctor` green at 25 members; `npm test` 280 pass / 0 fail.
+
+### 2026-11-12 - the island sees the whole family (interop)
+
+The `/status` family island hand-types its sibling set (`web/src/components/FamilyStatusIsland.jsx`), and the set had drifted: this site listed five members, missing `gamestruct` and `memstruct` - both of which already serve `/status.json` on the family-status@1 dialect. So this page could not render them at all. The island now lists every other family member, and `web/public/_headers` `connect-src` gains the two origins (the reader half: CSP governs `fetch()` before CORS, so an origin the island fetches but the CSP omits is a dark row). The reader-clause guard stays green - it pins the island's `origin:` rows to the served CSP so the two cannot drift silently again.
+
+Found in the family release-readiness pass; the full session (the CSP sweep, the vuln/pack pass, and the railyard ledger drifts) is receipted in the parent (`dhaupin/railyard`, `CHANGELOG.md` + `labs/TASKS.md`). No version bump.
+
+
 ### 2026-11-12 - the staging fast-forward sync (family plumbing)
 
 `staging` is a permanent mirror of `main`, so a merge-commit promotion drifts the two by one every time. This repo carried no sync job, so each promotion needed a manual fast-forward. `.github/workflows/staging-ff-sync.yml` now closes that gap: on every push to `main` it runs `git push origin origin/main:refs/heads/staging` - a fast-forward-only refspec, never a merge, never a force-push, and it fails loudly if `staging` ever moves ahead of `main`. The same canon ships in every family repo (and the coreforge site template). No version bump.

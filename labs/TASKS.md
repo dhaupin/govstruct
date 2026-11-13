@@ -141,3 +141,41 @@ Owner directive: "make sure all the fam has a ff-sync workflow, including the co
 - **The fix (`.github/workflows/staging-ff-sync.yml`).** On every push to `main` (and on `workflow_dispatch`), the job runs `git push origin origin/main:refs/heads/staging` - a fast-forward-only refspec. `git push` refuses a non-fast-forward update, so a divergence fails the job loudly instead of rewriting history; never a merge, never a force-push.
 - **The canon.** Byte-identical to coreforge's copy (`staging-ff-sync.yml`, the monoforge#20 shape), so the family's plumbing is one file. The coreforge site template already ships it (`templates/site/.github/workflows/staging-ff-sync.yml`), so a stamped repo inherits it from birth.
 - **No version bump** - CI plumbing, no product surface.
+
+### 2026-11-12 - session: the island sees the whole family (interop)
+
+The family release-readiness pass (owner-driven) swept all eight island sites. One interop defect: the `/status` island hand-types its sibling set, and this site's set had drifted - this site listed five members, missing `gamestruct` and `memstruct`. Both members already serve the family-status@1 dialect, so this page simply could not render them.
+
+- **The fix.** `web/src/components/FamilyStatusIsland.jsx` now lists every other family member, and `web/public/_headers` `connect-src` gains `https://gamestruct.creadev.org` and `https://memstruct.creadev.org` (the reader half - CSP governs `fetch()` before any CORS header). The reader-clause guard stays green.
+- **The sibling census (receipts).** Eight sites carry the island: eyestruct, crashtest, poststruct, packstruct, govstruct, monoforge, gamestruct, memstruct. Only `memstruct` listed all eight; the rest were missing the two newest members. All eight are now aligned (self handled per each site's own convention - crashtest/govstruct/monoforge exclude self, the rest include it).
+- **Battery.** `npm test` green after the change.
+- **The parent receipt.** The full pass (CSP sweep = no live bug remains; `npm audit --omit=dev` = 0 vulnerabilities across all eleven packages; `npm pack --dry-run` clean; two railyard ledger drifts fixed) lives in `dhaupin/railyard` (`CHANGELOG.md` + `labs/TASKS.md`).
+- **No version bump.**
+
+### 2026-11-12 - session: the roster admits the two newest members
+
+Owner ask: close the membership gap found in the interop pass - `memstruct` and `gamestruct` were missing from the roster the islands could not see.
+
+- **Role ruling (receipts).** PRD section 3.1: `arm` is one of the five verification arms and "five arms is final" (section 3.2); `product` is "a shipped tool or site governed by the suite." memstruct (npm 0.9.0, memory interchange) and gamestruct (npm 1.2.1, the semantic tree / a11y lane) are shipped products, so both are `product`, `status` Live, `section` open-source.
+- **Order (receipts).** The add-a-member precedent: "The reference roster is data, not code: member 24 is a block file plus a doctor run, never a PRD edit." Appended at the tail: `order` 24 (memstruct), 25 (gamestruct) - order is a display hint (PRD section 4), collisions refuse, ties fall to id sort.
+- **Files.** `members/memstruct.json`, `members/gamestruct.json`; `compliance/memstruct.json`, `compliance/gamestruct.json` (floors from each `engines.node` - `>=22` / `>=18`; `version.repo` 0.9.0 / 1.2.1). Re-rendered the emitted surfaces; added both ids to `names.reserved`.
+- **Test counts.** `test/registry.test.mjs` and `test/cli.test.mjs` pinned the old 23-member roster; both move to 25. `doctor` green at 25; `npm test` 280 pass / 0 fail.
+- **Historical prose left as-is.** The `23 members` mentions in `labs/prd-govstruct.md` and `labs/TASKS.md` are dated receipts of the state at authoring; rewriting them would falsify the log.
+- **No version bump.**
+
+
+### 2026-11-12 - session: the Dependabot flow lands (railyard#31)
+
+- **Change.** Added `.github/dependabot.yml` (weekly Monday, grouped minor/patch, majors alone, plus the `github-actions` ecosystem). npm directories `/`, `/web`.
+- **Shape (receipt).** `dhaupin/creadev` PR #38 (`fca49c6`); the family-wide rollout is tracked on `dhaupin/railyard#31`.
+- **Guard.** railyard's `scripts/check-dependabot.cjs` (the shape) + `scripts/check-dependabot.test.cjs` (it bites), wired into railyard CI.
+- **No version bump.**
+
+### 2026-11-12 - session: the v1.1.1 cut
+
+The family release-readiness pass (owner-driven). This repo's cut:
+
+- **Version.** `1.1.0 -> 1.1.1` (package.json + `web/package.json` riding the root + the README status line). A patch: the roster admits `memstruct`/`gamestruct`, the docs caller triggers on `site.config.js`, the battery carries the eyestruct arm, and the family floors move.
+- **Changelog.** `## [Unreleased]` cut to `## [1.1.1] - 2026-11-12`; entries stay verbatim.
+- **Announcement.** `docs/discussions/announcing-v1.1.1.md` + the index row.
+- **Release.** Branch -> PR -> `staging` -> PR -> `main`, then the `v1.1.1` tag drives the OIDC ladder.

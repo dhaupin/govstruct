@@ -19,6 +19,8 @@ const SIBLINGS = [
   { name: 'packstruct', origin: 'https://packstruct.creadev.org', page: 'https://packstruct.creadev.org/status' },
   { name: 'crashtest', origin: 'https://crashtest.creadev.org', page: 'https://crashtest.creadev.org/status' },
   { name: 'monoforge', origin: 'https://monoforge.creadev.org', page: 'https://monoforge.creadev.org/status' },
+  { name: 'gamestruct', origin: 'https://gamestruct.creadev.org', page: 'https://gamestruct.creadev.org/status' },
+  { name: 'memstruct', origin: 'https://memstruct.creadev.org', page: 'https://memstruct.creadev.org/status' },
 ]
 
 function legSummary(legs) {
