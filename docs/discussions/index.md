@@ -14,7 +14,7 @@ Prose on these pages flows - paragraphs keep their natural length, and nothing i
 ## The conventions
 
 - **One file per release, named after it.** `announcing-vX.Y.Z.md`, matching the npm version on the day the post is drafted. Never reuse a filename; if a release gets a retry, fold the delta into the same post instead.
-- **Frontmatter contract.** Same four required fields every docs page gates on (`permalink`, `layout`, `title`, `description`) plus `version`. The permalink is `discussions/announcing-vX.Y.Z`.
+- **Frontmatter contract.** Same four required fields every docs page gates on (`permalink`, `layout`, `title`, `description`) plus `version`. The permalink is `discussions/announcing-vX.Y.Z/` - the trailing slash matters: a dotted, slashless slug makes Jekyll emit an extensionless file freestruct's scanner never sees, dropping the post from the sitemap.
 - **Voice and facts.** The same rules every page here gates on (the style/voice checker plus the fiction-signature scanner): no marketing language, and every number and claim verified against the shipped artifact before it lands. If you cannot run it, do not write it.
 - **Timing.** Draft the post against the released version, not the dev tree: cite what shipped in the npm tarball, and keep unreleased changelog rows out of it. A post describing a version that is not on npm yet is fiction by promotion. A post staged before its publish lands as a draft publicly marked "staged pending npm" in this index, and the draft marker comes off in the same commit that first serves the version - never earlier.
 - **Gates.** `npm run lint:docs` runs on these files like everything else - frontmatter, heading levels, the dash and cliche scans, fiction signatures, and the Jekyll filter trap.
@@ -23,7 +23,7 @@ Prose on these pages flows - paragraphs keep their natural length, and nothing i
 
 | post | version | live |
 | --- | --- | --- |
-| [Announcing govstruct v0.9.0](/govstruct/discussions/announcing-v0.9.0) | 0.9.0 | yes - the controller layer's first release line, the manual bootstrap on npm |
-| [Announcing govstruct v1.1.0](/govstruct/discussions/announcing-v1.1.0) | 1.1.0 | staged for the v1.1.0 tag |
-| [Announcing govstruct v1.0.0](/govstruct/discussions/announcing-v1.0.0) | 1.0.0 | 2026-11-03 on npm |
-| [Announcing govstruct v1.1.1](/govstruct/discussions/announcing-v1.1.1) | 1.1.1 | staged for the v1.1.1 tag |
+| [Announcing govstruct v1.1.1](/govstruct/discussions/announcing-v1.1.1/) | 1.1.1 | 2026-11-13 on npm |
+| [Announcing govstruct v1.1.0](/govstruct/discussions/announcing-v1.1.0/) | 1.1.0 | 2026-11-06 on npm |
+| [Announcing govstruct v1.0.0](/govstruct/discussions/announcing-v1.0.0/) | 1.0.0 | 2026-11-03 on npm |
+| [Announcing govstruct v0.9.0](/govstruct/discussions/announcing-v0.9.0/) | 0.9.0 | 2026-11-02 on npm - the controller layer's first release line, the manual bootstrap |

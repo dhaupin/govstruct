@@ -190,3 +190,10 @@ Unblocked by prestruct 1.5.0 (it widened its peer ceilings `react`/`react-dom` `
 - **web/vite.config.js.** `manualChunks` is a FUNCTION (the object form vite <=7 accepted is rejected by rolldown); `minify: 'esbuild'` dropped (esbuild unbundled, oxc default).
 - **Proof.** The site bakes 8/8 pages, audit 0 failures, on the new matrix; the repo's own battery + `check` stay green.
 - **No version bump** (the repo's own landing site, not the shipped surface; the crashtest `deps: web toolchain` precedent).
+
+
+---
+
+### 2026-11-13 (cont.) - the release posts were invisible to the sitemap (permalink shape)
+
+Every `docs/discussions/announcing-vX.Y.Z.md` carried a dotted, slashless permalink; Jekyll emits the page extensionless (Ruby reads the `.0` as a file extension) and freestruct's `.html`/`.htm` scanner never sees it - no sitemap `<loc>`, no og/canonical, though the pages serve 200. The live sitemap listed none of them. Fix: trailing-slash every permalink; rebuild the index (rows link the slash form, newest first, stale "staged for the tag" markers corrected against the registry). Two biting tests in the post-permalinks test. Ported from eyestruct.
