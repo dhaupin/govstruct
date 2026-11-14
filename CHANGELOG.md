@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### 2026-11-14 - the npm package link joins every surface (parity pass)
+
+The package was on npm but the shell's own docs never said so. The npm URL is now authored ONCE in `site.config.js` (`npm`), fanned into the generated docs config (`docs/_config.yml` `npm_url`) by `npm run sync`, and rendered by the docs footer; the landing nav carries the entry from the same identity file. A new `test/npm-parity.test.mjs` proves the chain end to end against `package.json`, so a rename or a dropped surface reds instead of shipping a package nobody can find. No version bump.
+
 ### 2026-11-13 - the release posts were invisible to the SEO pipeline (permalink shape)
 
 Every `docs/discussions/announcing-vX.Y.Z.md` carried a dotted, slashless permalink (`permalink: discussions/announcing-vX.Y.Z`). Jekyll reads the `.0` as a file extension and emits the page EXTENSIONLESS on disk; freestruct's page scanner matches only `.html`/`.htm`, so the posts were invisible to the post-build layer - no sitemap `<loc>`, no og/canonical - though they served 200. The live sitemap listed none of them. The trailing-slash form (`discussions/announcing-vX.Y.Z/`) emits `<slug>/index.html` and is seen. The index is rebuilt: every row links the slash form, ordered newest first, and the stale "staged for the tag" markers are corrected against the registry. Two biting tests in `test/docs-post-permalinks.test.mjs`. Ported from eyestruct (the same bug, fixed there first).

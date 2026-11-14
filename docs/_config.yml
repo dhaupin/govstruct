@@ -9,6 +9,7 @@ description: "The controller layer for a family of repos: one manifest of member
 # Identity the layout renders (docs/_layouts/default.html reads these; the
 # brand census gate keeps the layout from hardcoding any of them).
 repo: https://github.com/dhaupin/govstruct
+npm_url: https://www.npmjs.com/package/govstruct
 brand_accent: gov
 brand_rest: struct
 maker_label: Rook @ Creadev.org
