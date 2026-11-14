@@ -1,5 +1,5 @@
 ---
-permalink: discussions/announcing-v1.1.0
+permalink: discussions/announcing-v1.1.0/
 layout: default
 title: Announcing v1.1.0
 description: v1.1.0 ports the concurrency lever into the online doctor, lands the coreforge rename in the manifest, and moves the docs lane to the family canon.

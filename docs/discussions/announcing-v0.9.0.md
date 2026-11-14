@@ -1,5 +1,5 @@
 ---
-permalink: discussions/announcing-v0.9.0
+permalink: discussions/announcing-v0.9.0/
 layout: default
 title: Announcing v0.9.0
 description: v0.9.0 ships the controller layer - one manifest of members, the render surfaces, the doctor gate, the check packs, and the suite roll-up, on npm as the manual bootstrap release.
