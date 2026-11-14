@@ -1,5 +1,5 @@
 ---
-permalink: discussions/announcing-v1.0.0
+permalink: discussions/announcing-v1.0.0/
 layout: default
 title: Announcing v1.0.0
 description: v1.0.0 ships the surface stability contract, starter pin floors, the pending annotation, refusals not warnings, and the family release ladder.

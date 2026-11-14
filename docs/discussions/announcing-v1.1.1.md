@@ -1,5 +1,5 @@
 ---
-permalink: discussions/announcing-v1.1.1
+permalink: discussions/announcing-v1.1.1/
 layout: default
 title: Announcing govstruct v1.1.1
 description: govstruct v1.1.1 - the roster admits the two newest family members, the docs lane triggers on site.config.js, the battery carries the eyestruct arm, and the family floors move.
