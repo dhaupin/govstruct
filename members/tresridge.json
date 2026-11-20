@@ -1,0 +1,32 @@
+{
+  "id": "tresridge",
+  "name": "Tresridge",
+  "role": "arm",
+  "url": "https://tresridge.creadev.org",
+  "repo": "dhaupin/tresridge",
+  "npm": "tresridge",
+  "aliases": [],
+  "home": null,
+  "blurb": "The .tres relation standard: one edge grammar, one resolution contract, many hosts. Speaks packstruct v1 as both host and producer.",
+  "icon": "tresridge",
+  "order": 26,
+  "status": "Live",
+  "section": "open-source",
+  "needs": [
+    {
+      "id": "packstruct",
+      "floor": ">=1"
+    }
+  ],
+  "grants": [],
+  "pending": {
+    "resources": [
+      "npm"
+    ],
+    "note": "the landing (tresridge.creadev.org on Cloudflare Pages) is live; the npm name is declared but not yet published - git at a pinned tag is the interim transport for consumers"
+  },
+  "clause": {
+    "9001-8.5.1": "tresridge lint: the edge grammar, enforced over a host's own tree",
+    "27001-A.8.28": "tresridge lint: a refusal names its code, its record, and its pack"
+  }
+}
