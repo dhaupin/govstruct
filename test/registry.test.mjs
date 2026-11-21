@@ -13,7 +13,7 @@ const ROOT = join(HERE, '..')
 
 test('the roll-up carries the member count and a manifest checksum', () => {
   const r = suiteRegistry(ROOT)
-  assert.equal(r.memberCount, 25)
+  assert.equal(r.memberCount, 26)
   assert.match(r.manifest, /^sha256:[0-9a-f]{64}$/)
 })
 
@@ -26,7 +26,7 @@ test('the roll-up gathers floors from the compliance blocks', () => {
 
 test('the roll-up reports the role census', () => {
   const r = suiteRegistry(ROOT)
-  assert.equal(r.byRole.arm, 5)
+  assert.equal(r.byRole.arm, 6)
   assert.equal(r.byRole.forge, 2)
   assert.equal(r.byRole.composer, 1)
 })
