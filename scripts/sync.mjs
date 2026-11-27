@@ -57,6 +57,7 @@ description: ${yamlStr(s.description)}
 # Identity the layout renders (docs/_layouts/default.html reads these; the
 # brand census gate keeps the layout from hardcoding any of them).
 repo: ${yamlStr(s.repo)}
+npm_url: ${yamlStr(s.npm)}
 brand_accent: ${yamlStr(s.wordmark.accent)}
 brand_rest: ${yamlStr(s.wordmark.rest)}
 maker_label: ${yamlStr(s.maker.label)}

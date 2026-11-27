@@ -25,6 +25,7 @@ export default {
     'The controller layer for a family of repos: one manifest of members, one render surface per deployment shape, one doctor verb that verifies every adopter serves the same truth.',
   url: 'https://govstruct.creadev.org',
   repo: 'https://github.com/dhaupin/govstruct',
+  npm: 'https://www.npmjs.com/package/govstruct',
   author: 'dhaupin',
   license: 'MIT',
   keywords:
@@ -68,6 +69,7 @@ export default {
     { label: 'Packs', to: '/packs', group: 'site' },
     { label: 'Status', to: '/status', group: 'site' },
     { label: 'Docs', href: 'https://docs.creadev.org/govstruct/', group: 'out' },
+    { label: 'npm', href: 'https://www.npmjs.com/package/govstruct', group: 'out' },
     { label: 'GitHub', href: 'https://github.com/dhaupin/govstruct', group: 'out' },
   ],
   // Footer-only extras (legal + provenance). Keep legal labels smaller than

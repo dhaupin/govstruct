@@ -1,5 +1,8 @@
 # labs/TASKS.md - govstruct work log
 
+**2026-11-03 - the npm parity gate earned its teeth.** The family law is "a new law ships with a test", but this gate had stopped biting: it passed if any one of several surfaces carried the npm link, so a deleted footer link went unnoticed (measured: docs layout link removed, old gate 3 pass / 0 fail). Rewritten as a predicate over an explicit REQUIRED surface list, resolving the literal URL, {{ site.npm_url }} and {{ site.title }} against docs/_config.yml, with two mutation tests proving a stripped surface and a wrong-package link are both refused. Verified both ways: clean tree green, deleted link red (2 fail). govstruct's docs header renders `{{ site.npm_url }}`, so the gate resolves that var out of docs/_config.yml instead of matching a literal.
+
+
 > Rolling log. Companion to [`labs/prd-govstruct.md`](./prd-govstruct.md) (the
 > product contract). Newest session at top. Struck items are done.
 
@@ -197,3 +200,14 @@ Unblocked by prestruct 1.5.0 (it widened its peer ceilings `react`/`react-dom` `
 ### 2026-11-13 (cont.) - the release posts were invisible to the sitemap (permalink shape)
 
 Every `docs/discussions/announcing-vX.Y.Z.md` carried a dotted, slashless permalink; Jekyll emits the page extensionless (Ruby reads the `.0` as a file extension) and freestruct's `.html`/`.htm` scanner never sees it - no sitemap `<loc>`, no og/canonical, though the pages serve 200. The live sitemap listed none of them. Fix: trailing-slash every permalink; rebuild the index (rows link the slash form, newest first, stale "staged for the tag" markers corrected against the registry). Two biting tests in the post-permalinks test. Ported from eyestruct.
+
+---
+
+### 2026-11-14 - session: the npm link parity pass
+
+Every family project publishes to npm; the project's own surfaces did not always say so. This session closes that gap and holds it with a test.
+
+- **Surfaces.** The docs footer, the docs nav, and the landing nav each link the npm package where they did not before.
+- **Proof.** A new npm-parity test proves each shipped surface links the published `package.json` name, so a rename or a dropped surface reds instead of shipping a package nobody can find.
+- **Battery + lint:docs green.**
+- **No version bump.**
